@@ -554,12 +554,14 @@ cellPadding= 内边距 cellSpacing= 内外间距
 insertRow() 插新行 insertCell() 插新格
 tableObject.vAlign="top|middle|bottom|baseline" 单元格内垂直排列
 .cells属性-单元格
+
 window.scrollBy(x,y)页面指定滚动
 window.createPopup()创建弹出小窗(IE)
 scrollTop是页面上面被隐藏的部分：`scrollTop=document.documentElement.scrollTop ||document.body.scrollTop;`
 offsetTop就是用于定位且不可写入的top值
-
-
+实例保存在堆内存heap,引用保存在栈内存stack.变量也保存在栈中。
+summary适合发现DOM泄露，comparison适合发现内存泄露。
+如果随着时间Memory成阶梯或陡峭攀升有可能是内存泄露。
 
 
 ----------

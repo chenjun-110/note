@@ -1,9 +1,12 @@
-
-
+####性能优化
 1.最好的办法就是不要使用document.write()动态加载脚本
 2.如果一定要使用document.write()加载脚本，使用异步加载的方式，如<script src="..." async> 或使用DOM API element.appendChild()
 
 谷歌白屏时间：`(chrome.loadTimes().firstPaintTime - chrome.loadTimes().startLoadTime)*1000`
+谷歌时间轴：蓝加载，橙脚本，紫渲染，绿绘制。
+FPS、CPU 时间、NET网络通信时间、HEAP堆栈占用
+Interactions 事件列表
+点击链接跳转到sources,代码左边有运行时间。
 304表示已被缓存
 IE8及其之前的IE版本更新间隔为15.6毫秒。假设你设定的setTimeout延迟为16.7ms，那么它要更新两个15.6毫秒才会该触发延时。
 
@@ -13,9 +16,71 @@ base64图片:适用于图片<2KB,重用不多。IE8不得超过32KB。移动端�
 渐进式图片：PS中`存储为web所用格式`JPG勾选`连续`和`转换为sRGB选项`。提高的渲染性能
 图片来源多个域名
 
+预加载：当你mouseenter按钮时，修改图片src并加载。H5有个rel="prefetch"属性也是预加载。
+
+性能优化只应该在瓶颈上做，因为做在非瓶颈上就是浪费资源。
+谷歌、IE9的非省电模式刷新率为4ms
+```
+function runForSeconds(s) {
+    var start = +new Date();
+    while (start + s * 1000 > (+new Date())) {}
+} //按时间算的循环，循环时间内阻塞
+```
+如果GPU渲染频率比屏幕刷新率快，画面会撕裂。垂直同步就是限制GPU频率。
+requestAnimationFrame：脚本延迟时可自动降频30fps。把动画推迟到下一帧。把要推迟的代码放在raf内部。IE11+
+```
+requestAnimationFrame(function(){
+	var el = document.getElementById("foo");
+	var currentWidth = el.innerWidth; //这里访问会导致重绘
+	el.style.backgroundColor = "blue";
+	longrun(); //raf让它先run再重绘
+});
+```
+```
+requestAnimationFrame(function(){
+   el.style.display = "block"; //第1帧显示
+   requestAnimationFrame(function(){
+      el.style.top = "300px"; //第2帧移动
+   }); }); //raf保持了动画连贯性
+```
+```
+var didScroll = false;
+$(window).scroll(function() {
+    didScroll = true;
+});
+setInterval(function() {
+    if ( didScroll ) {
+        didScroll = false;
+        // 执行定位
+    }}, 250) //这里是延迟执行scroll，防止队列堆积卡顿。
+```
+分解长时间循环： 老式for循环会读取DOMoffset会reflow,设置css会repaint。
+```
+function chunk(array, process, context){
+    var items = array.concat();   //clone the array
+    setTimeout(function(){  //延迟1
+        var item = items.shift();
+        process.call(context, item); //处理
+        if (items.length > 0){
+            setTimeout(arguments.callee, 100); //延迟并循环2
+        } }, 100);}
+```
+UI线程和JS线程互斥，但CSS动画可以。transform: translateZ(0);和transform: translate3d()；可以触发游览器GPU加速。
+改变盒子尺寸的Layer原理步骤：function->style->Layout:(width/margin/top..)->Paint Setup:->Paint:(阴影、圆角、背景、框线)->Composite Layers:(transform/opacity)。
+创建独立Layer的条件之一：3D属性，加速解码的video,3D的canvas,flash等插件，CSS动画,CSS滤镜，有后代或相邻元素是独立layer。
+window.performance.getEntries()[0]
+读写不可在同一条语句内，读取的值一定要传给变量。
+先变色，再调尺寸位置。调尺寸时用+=。
+
+
+
+###坑
+只有IE的JS报错，编码的问题。
+DW编辑器：ctrl+j改编码
+
 
 ------------------------------------------------------------------
-
+####高性能js笔记
 第一章 加载和运行
 原因：js单线程引起阻塞。每个`<script>`无论是内联外联在下载和运行时都会暂停。js下载后会运行，而运行会阻止下面的脚本下载(IE8`<script>`可以同时下载，仅限script)。
 在body之前是不会进行渲染的。
@@ -224,3 +289,25 @@ image.onerror=function(){//错误时}
 //发送204 No Content可让客户端不等待响应
 ```
 数据格式:
+1.json:使用('('+responsetext+')')转数组？，数组格式文件最小。
+2.jsonp解析速度最快，缺点是动态注入权限太大不安全。
+  服务端传html直接innerHTML时虽不用解析但下载慢。
+3.自定义格式：用不同的分隔符把字符串分隔，组成某种结构。用split()解析，比json快。分隔符：单字符，数据中不得含有。
+  步骤：先解析成大数组->再解析成多维数组->再把多维数组赋值索引形成数组。
+4.不请求的方法：
+  1.服务端设置http头，缓存响应报文。必须GET。Expires头是缓存时间。2.客户端缓存已请求数据。
+  PHP设置Expires`$lifetime=7*24*60*60 //7天GMT时间 header('Expires:'.gmdate('D,d M Y H:i:s,time()+$lifetime).'GMT');//设置缓存`
+5.运行字符串代码：eval,function,setTimeout,setInterval。解析字符串速度比直接函数慢几十倍，定时器最好别用字符串参数。
+数组和对象的直接量法更快。
+6.优化兼容性代码：1适合延迟加载，2适合预加载。
+  1.用户调用之后的第1次判断之后函数内部直接覆盖掉该兼容函数。`function a(){if(存在){a=function(){..}}}; a();`
+  2.用户调用之前覆盖`var a=document.body?function1():function2();`
+7.位运算很快。循环中可试试。Math对象很快。
+第九章
+gzip是压缩文本文件的。
+缓存一切静态内容,包括js。重命名静态资源即可更新。
+HTML5离线缓存，<html manifest="demo.manifest">。
+CDN会就近选择可降低延迟。
+PHP的smasher.php是自动化压缩工具，合并压缩js。
+性能分析工具应优化最慢的地方，因为可能在其他游览器上适得其反。
+匿名函数不利于被工具捕捉。
