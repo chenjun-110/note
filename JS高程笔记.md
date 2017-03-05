@@ -895,14 +895,45 @@ dispatchEvent() 触发事件，能冒泡
 模拟点击：
 ```
 var btn=document.getElementById("myBtn");
-var event = document.createEvent("MouseEvents"); //创建事件
+var event = document.createEvent("MouseEvents"); //创建鼠标事件
 event.initMouseEvent("click",true,true,document.defaultView,0,0,0,0,0,false,false,false,false,0,null);//初始化事件
 btn.dispatchEvent(event); //触发```
-
-
-
-
-
+模拟同时按shift键和A键：
+```
+if (document.implementation.hasFeature("KeyboardEvents","3.0")){ //DOM3和DOM2键盘事件不一样
+    event = document.createEvent("KeyboardEvent");
+    event.initKeyboardEvent("Keydown",true,true,document.defaultView,"a",0,"Shift",0);} //初始化事件对象
+btn.dispatchEvent(event);//触发```
+火狐中键盘事件是KeyEvents,初始化是initKeyEvent()，参数见p408。
+模拟DOMNodeInserted事件：（子节点被插入时）
+```
+var event = document.createEvent("MutationEvents"); //创建变动事件
+event.initMutationEvent("DOMNodeInserted",true,false,someNode,"","","",0);
+target.dispatchEvent(event);```
+模拟focus事件：
+```
+var event = document.createEvent("HTMLEvents"); //创建HTML事件
+event.initEvent("focus",true,false); //初始化focus
+target.dispatchEvent(event);```
+模拟自定义事件：IE9+
+```
+EventUtil.addHandler(document,"myevent",function(event){ //绑定myevent事件
+    alert(event.detail);});
+if (document.implementation.hasFeature("CustomEvents","3.0")){
+    event = document.createEvent("CustomEvent"); //创建自定义事件
+    event.initCustomEvent("myevent",true,false,"Hello world!"); //初始化为myevent事件
+    div.dispatchEvent(event);}```
+模拟点击事件：IE8
+```
+var event = document.createEventObject(); //创建事件对象
+event.screenX = 100; event.screenY = 0; event.clientX = 0; event.clientY = 0; event.ctrlKey = false;event.altKey = false;event.shiftKey = false; event.button = 0; //只能手动初始化
+btn.fireEvent("onclick",event); //触发事件 同时添加srcElemtn和type属性。```
+####第14章 表单脚本
+HTMLFormElement继承自HTMLElement，特有属性有：acceptCharset-字符集 action-请求的url elements-表单内所有控件集合 enctype-编码 length method name reset()-域重置为默认 submit() target-请求和响应的窗口。
+document.forms["name"] 获取表单就靠name属性
+事件：type="submit"表单提交前form会触发submit事件。form.submit()也可提交表单，但不会触发submit事件。
+重复提交：1.提交后禁用提交按钮。2.onsubmit的prevetnDefault()可阻止提交。
+重置：type="reset"
 
 
 
