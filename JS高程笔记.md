@@ -930,13 +930,18 @@ event.screenX = 100; event.screenY = 0; event.clientX = 0; event.clientY = 0; ev
 btn.fireEvent("onclick",event); //触发事件 同时添加srcElemtn和type属性。```
 ####第14章 表单脚本
 HTMLFormElement继承自HTMLElement，特有属性有：acceptCharset-字符集 action-请求的url elements-表单内所有控件集合 enctype-编码 length method name reset()-域重置为默认 submit() target-请求和响应的窗口。
-document.forms["name"] 获取表单就靠name属性
-事件：type="submit"表单提交前form会触发submit事件。form.submit()也可提交表单，但不会触发submit事件。
-重复提交：1.提交后禁用提交按钮。2.onsubmit的prevetnDefault()可阻止提交。
-重置：type="reset"
-
-
-
+`document.forms["name"]` 获取表单就靠name属性
+提交：type="submit"表单提交前form会触发submit事件。`form.submit()`也可提交表单，但不会触发submit事件。
+禁止重复提交：1.提交后禁用提交按钮。2.onsubmit的`prevetnDefault()`可阻止提交。通过监听提交事件做到的。某些游览器click事件先于submit，所以第2种方法较好。
+重置：type="reset"和`form.reset()`重置表单都会触发reset事件。
+`form.elements[n/"name"]` 表单内所有元素,有多个相同name元素返回集合。
+各组件的form属性指向form元素。
+焦点：onload后的`focus()`或H5的autofocus属性可以吸引注意力,禁止用在隐藏元素上。非表单元素设置`tabIndex=-1`也能调用focus（）。blur()
+事件：失焦-触发blur：常用于恢复颜色 焦点-触发focus：常用于修改颜色 input/textarea失焦且修改value和select修改选项-触发change:常用于验证数据。 onblur和onchange顺序在不同游览器上不同。
+value属性:修改value值时不要用DOM方法，而是`input.value`直接用。
+选中：手选文本或调用`select()`选择文本-触发select事件。
+获取选中：IE9+的H5属性可取得文选区开头和结尾的偏移量。`textbox.value.substring(textbox.selectionStart,textbox.selectionEnd);`setSelectionRange(n,n+1)功能类似。 IE8的`document.selection.createRange().text;`不过它保存的是整个文档的选中，需配合onselect使用.IE8的js选中比较繁琐，步骤：createTextRange()->collapse(true)->moveStart()->moveEnd()->select();
+要看到选中效果必须获得焦点。
 
 
 
