@@ -942,11 +942,18 @@ value属性:修改value值时不要用DOM方法，而是`input.value`直接用�
 选中：手选文本或调用`select()`选择文本-触发select事件。
 获取选中：IE9+的H5属性可取得文选区开头和结尾的偏移量。`textbox.value.substring(textbox.selectionStart,textbox.selectionEnd);`setSelectionRange(n,n+1)功能类似。 IE8的`document.selection.createRange().text;`不过它保存的是整个文档的选中，需配合onselect使用.IE8的js选中比较繁琐，步骤：createTextRange()->collapse(true)->moveStart()->moveEnd()->select();
 要看到选中效果必须获得焦点。
-
-
-
-
-
+屏蔽字符：监听keypress事件并阻止默认。可把文本框变为只读。
+```
+//监听keypress,屏蔽非数字字符，屏蔽上下左右键、屏蔽ctrl组合键
+var charCode = EventUtil.getCharCode(event);
+if (!/\d/.test(String.fromCharCode(charCode)) && charCode > 9 && ！event.ctrlKey){ 
+	EventUtil.preventDefault(event);}
+```
+剪贴板事件：copy cut paste复制剪切粘贴时 beforecopy beforecut beforepaste复制剪切粘贴前。IE都会触发，其他游览器的before只在上下文触发。阻止默认只能用在前者。
+访问剪贴板数据：IE `window.clipboardData`可在任何时候访问。 其他游览器 `event.cliboardData`只在剪贴板事件中访问。
+clipboardData：getData()取得数据，参数为数据格式:IE是"text"和"URL",其他是MIME类型。setData()1参也是数据格式，2参是value，成功返true。还一个clearData()。
+自动切换焦点：步骤：先判断target.value.length==target.maxLength->再遍历表单元素并判断form.elements[i]==target->跳转焦点form.elements[i+1].focus();记得监听keyup。
+H5验证：required属性-不能提交空表单。检测`"required" in document.createElement("input");` pattern属性是正则-用来约束输入字段的。
 
 
 
