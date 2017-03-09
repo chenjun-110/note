@@ -1,6 +1,7 @@
 ####性能优化
 1.最好的办法就是不要使用document.write()动态加载脚本
 2.如果一定要使用document.write()加载脚本，使用异步加载的方式，如<script src="..." async> 或使用DOM API element.appendChild()
+cookie：A页面设置document.cookie = xxxxx; B页面读取document.cookie.split()[n]；split什么看你存的格式。
 
 谷歌白屏时间：`(chrome.loadTimes().firstPaintTime - chrome.loadTimes().startLoadTime)*1000`
 谷歌时间轴：蓝加载，橙脚本，紫渲染，绿绘制。
@@ -20,6 +21,21 @@ base64图片:适用于图片<2KB,重用不多。IE8不得超过32KB。移动端�
 
 性能优化只应该在瓶颈上做，因为做在非瓶颈上就是浪费资源。
 谷歌、IE9的非省电模式刷新率为4ms
+函数节流：1.throttle思路，如下。2.debounce思路，调用结束计时延迟执行，连续触发则重新计时。
+```
+function throttle(fn, delay, atleast) {
+	var timeout = null,
+	startTime = new Date(); //
+	return function() {
+		var curTime = new Date();
+		clearTimeout(timeout);
+		if(curTime - startTime >= atleast) { 
+		    fn();
+		    startTime = curTime; //
+		}else {
+		    timeout = setTimeout(fn, delay); //连续触发则延时调用
+		}}}
+```
 ```
 function runForSeconds(s) {
     var start = +new Date();

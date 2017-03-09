@@ -647,7 +647,7 @@ function outputAttributes(element){
     for (i=0, len=element.attributes.length;i<len;i++){
       attrName = element.attributes[i].nodeName;
       attrValue = element.attributes[i].nodeValue;
-      if (element.attributes[i].specified) {
+      if (element.attributes[i].specified) { //判断属性是否存在，功能类似ele.hasAttribute("")
         pairs.push(attrName + "=\"" + attrValue + "\"");}}
     return pairs.join(" ");}
 ```
@@ -954,15 +954,21 @@ if (!/\d/.test(String.fromCharCode(charCode)) && charCode > 9 && ！event.ctrlKe
 clipboardData：getData()取得数据，参数为数据格式:IE是"text"和"URL",其他是MIME类型。setData()1参也是数据格式，2参是value，成功返true。还一个clearData()。
 自动切换焦点：步骤：先判断target.value.length==target.maxLength->再遍历表单元素并判断form.elements[i]==target->跳转焦点form.elements[i+1].focus();记得监听keyup。
 H5验证：required属性-不能提交空表单。检测`"required" in document.createElement("input");` pattern属性是正则-用来约束输入字段的。
-
-
-
-
-
-
-
-
-
+checkValidity()检测表单或表单输入有效返true。validity属性有9个布尔属性能告诉你无效的具体位置-P430。
+禁用验证：novalidate-表单标签属性 formnovalidate-表单元素标签属性
+<select>的属性方法:add(new,old)插入新<option>,multiple为true允许多选，options[]为<option>集合，remove(n)移除选项，selectedIndex选中项索引，多选只存首项，不选为-1，size选项可见行数。value的值一般等于选中项的value，不选为"",多选为首项，未指定时IE8返"",IE9+返text。
+<option>的属性：index索引，label,selected为true是已选，text文本，value。注意：操作数据不需要DOM方法，直接用默认属性。选项的change事件不需要失焦只需改值。
+`select.options[select.selectedIndex]`访问已选项 `selected=true`可用来设置多选。
+创建option标签：1.DOM创建插入 2.创建new Option(text,value) 插入末尾add(new,undefined)//IE不支持appendChild。要插在其他位置只能方法1。
+移除option标签：1.select.removeChild(select.options[0]) 2.select.remove(0) 3.select.options[0]=null 。
+移动选项：appendChild()妙用：传入为文档已有元素会先移除它再插入并重置索引。
+重排选项：用insertBefore()。
+**富文本**：可编辑状态:1.frames[].document.designMode="on" 2.`contenteditable`标签属性,适用所有元素。
+设置功能：document.execCommand(命令,false,值) P409
+检测功能：queryCommandEnabled("") 命令可用返true。
+富文本选区：window/document(IE).getSelection() p442 它有很多属性方法操作当前选择文本和DOM范围。例如：toString()取得选择文本，getRangAt(0)取得选区范围。另外range.text也可取得选择文本
+文本高亮：1.DOM范围：`range.pasteHTML("<span>"+range.htmlText+"</span>")` 2.选区范围:`range.surroundContents(span)` 把文本放入高亮标签即可。这里的range1是创建范围，range2是富文本创建范围。
+提交：`target.elements[].value=frames[].document.body.innerHTML`因为富文本采用的是框架不会自动提交，所以需要隐藏表单控件并监听submit事件。要点：只要记住是把值传到隐藏表单value提交即可。
 
 
 

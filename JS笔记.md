@@ -587,3 +587,6 @@ element.currentStyle近似于getComputedStyle （只支持IE)
 
 replace(字符1,字符2) 替换字符2->1
 setAttribute(key,value) 设置属性
+
+##兼容
+谷歌是new Date('2013-10-21')，Safari是new Date('2013/10/21');
