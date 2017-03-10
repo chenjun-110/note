@@ -969,12 +969,20 @@ checkValidity()检测表单或表单输入有效返true。validity属性有9个�
 富文本选区：window/document(IE).getSelection() p442 它有很多属性方法操作当前选择文本和DOM范围。例如：toString()取得选择文本，getRangAt(0)取得选区范围。另外range.text也可取得选择文本
 文本高亮：1.DOM范围：`range.pasteHTML("<span>"+range.htmlText+"</span>")` 2.选区范围:`range.surroundContents(span)` 把文本放入高亮标签即可。这里的range1是创建范围，range2是富文本创建范围。
 提交：`target.elements[].value=frames[].document.body.innerHTML`因为富文本采用的是框架不会自动提交，所以需要隐藏表单控件并监听submit事件。要点：只要记住是把值传到隐藏表单value提交即可。
-
-
-
-
-
-
+####第15章 Canvas
+取得2d上下文 ：cava_div.getContext("2d") ，老游览器没有这个方法需判断存在。
+截屏cava :cava_div.toDataURL("image/png") ，返回url再传给image.src即可。注意画布图像必须同域名。
+width和height表示水平向右和垂直向下的可用像素数。
+描边和填充 ：context.strokeStyle context.fillStyle ，值可以是字符串、渐变对象、模式对象、任何格式的颜色/默认#000。
+矩形 ：fillRect()、strokeRect()、clearRect()。 x，y，宽，高 clearRect可删除矩形图区
+绘制路径之前： beginPath()
+绘制弧线： arc() 
+从上点接着绘制 ->弧线 arcTo() ->曲线 bezierCurveTo() ->直线 lineTo() ->二次曲线 quadraticCurveTo() ->矩形路径 rect()
+移动绘图游标： moveTo() 不画线，画完一个图必须用这个画下一个。
+绘制路径完毕： closePath()
+填充路径：fill() 路径描边：stroke()。 只有这样才能显示在画布上，这里使用的颜色是strokeStyle、fillStyle来的。
+剪切路径： clip()
+判断某点是否位于路径上 ：context.isPointInPath(x,y)
 
 
 
