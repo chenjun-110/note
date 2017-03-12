@@ -977,36 +977,114 @@ width和height表示水平向右和垂直向下的可用像素数。
 矩形 ：fillRect()、strokeRect()、clearRect()。 x，y，宽，高 clearRect可删除矩形图区
 绘制路径之前： beginPath()
 绘制弧线： arc() 
-从上点接着绘制 ->弧线 arcTo() ->曲线 bezierCurveTo() ->直线 lineTo() ->二次曲线 quadraticCurveTo() ->矩形路径 rect()
+从上点接着绘制: ->弧线 arcTo() ->曲线 bezierCurveTo() ->直线 lineTo() ->二次曲线 quadraticCurveTo() ->矩形路径 rect()
 移动绘图游标： moveTo() 不画线，画完一个图必须用这个画下一个。
 绘制路径完毕： closePath()
 填充路径：fill() 路径描边：stroke()。 只有这样才能显示在画布上，这里使用的颜色是strokeStyle、fillStyle来的。
 剪切路径： clip()
 判断某点是否位于路径上 ：context.isPointInPath(x,y)
+绘制文本：fillText() strokeText() 这里使用的颜色是strokeStyle、fillStyle来的。还有font textAlign textBaseline等context属性。
+测量文本： context.measureText().width
+变换： rotate() scale() translate()改变原点 transform() setTransform()
+保存设置：save() 每次调用就保存到栈
+恢复设置：restore() 每次调用返回上一级，不会删除图像。
+绘制图像：drawImage(img,x,y) 可将image标签或另一cavas标签画到画布里
+阴影：shadowColor shadowOffsetX/Y shadowBlur
+渐变：createLinearGradient() 设置色标addColorStop()最少调用2次 createRadiaGradient() 想象2个圆桶开口的圆锥体，移动小圆桶位置达到类似旋转圆锥体。
+```
+function createRectLinearGradient(context,x,y,width,height){
+    return context.createLinearGradient(x,y,x+width,y+heght);
+}//这样就能在fillRect()里使用相同的坐标，不用担心渐变色显示不全。
+```
+模式：createPattern(img/cava/video,"repeat-x") 类似平铺
+图像数据：getImageData()获取画布数据，putImageData()把数据应用到画布。data属性是数组，每4个是1个像素的红、绿、蓝、透明值。第5个是下1个像素的红。步骤：1.通过修改data数组2.并回写数据getImageData().data=data再3.应用putImageData()即可。例如：彩色变黑白，是取红绿蓝的平均值赋值给红绿蓝。必须同域名。
+全局透明度： globalAlpha=0设置后后续所有操作都会应用该透明度。
+合成：globalCompositeOperation属性 destination-over后画在下 lighter重叠高亮 copy后画替换先画 xor重叠执行"异或" 还有其他属性，该函数主要是处理后画与先画之间关系的。
+**WebGL**是canvas的3D上下文，它基于OpenGL2.0。
+类型化数组：`new ArrayBuffer(20)` 访问byteLength属性得出内存里保存了20B字节。
+数组缓冲器视图：`new DataView(buffer,字节偏移，字节数)` 偏移量在`byteOffset`属性,字节数在`byteLength`属性,`buffer`属性指向数组缓冲器。
+读写时要根据相应数据类型：8种方法。get/set+Int/Uint/Float+8/16/32() view.getInt8()是读取有符号8位整数。
+不同数据类型内存不一样：无符号8位整数要1B，32位浮点数要4B。16位用2B。如果保存的第1个占2B，第2个保存的偏移量就是2。如果用8位取存的16位，那就只会取前8位2进制。
+类型化视图：继承自DataView的进化版，可简化操作二进制。`Int/Uint+8/16/32+Array()`：8位二补整数或8位无符号整数 `Float32/64Array()`：32位IEEE浮点数。
+占位：20B的ArrayBuffer可保存20个8位、10个16位、5个32位、2个64位。Uint8Array.`BYTES_PER_ELEMENT`属性值是1，该属性表示类型化数组每个元素需要多少字节。Float32Array是4。
+```
+var int8s = new Int8Array(buffer,0,10*Int8Array.BYTES_PER_ELEMENT);
+//10个元素空间。
+var uint16s = new Uint16Array(buffer,int8s.byteOffset+int8s.byteLength,5*Uint16Array.BYTES_PER_ELEMENT);
+//注意这里的属性运用，1参是buffer，2参是偏移，3参是5个元素空间。
+```
+```
+//常用方式,不用手动newArraybuffer了，传参自动new。
+var int8s = new Int8Array(10); 创建一个数组保存10个8位整（10B），如果字节数不够，赋值时实际保存值变成值的模。
+var int8s = new Int8Array([10,20,30,40,50]) 传数组参保存5个8位整（10B）
+var sub = int8s.subarray(2,4);在大视图的基础上创建小视图。
+```
+获取WebGL上下文
+```
+if (cavadiv.getContext){ //检测是否支持canvas上下文方法
+    try{ //某些游览器对gl会抛错，所以用try_catch封装。
+    var gl = cavadiv.getContext("experimental-webgl",{alpha:false});
+    } catch(ex){} //啥都不做
+    if (gl){...}}
+```
+上下文初始化属性：alpha:Alpha通道缓冲区，depth:16位深缓冲区，stencil:8位模板缓冲区，antialias:抗锯齿，premultipliedAlpha:绘图缓冲区有预乘Alpha值，preserveDrawingBuffer:绘图完成后保留缓冲区。以上都是布尔值，一般默认。
+常量：OpenGL的GL_COLOR_BUFFER_BIT在WEB中是属性gl.COLOR_BUFFER_BIT。
+命名：后缀f是浮点数，i是整数，v是数组。gl.uniformf()表示接受4个浮点数。gl.uniform3iv()表示接受一个可有3个值的整数数组。
+准备：绘图前要用颜色清除绘图区gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT);
+视口：gl.viewport(0,0,cava.width,cava.height) 定位视口原点在cavas的左下角，而视口内部的原点在视口中心。在视口外面绘图会被剪掉。
+```
+var buffer = gl.createBuffer();创建缓冲区
+gl.bindBuffer(gl.ARRAY_BUFFER,buffer); 缓冲区绑定到当前3d上下文
+gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([0,0.5,1]),gl.STATIC_DRAW); 用数据填充缓冲区，3参常量还有gl.STATIC_DRAW数据只加载一次，多次绘图使用。gl.STREAM_DRAW数据只加载一次，几次绘图使用。gl.DYNAMIC_DRAW数据动态改变多次使用。
+gl.deleteBuffer(buffer); 删除缓冲区
+```
+错误：WebGL不会自动抛错，必须手工调用gl.getError()返回一个常量；gl.NO_ERROR无错，gl.INVALID_ENUM参数错误应为常量，gl.INVALID_VALUE无符号数传了负值，gl.INVALID_OPERATION当前状态不能操作，gl.OUT_OF_MEMORY内存不足，gl.CONTEXT_LOST_WEBGL丢失当前上下文。有多个错误时要循环调用直至返回无错。
+顶点着色器：把3D顶点转换为需要渲染的2D顶点。片段着色器：计算每个像素的颜色。
+着色器传值：通过2个关键字Attribute和Uniform。方法是main()。
+顶点着色器传值例子
+```
+<script type="x-webgl/x-vertex-shader" id="vertexShader">
+attribute vec2 aVertexPosition; //定义有2个元素x,y的数组 1是关键字 2是数据类型 3是名字
+void main(){ //着色器语言是GLSL可在WebGL使用。
+    gl_Position = vec4(aVertexPosition,0.0,1.0);
+}</script>//顶点着色器把顶点赋值给特殊变量，vec4创建4个元素(其它坐标)把2D坐标转为3D坐标
+```
+片段着色器传值例子
+```
+<script type="x-webgl/x-fragment-shader" id="fragmentShader">
+uniform vec4 uColor;
+void main(){gl_FragColor = uColor;}</script>
+```
+上面的type属性乱写的，游览器无法识别，我们只需要读取它的text属性取得GLSL字符串。
+```
+var vertexShader = gl.createShader(gl.VERTEX_SHADER);创建着色器对象并传入着色器类型
+gl.shaderSource(vertexShader,vertexG1s1);
+gl.conpileShader(vertexShader); 编译着色器
+var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER); 片段着色器
+gl.shaderSource(fragmentShader,fragmentG1s1);
+gl.compileShader(fragmentShader);
 
+var program = gl.createProgram();
+gl.attachShader(program,vertexShader); 把着色器对象封装入变量
+gl.attachShader(program,fragmentShader);
+gl.linkProgram(program); 链接进入着色器程序
+gl.useProgram(program); WebGL使用着色器程序
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+var uColor = gl.getUniformLocation(program,"uColor"); 返回对象表示Uniform变量在内存里的位置
+gl.uniform(uColor,[0,0,0,1]); 传值给搜索到的Uniform变量
+var aVertexPosition = gl.getAttribLocation(program,"aVertexPosition"); 搜索Attr变量
+gl.enableVertexAttribArray(aVertexPosition);启用Attr
+gl.vertexAttribPointer(aVertexPosition,itemSize,gl.FLOAT,false,0,0);传值并绑定缓冲区供顶点着色器使用。
+```
+调试：
+```
+//检测着色器编译
+if (!gl.getShaderParameter(vertexShader,gl.COMPILE_STATUS)){
+    alert(gl.getShaderInfoLog(vertexShader));} //返回错误消息
+//检测链接
+if(!gl.getProgramParameter(program,gl.LINK_STATUS))
+```
+绘图：gl.drawArrays()或gl.drawElements()前者用在数组缓冲区，后者用在元素数组缓冲区。
 
 
 
