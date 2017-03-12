@@ -1070,9 +1070,9 @@ gl.attachShader(program,fragmentShader);
 gl.linkProgram(program); 链接进入着色器程序
 gl.useProgram(program); WebGL使用着色器程序
 
-var uColor = gl.getUniformLocation(program,"uColor"); 返回对象表示Uniform变量在内存里的位置
+var uColor = gl.getUniformLocation(program,"uColor"); 返回对象表示Uniform变量在内存里的位置，传入颜色值
 gl.uniform(uColor,[0,0,0,1]); 传值给搜索到的Uniform变量
-var aVertexPosition = gl.getAttribLocation(program,"aVertexPosition"); 搜索Attr变量
+var aVertexPosition = gl.getAttribLocation(program,"aVertexPosition"); 搜索Attr变量，传入顶点信息
 gl.enableVertexAttribArray(aVertexPosition);启用Attr
 gl.vertexAttribPointer(aVertexPosition,itemSize,gl.FLOAT,false,0,0);传值并绑定缓冲区供顶点着色器使用。
 ```
@@ -1084,11 +1084,23 @@ if (!gl.getShaderParameter(vertexShader,gl.COMPILE_STATUS)){
 //检测链接
 if(!gl.getProgramParameter(program,gl.LINK_STATUS))
 ```
-绘图：gl.drawArrays()或gl.drawElements()前者用在数组缓冲区，后者用在元素数组缓冲区。
-
-
-
-
+绘图：gl.drawArrays(形状常量，顶点偏移，顶点数)或gl.drawElements()前者用在数组缓冲区，后者用在元素数组缓冲区。形状常量有7个。
+纹理：gl.createTexture() 设置像素格式gl.pixelStorel(gl.UNPACK_FLIP_Y_WEBGL,true) 清除当前纹理gl.bindTexture() 使用image需要实例化并onload。
+读取像素：readPixels(x,y,宽，高，图像格式，数据类型，类型化数组)
+####第16章 H5脚本编程
+跨文档消息：XDM对内嵌框架传递消息。postMessage("消息"，"接收方域名")
+发送
+```
+var iframeWindow = document.getElementById("myframe").contentWindow; //框架属性
+iframeWindow.postMessage("A secrect","http://www.wrox.com"); //发送
+```
+接收：会触发onmessage事件。
+```
+if (event.origin == "http://www.wrox.com"{   验证域名
+    processMessage(event.data); 处理接收的数据
+    event.source.postMessage("Recived","http://p2p.wrox.com"); 发送回信
+```
+postMessage有些游览器1参只支持字符串，如果要发送结构化数据就先JSON.stringify(),接收方调用JSON.parse()
 
 
 
