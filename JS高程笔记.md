@@ -1,6 +1,4 @@
 DOM Leve1:映射文档结构。
-
-.
 DOM Leve2:视图 时间 样式 遍历。
 DOM Leve3:XML
 IE8-支持1级 IE9+支持3级。H5兼容了BOM
@@ -1088,7 +1086,7 @@ if(!gl.getProgramParameter(program,gl.LINK_STATUS))
 纹理：gl.createTexture() 设置像素格式gl.pixelStorel(gl.UNPACK_FLIP_Y_WEBGL,true) 清除当前纹理gl.bindTexture() 使用image需要实例化并onload。
 读取像素：readPixels(x,y,宽，高，图像格式，数据类型，类型化数组)
 ####第16章 H5脚本编程
-跨文档消息：XDM对内嵌框架传递消息。postMessage("消息"，"接收方域名")
+**跨文档消息**：XDM对内嵌框架传递消息。postMessage("消息"，"接收方域名")
 发送
 ```
 var iframeWindow = document.getElementById("myframe").contentWindow; //框架属性
@@ -1101,29 +1099,94 @@ if (event.origin == "http://www.wrox.com"{   验证域名
     event.source.postMessage("Recived","http://p2p.wrox.com"); 发送回信
 ```
 postMessage有些游览器1参只支持字符串，如果要发送结构化数据就先JSON.stringify(),接收方调用JSON.parse()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+**拖放**
+事件顺序：
+被拖元素：`dragstart->drag->dragend`。1按下鼠标键并移动 2拖动过程中持续触发 3拖动停止无论是否成功
+放置元素：`dragenter->dragover->dragleave或drop` 1拖进放置目标 2再放置目标范围内移动持续触发 3拖出放置目标或成功放置
+自定义放置目标：阻止某元素的dragenter和dragover默认行为即可。火狐drop的默认行为是打开拖动的url
+event.`dataTransfer`的方法和属性 :
+  方法：setData(MIME类型,字符串) getData("") 只能在drop事件读取到。`addElement(ele)`为拖动添加元素 `clearData(format)`清除某格式的数据。`setDragImage(ele,x,y)`图像显示在拖动光标下方,xy是光标在图像里的坐标。
+  属性：`dropEffect`="none"不可放置、"move"拖动元素移动到放置目标、"copy"拖动元素复制到目标、"link"放置目标打开拖动元素URL。这里改变的仅是光标样式需配合dragenter事件处理。`effectAllowed`的值和前者差不多，需配合dragstart事件处理。`types`数据类型，IE10+。
+H5标签属性：draggable="true"表示可拖动，IE10+。
+**媒体**
+事件：有25种。
+属性：27种。 P487。
+play() pause() 
+检测游览器支持格式和解码器：!audio.canPlayType("audio/mpeg")
+隐藏音频：调用new Audio("a.mp3"); 监听canplaythrough调用play()。不用插入文档。
+**历史状态管理**
+URL参数列表变化触发hashchange事件。
+添加状态到历史状态栈：history.pushState({状态对象：""}，状态标题，URL) 可载入上次Ajax无刷新页面
+前进后退按钮触发popstate事件。event.state保存着传入的状态对象，第1个页面没有状态值为null。
+重写当前状态：history.replaceState({},"","url") 只能改变同域名。
+####第17章 错误调试
+IE:工具栏->高级->显示每个脚本错误的通知
+```
+try{ xxx();}
+catch(error){ //必须取名字
+alert(error.message);} //message属性所有游览器通用
+```
+错误对象属性：IE还有包含错误数量的number。火狐有fileName/lineNumber/stack栈跟踪信息。苹果有line行号、sourceId错误代码、sourceURL。
+finally子句：无论出错与否，甚至忽略return，finally必然会执行。try{}catch(e){}finally{}。IE7bug必须要有catch句存在。
+错误类型：Error 基类型,自定义错误及其他错误都继承自它。
+EvalError：没有吧eval()当函数调用。
+RangeError:传数值参时超过了限制范围。
+ReferenceError:访问不存在的变量时。
+SyntaxError:eval的字符串代码语法错误，eval之外语法错误直接会停止执行。
+TypeError:访问不存在的变量时。传参类型不对。变量保存的是不支持的类型。
+URIError:URI格式错误。
+如何获取错误类型：instanceof操作符。try{..}catch(error){if(error instanceof TypeError){}}
+适用范围：js库源码无法自行修改，用try-catch阻止错误报告。
+throw:抛出信息。throw new TypeError/../RangeError("信息") 可脱离try-catch单独使用，消息里写一些函数只支持的传参类型之类的，尤其是编写大型库的时候会有很多地方调用这个函数，多用这个可提高代码维护性。try-catch用于阻止默认，throw用于检查bug。
+自定义错误类型：
+```
+function CustomError(message){
+	this.name = "CustomError"; //错误类型的名字
+	this.message = message;}
+CustomError.prototype = new Error(); //让自定义继承基类型
+throw new CustomError("my message");
+```
+onerror事件：苹果不支持。只能用DOM0级捕获。且没有event对象。它应作为最后一道防线。IE触发事件依然保留数据事件内可以访问，火狐会销毁数据。
+```
+window.onerror = function(message,url,line){ //支持3个参数，一般只用1参
+	alert(message);
+	return false; }//这里相当于try-catch，拦截自己都不知道的错误。
+```
+常见错误：1.类型转换：用if(typeof x == 'string') 比 if(x) 好，担心x是非正常值比如0。2.数据类型：if(x != null/udf)这习惯不好。不要用typeof检测对象属性，就算检测成功也只能说明该对象有这个属性，万一对象调用的是没检测的属性方法呢，应直接用instanceof检测参数的数据类型。3.通信错误：URL错误：只能有1个问号，有2个的话用encodeURIComponent()转码"="后面的。如果是服务器响应数据错误IE会报错。
+致命错误：1.主要功能无法运行。2.错误明显影响用户操作。3.会发生后续错误。致命错误需要给用户提示刷新。非致命错误建议try-catch拦截或给出小提示。
+集中在服务器保存错误日志：
+```
+function logError(sev,msg){ //错误日志函数
+	var img = new Image();  //img标签可跨域，比XHR兼容性好。
+	img.src = "log.php?sev=" + encodeURIComponent(sev) + "&msg=" + encodeURIComponent(msg);
+} //把错误级别和错误消息通过参数GET给服务器保存。
+try{ ... }
+catch(ex){logError("nonfatal","错误：" + ex.message);} //消息应带上下文便于复查
+```
+兼容写法的console.log: 支持IE7
+```
+function log(message){
+	var console = document.getElementById("debuginfo");
+	if (console === null){
+		console=document.createElement("div");
+		console.id="debuginfo";
+		console.style.background="#dedede";
+		console.style.border="1px solid silver";
+		console.style.padding="5px";
+		console.style.width="400px";
+		console.style.position="absolute";
+		console.style.right="0px";
+		console.style.top="0px";
+		document.body.appendChild(console);}
+	console.innerHTML += "<p>" + message + "</p>";}
+```
+IE错误：
+1.操作终止：IE7。IE8是HTML Parsing Error。页面加载前修改DOM。解决：用insertBefore把新元素插到body最前面。或者把修改DOM的方法放在body最后面执行。
+2.无效字符：invalid character可能是把Unicode字符当成常规字符使用了。
+3.未找到成员：对象销毁后继续赋值。例如闭包中的event对象，事件结束了但闭包仍在引用。
+4.未知运行时错误：用innerHTML/outHTML把块元素插入到内联元素时。访问表格属性时。
+5.语法错误：没分号，没花括号，<script>的src指向的是类似HTML代码的非js文件。
+6.系统无法找到指定资源：
 
 
 
