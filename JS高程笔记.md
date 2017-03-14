@@ -1186,7 +1186,118 @@ IE错误：
 3.未找到成员：对象销毁后继续赋值。例如闭包中的event对象，事件结束了但闭包仍在引用。
 4.未知运行时错误：用innerHTML/outHTML把块元素插入到内联元素时。访问表格属性时。
 5.语法错误：没分号，没花括号，<script>的src指向的是类似HTML代码的非js文件。
-6.系统无法找到指定资源：
+6.系统无法找到指定资源：js中的URL超过2083个字符。游览器的URL超过2048个字符。
+####第20章 JSON
+语法：
+1.json可使用js用的值，但不支持undefined;也不支持变量、函数、实例。
+2.json的字符串必须双引号。
+3.js对象的属性加引号也正确。json属性或数组都不需要声明。
+4.json不加分号
+5.json数组和js写法一样。{"a":["b",3]}
+数据保存在对象里，比保存带DOM特性上取值时方便多了。
+解析JSON:IE7的ES3使用eval()解析，有shim库JSON-js解决安全问题。
+IE8+用全局对象
+`JSON.stringify()`：把js对象序列化为json。格式紧密没有空格和缩进，函数和原型和值为undefined的属性都会忽略。2参过滤器：json只会保存过滤数组内指定的字符串属性，而过滤函数有2个参数；
+```
+var book={"title":"a","authors":["a c z"],edition:3,year:2011};
+var jsonText = JSON.stringify(book,function(key,value){ //过滤器的函数形式，数组形式为["title","edition"],不过滤为null。
+	switch(key){ //键值互相对应
+		case "authors":
+			return value.join(",") //数组变字符串
+		case "year":
+			return 5000;		//修改值
+		case "edition":
+			return undefined;   //JSON识别不出故删除该键值对。如果他是次级对象则值会null。
+		default:
+			return value;}}); //其他属性都用原来值
+```
+3参为缩进，数字形式为每级别缩进n格(最大为10)，字符串形式则变成缩进符。
+序列化顺序：1.如果对象内部有名为`toJSON()`的方法，会直接调用该方法。2.有过滤器的传参是从toJSON()返的值来的，该方法的就按上面的来。3.有3参的执行格式化。
+`JSON.parse()`：把json解析成js。
+```
+var book = {"title":"a","authors":["a c z"],edition:3,year:2011,releaseDate:new Date(2011,11,1)}; //这是js对象
+var jsonText = JSON.stringify(book); //对象转json的时候Date对象变成字符串了。
+var bookCopy = JSON.parse(jsonText,function(key,value){
+	if (key == "releaseDate"){
+		return new Date(value); //还原函数里新建了对象，不这样做Date对象永远是字符串
+	} else {
+		return value; //其他不还原，原来值。
+	}}) //所以如果json中有方法的话，需要在解析的时候把方法对象还原。
+```
+####第21章 Ajax与Comet
+new HMLHttpRequest(); IE7+
+1.启动请求准备发送：xhr.open("get","xx.php",false)  准备发送还没发送。xx是当前路径可使用绝对路径。false同步。
+2.发送：xhr.send(null) 参数为发送数据。
+3.判断HTTP状态： (xhr.status >= 200 && xhr.status < 300) || xhr.status ==304 
+当前活动阶段：readyState值每变化一次都会触发readystatechange事件。0-还没open(),1-已open()没send(),2-已send()没响应。3-收到部分响应.4-完成。
+4.监听活动阶段。xhr.onreadystatechange=function(){if(xhr.readyState==4)}  这里用this不兼容
+取消异步请求：xhr.abort() 之后会停止事件禁用属性，之后应该xhr=null;
+设置自定义请求头部字段：`xhr.setRequestHeader`("tou","value")    需在open之后send之前调用。少重写默认头。
+获取响应头字段：getResponseHeader("tou") 获取完整响应头：getAllResponseHeaders()
+GET请求：名称和值经常有格式问题，需要encodeURIComponent()转码。如果有参数的话，open之前先处理下url。
+模仿表单发送：open之后setRequestHeader("Content-Type","application/x-www-form-urlencoded")。这么设置头的好处是数据会进入$_POST超全局变量内。
+表单序列化：`new FormData`(form_div) 序列化之后可直接传给send()发送，不需要设置请求头。IE不支持。data.append("name","value")
+超时事件：`xhr.timeout`=1000; xhr.ontimeout=function(){} 1秒后终止响应,仅IE8+,终止时可能readystatechange正在执行，访问status会抛错，需把该属性try-catch拦截。
+修改响应MIME类型：overrideMimeType()
+接收响应时会持续触发onprogress事件，event有3个属性：lengthComputable进度信息是否可用、position已接收的字节、totalSize预期字节。利用这3个属性可创建进度条。
+**跨域**
+CORS:设置自定义请求头Origin:http://www.nczonline.net 返回匹配响应头Access-Control-Allow-Origin:http://www.nczonline.net 头部不匹配时服务器驳回请求。不含cookie。
+XDR对象：XDR和xhr的区别：不会收发cookie,只能设置请求头的Content-Type,不能访问响应头和状态码，只支持GET/POST,只能异步。其它xhr支持的xdr也支持。
+`new XDomainRequest`(); IE8+独有。       xdr.onload->xdr.open("get","url")仅有2参->xdr.send(null)
+xdr.onerror= 如果没有Access-Control-Allow-Origin响应头会触发错误事件
+设置请求头：`xdr.contentType`="application/x-www-form-urlencoded"
+其它游览器的XHR原生支持CORS跨域：xhr.open("get","http://www.some.com/page/",true); URL路径使用绝对路径即可。与XDR不同的是可以访问status和statusText属性也支持同步。相同的是：setRequestHeader失效，没有cookie,访问响应头返空字符。注意写法：跨域时用绝对，本地用相对路径，以免混淆。
+Preflight请求：支持自定义头，各种文档格式，各种请求方法。IE不支持。发起条件：设置了自定义头或Content-Type为application/xml 或 text/xml的POST请求。
+```
+Preflight请求会发送HTTP OPTIONS请求头。
+请求方：
+Origin:http://www.nczonline.net 
+Access-Control-Request-Method:POST  //询问服务器是否支持请求方法
+Access-Control-Request-Headers:NCZ  //询问服务器是否支持自定义头，逗号分隔
+响应方：
+Access-Control-Allow-Origin:http://www.nczonline.net  //支持该域
+Access-Control-Allow-Methods:POST,GET     //支持该方法
+Access-Control-Allow-Headers:NCZ       //支持该请求头
+Access-Control-Max-Age:1728000   //Preflight请求缓存时间
+Access-Control-Allow-Credentials: true   //支持cookie IE不支持 如果请求设置了xhr.withCredentials=true;但又没这个响应会触发错误事件/status为0/responseText为空字符串
+```
+检测是否支持CORS：if("withCredentials" in xhr) else if(typeof XDomainRequest != "undefined") else{xhr=null}
+**其它跨域方法**
+1.动态创建Image:设置src可单向传参，通过监听onload和onerror知道是否成功。常用于广告跟踪点击量。缺点：只能GET,无法获取响应文本数据。
+2.JSONP:例如callback({"name":"Nicholas"})  由回调函数和数据组成。
+```
+function handleResponse(response){
+	alert("你的IP是"+ response.ip +",位于"+ response.city +","+ response.region_name);}
+var script = document.createElement("script"); //动态创建
+script.src = "http://freeg.net/json/?callback=handleResponse"; //响应数据接收完成就会调用handleResponse()
+document.body.insertBefore(script,document.body.firstChild);
+```
+var show = function(data) { console.log(data) }这是你的回调函数
+(function() { var json = { a: 1, b: 2}; show(json); })();这是服务端返回给script标签的代码
+思路：通过src传参，服务器验证，服务器返回js脚本，服务端自执行函数定义保存了数据的局部变量，再调用客户端的回调函数。
+缺点：不可用于不安全的域，error事件只有IE9+捕获，只支持GET。
+3.Comet:服务器实时推送数据到页面。
+短轮询流：页面定时发送请求。服务器立刻发送数据无论是否有效。长轮询：页面发送请求，一直保持连接直到有数据发送，发送完关闭页面又发送请求。
+HTTP流：页面发送1个请求，连接不关，定时向页面推送数据。
+```
+function cc(url,progress,finished){
+	var xhr = new XMLHttpRequest(),received=0;
+	xhr.open("get",url,true);
+	xhr.onreadystatechange = function(){
+		var result;
+		if (xhr.readyState == 3){
+			result = xhr.responseText.substring(received); //只取最新数据
+			received += result.length; //计数器
+			progress(result); //回调函数
+		} else if (xhr.readyState == 4){
+			finished(xhr.responseText); //最终回调函数
+		}
+	};
+	xhr.send(null);
+	return xhr;
+}
+cc("xx.php",fuc1(),fuc2());
+```
 
 
 
@@ -1195,17 +1306,6 @@ IE错误：
 
 
 
-
-
-
-
-
-
-
-
-
-
-                。
 
 
 
