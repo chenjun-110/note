@@ -1291,22 +1291,130 @@ function cc(url,progress,finished){
 			progress(result); //回调函数
 		} else if (xhr.readyState == 4){
 			finished(xhr.responseText); //最终回调函数
-		}
-	};
+		}};
 	xhr.send(null);
 	return xhr;
 }
 cc("xx.php",fuc1(),fuc2());
 ```
-
-
-
-
-
-
-
-
-
+SSE:Comet的简化版。服务器响应MIME必须是text/event-stream。断开连接时可自动重连。IE不支持。适用单向读取服务器数据。
+  new EventSource("xx.php")
+readyState属性值为：0-正在连接，1-连接已打开，2-连接已关闭
+事件：建立连接时触发open，从服务器收到新事件触发message,无法建立连接触发error。
+数据：保存在message的event.data。服务器在数据前加id:前缀，如果连接断开source会发送含Last-Event-ID的请求头。
+关闭连接：source.close();
+Web Sockets:只能在支持Web Sockets协议的服务器上运行。url会变成ws://或wss://。
+优点:能传递微量数据，适合移动设备的低网速。
+  new WebSocket("绝对url.php")  //不受同源策略影响
+readyState属性值为:0-正在连接，1-连接已打开，2-正在关闭连接，3-连接已关闭。
+发送数据：send() 只能发送字符串，所以要参数调用JSON.stringify()
+事件/数据：同上SSE，除了这还有close事件：连接关闭时触发，且有event属性：wasClean连接是否关闭，code状态码，reason服务器消息。
+关闭连接：socket.close(); 调用后readyState值变2再3。
+安全：
+CSRF:跨站点请求伪造。也就是骗过服务器权限验证。POST/验证url来源/验证cookie都不行。
+防御手段：1.SSL连接请求 2.验证码 
+####第22章 高级技巧
+类型检测问题：value instanceof Array；Array是window属性，如果value在别的框架返false。难以判断JSON对象是否是原生。
+解决：因为数组的构造函数和全局作用域无关，所以用toString
+```
+function isArray(value){return Object.prototype.toString.call(value) == "[object Array]"
+var isNativeJSON = window.JSON && Object.prototype.toString.call(JSON) == "[object JSON]"
+```
+作用域问题1：构造函数被人没用new符调用会导致this指向window。
+解决：锁定调用环境。适用于多个jser在一个作用域下开发。
+```
+function Person(name){
+	if (this instanceof Person) {this.name = name;} //检测实例是否属于构造函数
+	else {return new Person(name);} //不是就返回实例
+}```
+问题2：另一函数cc内部用Person.call(this,2)因为Person的this不指向自己的实例所以无法获取name属性。
+解决：cc.prototype = new Person();
+惰性载入函数问题：游览器兼容代码执行多次。
+解决：1.执行时return重写当前函数。2.加载时var自执行判断条件return函数赋值给var。
+函数绑定问题：回调函数调用另一个对象的方法时，方法内的this指向了回调函数而非对象。
+解决：1.保存this的环境 2.回调用闭包调用方法。ES5已经有bind()函数了。IE9+。适用于事件回调程序和定时器。
+```
+function bind(fn,context){
+	return function(){return fn.apply(context,arguments);}
+} //fn是context的内部方法，fn的this会指向context函数。
+```
+函数柯里化：柯里化的过程是分步传参，逐步缩小函数的适用范围，逐步求解的过程。高阶函数是指操作函数的函数，它接收一个或者多个函数作为参数，并返回一个新函数。此外，还依赖与闭包的特性，来保存中间过程中输入的参数。
+```
+function curry(fn){
+	var args = Array.prototype.slice.call(arguments,1); //参数数组用slice截取除首项后面的参数。
+	return function(){
+		var innerArgs = Array.prototype.slice.call(arguments); //截取全部参数
+		var finalArgs = args.concat(innerArgs); //连接数组
+		return fn.apply(null,finalArgs); //相当于直接调用fn(finalArgs); 担心fn不支持数组形式的参数，则用apply传入数组参数。
+	}}
+function add(num1,num2){return num1+num2}
+var a=curry(add,5);  //传入一个函数和一个参数，args删除了add函数只保留后面的参数[5]
+a(3); //[3]会进入第1个return的arguments
+```
+带绑定作用域的柯里化：修改curry函数，第1行改curry(fn,context),第2行的1改为2，第6行的null改为context。修改后的curry从第3个参数起才是参数。
+防篡改：担心同事重写原生对象。ES5用下面的方法间接操作defineProperty-数据属性、访问属性。
+不可扩展对象：Object.preventExtensions(obj)可阻止添加新属性方法，但可修改和删除已有属性。Object.isExtensible(obj)检测扩展性。
+密封对象：Object.seal(obj)可阻止添加新属性方法，可阻止delete删除属性。但是已有属性值可以改。Object.isSealed(obj)检测密封性。
+冻结对象：Object.freeze(obj)不可添加、删除、修改属性。Object.isFrozen()检测冻结性。设计框架常用。
+高级定时器：如果代码执行时间过长，setInterval()添加下一个队列时就会跳过。setTimeout(function(){...;setTimeout(arguments.callee,i)},i)这种写法不会只有在代码运行完后才添加下一个定时器。
+脚本长时间运行弹框：通常是过长、过深函数嵌套调用或长循环导致的。如果处理不要求同步，数据不要求顺序，可采用setTimeout数组分块处理。适用于时长超过50ms的函数。
+```
+function chunk(array,process,context){
+setTimeout(function(){
+	var item = array.shift() //返回并删除数组的首项
+	process.call(context,item); //同步处理这个项，如果在全局作用域，可context参可不写或写null。
+	if (array.length>0){setTimeout(arguments.callee,100);} //检测并异步处理下一个项
+},100)} //假设每个项大概要100ms。
+```
+自定义事件：事件本质上是观察者模式。主体对象能独立运行，观察者能监听并注册回调函数。
+```
+function EventTarget(){this.handlers = {};} //事件处理程序
+EventTarget.prototype = {
+	constructor:EventTarget, //指向构造函数
+	addHandler:function(type,handler){//注册(事件类型，回调函数)
+		if(typeof this.handlers[type] == "undefined"){this.handlers[type] = [];} //没有type属性就定义数组
+		this.handlers[type].push(handler); //有type就向数组push回调函数
+	},
+	fire:function(event){//触发(有type属性对象)
+		if(!event.target){event.target = this;} //设置target属性，如果没有目标元素就定义调用者为目标
+		if(this.handlers[event.type] instanceof Array){ //如果event.type属性是数组的话
+			var handlers = this.handlers[event.type];   //把该属性保存
+			for(var i=0,len=handlers.length;i<len;i++){
+				handlers[i](event); //之前注册push的回调函数传入event对象
+			}
+		}
+	},
+	removeHandler:function(type,handler){//注销
+		if(this.handlers[type] instanceof Array){  //同上区别：检测的是type属性
+			var handlers = this.handlers[type];
+			for(var i=0,len=handlers.length;i<len;i++){
+				if(handlers[i] === handler){break;} //如果type属性某项等于回调函数就退出保存索引i
+			}
+			handlers.splice(i,1); //删除type的回调函数
+		}
+	}
+};
+```
+使用方法：
+```
+function handle(event){console.log(event.message);} //回调
+var target=new EventTarget();
+target.addHandler("message",handle)
+target.fire({type:"message",message:"hello"}); //对象必有type属性
+target.removeHandler("message",handle);
+```
+继承：
+```
+function Person(name,age){
+	EventTarget.call(this);
+	this.name = name;
+	this.age = age;
+}
+Person的原型=EventTarget；
+Person.prototype.say = function(message){
+	this.fire({type:"message",message:message}); //调用say就相当于触发message事件。
+}
+```
 
 
 
