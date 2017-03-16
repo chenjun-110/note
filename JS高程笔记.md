@@ -1415,9 +1415,92 @@ Person.prototype.say = function(message){
 	this.fire({type:"message",message:message}); //调用say就相当于触发message事件。
 }
 ```
-
-
-
+适用于：
+判断类名存在：if(div.className.indexOf("class")>-1)
+单例对象用模块封装事件：P621
+```
+var dragdrop=function(){
+	var dragging = null; //声明目标元素
+	function handleEvnt(event){}; //声明事件
+	return { 						返回对象
+		enable:function(){}, //enable方法是注册事件
+		disable:function(){} //删除事件
+	}
+}();
+```
+####第23章：离线应用和客户端存储
+检测是否联网:navigator.onLine
+事件：离线变在线 online 。 在线变离线 offline
+1.应用缓存：用描述文件写要离线使用的资源。IE不支持
+描述文件和页面关联：<html manifest="/offline.appcache"> 该文件MIME类型：text/cache-manifest。
+applicationCache对象:status属性：0无缓存，1缓存未更新，2正下载描述文件并更新，3正下载指定资源，4缓存已更新，5描述文件不存在无法使用缓存。
+事件：7种。
+app.update() 检查描述文件是否更新，肯呢个触发cached或updateready。 app.swapCache()启用新缓存
+2.Cookie原理：服务器首先对任意请求响应Set-Cookie:name=value,之后所有请求都会有Cookie:name=value。
+限制：cookie是和域名绑定的。IE6每个域名最多20个cookie,IE7火狐50个,苹果谷歌无限制，超过会删除旧cookie。一个域名的cookie最大4095B。
+组成：名字-不分大小写，必须URL编码。值-字符串必须URL编码。域-子域名也有效。路径-域名的后面，可设置除了该路径其他路径不能发送cookie。失效时间-默认会话结束时，可设置GMT时间。安全标志-设置后，cookie只能用SSL连接https发送。以上，分号空格隔开，在Set-Cookie。请求时发送的只有name=value。
+设置：`document.cookie=encodeURIComponent("name")+"="+encodeURIComponent("value")+"; expires="+expires.toGMTString()+"; path="+path+"; domain="+domain+"; secure"` 返回名值对。 被赋值时不会覆盖而是添加。
+获取：document.cookie.substring(name索引,document.cookie.indexOf(";",name索引))。 用decodeURIComponent()解码name和value。
+没有删除cookie的直接方法，是通过设置同名name有效时间到过去删除的。
+子cookie格式：name=n1=v1&n2=v2&n3=v3; 可绕开cookie数量限制。 获取它用split('&'),再循环split('=')即可。
+3.IE用户数据：
+限制：每个文档最多128K,每个域最多1MB。必须同域/同路径/同协议。不可多人共享。好处是不会过期。
+首先设置div样式： style="behavior:url(#default#userData)"
+```
+div.setAttribute("name","Nicholas"); //存储数据
+div.save("book");  //保存到名为book的数据空间
+几天后..
+div.load("book");  //载入数据
+div.getAttribute("name");
+div.removeAttribute("name");//删除数据，只能这样才释放空间
+```
+4.Web Storage：解决了cookie持续回发数据至服务器的问题，可存储跨会话，大量数据。
+两种对象：sessionStorage和globalStorage。 IE8+
+方法：clear()删除全部，getItem(name)获取值，key(index)获取值,removeItem(name)删除值，setItem(name,value)设置名值对。
+属性：length 名值对数量。 IE8属性：remainingSpace 剩余存储空间大小
+sessionStorage：对象在会话关闭消失，但数据可跨越刷新，甚至崩溃重启(IE不行)。存储读取可用setItem/getItem也可用点号。是Storage类型的实例。谷歌苹果IOS安卓最大2.5MB，IE8+Op最大5MB。
+写入方式：IE为异步，火狐谷歌为同步。IE要好点。
+IE8的强制写入：写入前调用begin()，写入后调用commit()。前者是暂停其它写入，后者是强制写入。适用于存储大量数据时。
+globalStorage：适合跨会话存储。适合长期保存用户偏好。只要用户不清除缓存。
+```
+存储：globalStorage["wrox.com"].name="Nicholas";  //需指定域名，[""]这种形式会导致所有人都能访问。["net"]会导致所有.net的域名都可访问。
+获取：var name = globalStorage["wrox.com"].name;
+```
+同源：不同协议/端口是不能访问的。不确定域名的指定location.host。
+localStorage:取代globalStorage。是Storage类型的实例。
+限制：必须同域名，子域名不行。也遵守同源。每个来源(协议、域、端口)最大5MB,IOS安卓最大2.5MB。
+兼容写法：
+```
+function getLocalStorage(){
+	if(typeof localStorage == 'object'){
+		return localStorage;
+	} else if(typeof globalStorage == 'object'){
+		return globalStorage[location.host];
+	} else {throw new Error("LocalStorage不可用");}
+}
+```
+事件：对对象的任何修改都触发storage事件。event属性：domain,key,newValue,oldValue。谷歌不支持？
+5.IndexedDB：异步，可保存对象。
+兼容：IE10加ms-前缀，火狐加moz-,谷歌加webkit-,兼容用||隔开window.indexedDB。
+操作是请求方式。验证请求就把返回对象保存到变量并注册onerror/onsuccess事件。
+```
+var request = indexedDB.open("admin"); //传入数据库名，新建或打开。
+request.onerror=function(event){ event.target指向request对象。
+	event.target.errorCode}; //错误码，有11种。P644
+request.onsuccess=function(event){
+	database = event.target.result; }//数据库实例对象
+var request = database.setVersion("1.0"); //设置版本号为1.0
+request.onerror=...
+request.onsuccess=function(event){
+	database.version}
+```　
+创建对象存储空间：类似数据表。`var store = db.createObjectStore("users",{keyPath:"username"});`这里的username就是对象的属性也就是键。
+store.add(obj)插入新对象 store.put(obj)更新对象
+创建事务：`var transaction = db.transaction();`操作数据都是通过事务完成的。传参如为"users",只读方式加载users存储空间所有数据。可用数组传入多个存储空间。
+兼容接口：var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction; 前者是IE10+火狐4+
+事务的第2个参数：IDBTransaction.READ_WRITE(可读写)/VERSION_CHANGE(可修改)/默认只读
+进入存储空间：`transaction.objectStore()` get(key)取值 delete(key)删值 event.target.result.firstName取得值
+创建游标：`store.openCursor()` 游标不会提前收集结果，只会根据命令一项项移动。event.target.result取得空间下一个对象的实例，没有为null。实例有属性：direction:游标方向,0-默认下一项，1-下一不重复项，2-上一项，IDBCursor.PREV_NO_DUPLICATE上一不重复项。key:对象的键。value：实际对象。primaryKey:游标使用的键(对象键/索引键)
 
 
 

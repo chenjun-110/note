@@ -2,7 +2,10 @@
 1.最好的办法就是不要使用document.write()动态加载脚本
 2.如果一定要使用document.write()加载脚本，使用异步加载的方式，如<script src="..." async> 或使用DOM API element.appendChild()
 cookie：A页面设置document.cookie = xxxxx; B页面读取document.cookie.split()[n]；split什么看你存的格式。
-
+典型的xss漏洞案例，用innerHTML执行脚本：`element.innerHTML = '<img src="*" onerror="alert(/hello world/)" />';`经测试，iframe重写文档流不会影响外面。
+iframe：访问顶层window.top.document.body 访问下层document.body或iframe.contentDocument或iframe.contentWindow.document(ie)
+没有src的iframe不存在跨域问题.
+动态创建的script可以并行下载。
 谷歌白屏时间：`(chrome.loadTimes().firstPaintTime - chrome.loadTimes().startLoadTime)*1000`
 谷歌时间轴：蓝加载，橙脚本，紫渲染，绿绘制。
 FPS、CPU 时间、NET网络通信时间、HEAP堆栈占用
