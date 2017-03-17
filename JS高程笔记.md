@@ -1429,6 +1429,7 @@ var dragdrop=function(){
 }();
 ```
 ####第23章：离线应用和客户端存储
+所有本地缓存方式都是不加密的。
 检测是否联网:navigator.onLine
 事件：离线变在线 online 。 在线变离线 offline
 1.应用缓存：用描述文件写要离线使用的资源。IE不支持
@@ -1480,7 +1481,7 @@ function getLocalStorage(){
 }
 ```
 事件：对对象的任何修改都触发storage事件。event属性：domain,key,newValue,oldValue。谷歌不支持？
-5.IndexedDB：异步，可保存对象。
+5.IndexedDB：异步，可保存对象。同源。火狐限制50MB,谷歌5MB。但谷歌的本地文件可以访问数据库，火狐不行。
 兼容：IE10加ms-前缀，火狐加moz-,谷歌加webkit-,兼容用||隔开window.indexedDB。
 操作是请求方式。验证请求就把返回对象保存到变量并注册onerror/onsuccess事件。
 ```
@@ -1497,10 +1498,49 @@ request.onsuccess=function(event){
 创建对象存储空间：类似数据表。`var store = db.createObjectStore("users",{keyPath:"username"});`这里的username就是对象的属性也就是键。
 store.add(obj)插入新对象 store.put(obj)更新对象
 创建事务：`var transaction = db.transaction();`操作数据都是通过事务完成的。传参如为"users",只读方式加载users存储空间所有数据。可用数组传入多个存储空间。
-兼容接口：var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction; 前者是IE10+火狐4+
+兼容接口：`var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;` 前者是IE10+火狐4+
 事务的第2个参数：IDBTransaction.READ_WRITE(可读写)/VERSION_CHANGE(可修改)/默认只读
 进入存储空间：`transaction.objectStore()` get(key)取值 delete(key)删值 event.target.result.firstName取得值
-创建游标：`store.openCursor()` 游标不会提前收集结果，只会根据命令一项项移动。event.target.result取得空间下一个对象的实例，没有为null。实例有属性：direction:游标方向,0-默认下一项，1-下一不重复项，2-上一项，IDBCursor.PREV_NO_DUPLICATE上一不重复项。key:对象的键。value：实际对象。primaryKey:游标使用的键(对象键/索引键)
+创建游标：`store.openCursor(范围，方向)` 游标不会提前收集结果，只会根据命令一项项移动。event.target.result取得空间下一个对象的实例，没有为null。实例有属性：direction:游标方向,0-默认下一项，1-下一不重复项，2-上一项，IDBCursor.PREV_NO_DUPLICATE上一不重复项。key:对象的键。value：实际对象。primaryKey:游标使用的键(对象键/索引键)。cursor=event.target.result检索结果,cursor.key+JSON.stringify(cursor.value)。重写游标值：先赋值value.password再保存cursor.update(value)。删除游标项：cursor.delete()。游标移动：cursor.continue(key)/cursor.advance(项数)。
+创建键范围：`var IDB = window.IDBKeyRange || window.webkitIDBKeyRange` 前者IE10+火狐。IDB.only(key)取单个键。IDB.lowerBound("007",true)游标范围从007下个对象开始至末尾，无2参从007开始。IDB.upperBound()用法同前从开头开始。IDB.bound(a,b)从a到b的范围。以上，创建后传给openCursor即可。
+创建游标方向：`var IDB = window.IDBCursor || window.webkitIDBCursor;`IDB.常量，参考direction属性。
+指定索引：`store.createIndex(索引名，索引属性名，{unique:false});` 3参该键不唯一 获取索引值：store.index(名)，索引对象index.get()
+,主键index.getKey():它的event.result.key是索引键/event.result.value主键。获取所有索引的数组：store.indexNames。删除索引：store.deleteIndex(索引名)
+并发问题：a标签页设置版本会影响b标签页。database.onversionchange=function(){database.close();} b标签页关闭数据库  用setVersion()的返回对象a标签页应注册onblocked事件：其他标签页已打开数据库会触发。
+####第24章 最佳实践
+大部分的工作都是维护他人代码，写好维护性代码有利于团队效率。这是爱好者和职业人的区别。
+特点：可理解性、直观简单性、可适应性：数据的变化不会导致重写。可扩展性：核心功能未来可扩展。可调试性。
+**可维护性**：
+1.代码书写约定：风格有面向对象式、声明式、函数式。
+可读性：相同的缩进方式、函数注释(用途、算法、事先假设、参数意思、返回值)、大段代码前注释功能、复杂逻辑和算法必须注释、hack注释。
+命名：函数用动词(get/play)、返回布尔值函数(is开头)。不要担心长度，后期可压缩。变量用名词(表示数据类型)：o对象、s字符串、i整数、f浮点数、b布尔型。
+2.松散耦合：对象引用对象，只能经常重写。
+HTML和js解耦: innerHTML动态创建的大量HTML，出现布局问题难以追错。内联script。属性事件。解决：用隐藏html代替动态生成。用Ajax请求html,从js转移到后端生成。
+css和js解耦: 如要修改样式可能js和css都要改。解决：js修改e.className代替e.style。
+应用逻辑和事件处理程序解耦： 难以分清错误是应用逻辑还是事件。 解决：事件处理程序从事件对象提取信息传送到处理逻辑的函数。也就是把修改样式之类的逻辑代码封装成函数，事件程序里只留一个调用函数的地方。这样的好处是可以不依赖事件独立测试逻辑代码，有力于创建单元测试和自动化流程。注意：不要把event对象传出，而是event的数据。事件只处理事件，逻辑只处理逻辑。
+3.实践：1.不要修改别人创建的对象，应该创建新对象搭配使用或者继承原对象才修改。2.减少全局量：把原本在全局环境下的声明都移动到某个对象中，通过调用对象属性和方法来使用，实现单一全局量，全局量内用于存放功能函数的对象叫`命名空间`，一级级分类别细分。3.不要和null比较。4.数据用常量代替，常量保存在某个对象内。实现数据和逻辑分离。适合：重复值，固定值，url，未来经常改变的值-可只关注数据不用再去分析逻辑代码。
+**性能**:
+作用域：window对象有几百个属性，所以全局声明的对象包括document都要缓存使用
+类型速度排序：常量对快>查找数组/变量>对象属性。 解决：对象属性嵌套过深，应把前面缓存，1个点号代表1次查找。
+优化循环：1.减值迭代 2.简化终止条件 3.简化循环体 4.用后测试循环 5.多次调用代替循环 6.不要解析字符串代码 7.原生方法 8.switch语句 9.位运算
+优化语句数量：一条语句比多条快。1.var的逗号 2.插入迭代值：value[i++]比value[i];i++快 3.字面量比new快
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
