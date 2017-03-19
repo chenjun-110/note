@@ -1524,6 +1524,86 @@ css和js解耦: 如要修改样式可能js和css都要改。解决：js修改e.c
 类型速度排序：常量对快>查找数组/变量>对象属性。 解决：对象属性嵌套过深，应把前面缓存，1个点号代表1次查找。
 优化循环：1.减值迭代 2.简化终止条件 3.简化循环体 4.用后测试循环 5.多次调用代替循环 6.不要解析字符串代码 7.原生方法 8.switch语句 9.位运算
 优化语句数量：一条语句比多条快。1.var的逗号 2.插入迭代值：value[i++]比value[i];i++快 3.字面量比new快
+优化DOM：1.最小化现场更新：文档碎片统一插入。 2.用innerHTML：它是内部创建DOM 3.事件代理 4.少调用HTMLCollection:标签名、childNodes、attributes、document.forms/images。
+**部署**：
+每个对象或自定义类型应存放在单独的js文件。这样可提高维护性。部署时需合并、缩短函数变量名、去掉注释、jslint、http压缩。
+####第25章 新兴的API
+1.重绘UI：requestAnimationFrame() 传参为动画逻辑函数
+循环间隔：60Hz显示屏每秒重绘60次，1000ms/60=17ms。
+时间精度：IE8计时器精度为15.625ms。IE9+谷歌是4ms。火狐苹果是10ms。甚至游览器会限制后台标签页的计时器。
+CSS动画强的地方就是精确的循环间隔。raf也是如此。
+moz下次重绘时间码：`var startTime = mozAnimationStartTime` 首次设置要在raf的回调之外。
+ms(IE10+)/
+谷歌raf：2参指定DOM元素、限制重绘区域。webkitCancelAnimationFrame()取消之前计划的重绘      
+2.判断标签页是否在后台：typeof (document.hidden ||document.msHidden || document.webkitHidden) != "undefined"
+document.visibilityState 
+页面从隐藏到显示或反过来都会触发ms/webkit+visibilitychange事件 IE10+ 
+3.定位API:navigator.geolocation对象。 IE9+
+请求用户共享定位：getCurrentPosition() 1参成功回调函数，2参失败回调函数，3参选项对象
+  成功回调的参数为Position对象，它有2个属性：1.coords对象：它有3个属性：latitude纬度，longitude经度，accuracy经纬度精度(米)。2.timestamp对象
+  失败回调的参数的对象有2个属性：message：出错的文本信息。和code：错误类型-1拒绝共享-2位置无效-3超时
+  选项对象：{enableHighAccuracy:true,timeout:5000,maximumAge:25000}使用最准确的位置，超时等待时间为5000ms,2次取坐标值时间间隔-Infinity只取1次坐标。
+watchPosition()用法类似。但它多返回一个用于监控数值。返回值传给clearWatch()可取消监控。
+4.文件API:IE10+ 
+type="file"元素有files[n]属性:name文件名，size大小，type类型MIME。
+文件异步读取：new FileReader()
+方法：readAsText()纯文本读取，readAsDataURL()读取并保存到url，readAsBinaryString()读取并保存到字符串，readAsArrayBuffer()读取并保存到缓冲器 。以上都数据都保存在reader.result属性。
+事件：load/error事件：错误码reader.error：-1未找到-2安全错误-3读取中断-4不可读-5编码错误。/progress：每50ms触发1次事件
+读取文件思路：获得表单div->注册change事件->声明目标元素的files属性->判断如果文件tpye是image就用readAsDataURL->其它用readAsText->注册error事件输出信息和错误码->注册progress事件输出读取进度->注册load事件根据result输出。
+只读取部分内容：moz/webkit+slice(start,len) 在new后面，read方法前面调用。返回对象传给read方法。适用于只读取文件头部。
+对象URL：window.webkit/+URL.createObjectURL() 把file对象的数据引用在url中。解除引用：window.webkit/+URL.revokeObjectURL(url)。IE10+
+从桌面拖放文件：drop事件的event.dataTransfer.files
+文件上传：1.直接把数据传给send()，缺点是不在文件内。2.IE不支持
+```
+var droptarget = document.getElementById("droptarget");
+function handleEvent(event){
+    var info = "",
+        output = document.getElementById("output"),
+        data,xhr,files,i,len;
+    EventUtil.preventDefault(event); //阻止默认
+    if(event.type == "drop"){
+        data = new FormData();  //关键
+        files = event.dataTransfer.files; //获取拖放数据
+        while(i<len){
+            data.append("file" + i,files[i]); //file0是名，file[0]是数据
+            i++;
+        }
+        xhr = new XMLHttpRequest();
+        xhr.open("post","FileAPIExample06Upload.php",true);
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState == 4){
+                alert(xhr.responseText);
+            }
+        };
+        xhr.send(data); //发送
+    }
+}
+EventUtil.addHandler(droptarget,"dragenter",handleEvent);
+EventUtil.addHandler(droptarget,"dragover",handleEvent);
+EventUtil.addHandler(droptarget,"drop",handleEvent);
+//PHP的$_FILES接收。
+```
+Web性能计时API：window.performance有2个属性：1.navigation对象：重定向次数和类型 2.timing对象：各种时间戳，例如查询DNS用时，上个页面unload用时，重定向用时，连接服务器用时，请求用时，readyState到loading/interactive/complete用时，DOMContentLoaded用时，load用时。具体API查看P696。 IE10+和谷歌
+Web Workers: 无阻塞运行js IE10+。
+创建：new Worker("xx.js") 下载xx.js文件
+运行：worker.postMessage() 参数为字符串或对象
+事件：message:数据保存在event.data。 error:worker内的js只要发生错误都会触发error事件。event.filename文件名/lineno行号/message错误信息 
+终止：页面调用worker.terminate() 或内部调用selef.close() 终止后台js和事件
+限制：后台js无法访问DOM，无法更改样式。
+作用域：this和self指向worker本身，它就是全局对象，所以和页面通信时注册message事件的是self，且该对象和页面的worker对象不是一个对象。它内部的对象是阉割版。
+内部顺序加载js：importScripts("a.js","b.js")
+共享worker:多标签共用，仅谷歌苹果支持
+####ES6
+常量：const代替var 初始化后不能修改值
+块级作用域：1.let代替var for循环内部产生局部变量，循环后销毁。2.`let (a=1,b=2){alert(a+b)}` ab变量作用域仅限let语句内。3.`var c=let前面`
+剩余参数：取消arguments对象。`function sum(a1,a2,...an){}` 三点+标识符。an表示参数数组可被引用。
+分布参数：`sum(...[1,2,3])`调用时可传数组形式的参数了：三点+数组。类似sum.apply(this,[1,2,3])
+默认参数：`function sum(a1,a2=0){}` 调用时如果没有传入第2个参数则使用默认值
+
+
+
+
+
 
 
 
