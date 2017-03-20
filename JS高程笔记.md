@@ -1612,18 +1612,98 @@ var {name:a,age:b} = p;  //相当于var a="chen",b="25"
 var {age:b} = p; //相当于var b = "25"
 //总结：[]方括号形式可把数组值赋值变量，{}花括号形式可把对象属性值赋值给变量。
 ```
-
-
-
-
-
-
-
-
-
-
-
-
+代理对象：想让别人只使用该对象的部分方法，其它方法不公开，可以创建代理对象。`Proxy.create(obj)` obj有7种基本捕捉器方法和6种派生捕捉器方法。
+代理函数：同上，`Proxy.createFunction(obj,function(){},function(){})` 2参是调用自身的捕捉器函数，3参是调用构造函数的捕捉器函数。
+映射：`new Map()` map.set(name,value)用来保存数据。get(name)获取数据。delete(name)删除。has(name)判断数据是否存在。
+集合：`new Set()` 只有键没有值。set.add(name)添加键。也有has()、delete().
+WeakMap:`new WeakMap()` 键必须是对象，如果对象被解除引用将自动从它里面删除。map.set(obj,value)把对象添加进该结构。
+结构类型：`var Size = new StructType({width:uint32,height:uint32});`Size的2个属性都应该保存无符号32位整数。而且该结构类型还能当构造函数用，但是必须传值`var boxSize = new Size({width:80,height:60});`
+数组类型：`new ArrayType()` 可限制数组值的类型
+类：它只是一种语法糖
+```
+class p{
+    constructor(name,age){ //相当于构造函数
+        public name = name; //实例属性相当于构造函数的this.name=name;
+        private age = age;  //私有属性
+        get a(){return b}
+        set a(value){b = value} //相当于getter和setter
+    }
+    sayName(){alert(this.name);} //类下定义的属性方法都在构造函数p的原型上。
+}
+```
+继承:`class e extends p` e类继承p类。 `class e prototype b` b对象是e类的原型
+模块：模块内的变量函数类都是默认私有的不会污染全局对象。公开用export。导入用import。
+```
+module mymodule{
+    export let obj={}; //公开属性
+    export function hello(){alert("hello")} //公开方法，可被外部环境或模块调用
+}
+import obj from mymodule; //导入obj
+import * from mymodule; //导入所有公开成员
+import {obj,hello} from mymodule; //导入的好处是把模块成员拿到当前环境，不必引入整个模块
+mymodule.hello; //不导入直接调用模块公开方法
+module mymodule from "xx.js" //下载xx.js并加载mymodule模块
+import obj from "xx.js" //下载xx.js只加载公开方法
+```
+####严格模式
+IE10+
+"use strice";   放在全局作用域中，整个脚本都将执行严格模式。
+1.必须声明变量。
+2.delete不能对变量使用。
+3.不能用保留字命名。
+对象：
+4.不能给只读属性赋值。
+5.delete不能对不可配置属性操作。
+6.不能对不可扩展对象添加属性。
+7.对象内属性不可重名。
+函数：
+8.形参不可相同。
+9.arguments成员和形参独立。
+10.不能访问argument.callee和argument.caller。
+11.声明函数只能在全局作用域或函数内部，不能在if内。
+12.eval内部的变量会在eval结束后销毁，不再创建。
+13.eval和arguments不能声明，不能被重写，不能++，不能用来命名，不能用于try-catch例外名。
+14.this值null和udf不再转换为全局对象。
+15.删除with句和八进制字面量，所以parseInt()解析八进制会当做十进制。
+####库
+通用
+YUI：组件、按需载入
+Prototype：类、继承
+MooTools：精简、优化
+Dojo Toolkit：按需载入
+jQuery：DOM、专注业务逻辑(简洁)
+MochiKit：文档完善、测试完善
+Underscore.js：是对jQuery的补充
+快速开发
+Backbone.js：构建于Underscore.js基础上迷你MVC库、优化单页面应用
+Rico：Ajax、动画、样式
+qooxdoo：传统面向对象、GUI、编译器
+动画库
+script.aculo.us：Prototype的插件
+moo.fx：Prototype和MooTools的插件、精简
+Lightbox:图像浮动层特效、依赖Prototype和script.aculo.us
+加密
+JavaScript MD5：MD4/MD5/SHA-1安全散列函数
+JavaScrypt：MD5、AES加密算法
+压缩器
+JSMin：基于C语言、移除空白和注释
+Dojo ShrinkSafe：移除空白(不包括换行)和注释、替换局部变量
+YUI Compressor：同上并换行
+单元测试
+JsUnit：测试后发送结果到服务器
+YUI Test：可测试任何代码 模拟鼠标键盘 结果输出在页面上
+DOH：
+qUnit：可测jQuery 也可测js
+文档生成器
+JsDoc Toolkit：注释输出为自定义HTML格式 模板
+YUI Doc：专属YUI、py环境、可输出属性方法
+AjaxDoc：专属.NET
+安全执行环境
+ADsafe：
+Caja：允许多脚本在同一页面安全执行
+效验器
+JSHint：比JSLint强
+JavaScript Lint:
 
 
 
