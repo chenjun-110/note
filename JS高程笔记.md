@@ -1599,9 +1599,19 @@ Web Workers: 无阻塞运行js IE10+。
 剩余参数：取消arguments对象。`function sum(a1,a2,...an){}` 三点+标识符。an表示参数数组可被引用。
 分布参数：`sum(...[1,2,3])`调用时可传数组形式的参数了：三点+数组。类似sum.apply(this,[1,2,3])
 默认参数：`function sum(a1,a2=0){}` 调用时如果没有传入第2个参数则使用默认值
-
-
-
+生成器：循环内yield代替return 每次循环都返回一个生成器。 生成器每调用一次next()输出下次循环的返回值，最后一次调用会抛出StopIteration错误,用try-catch的finally执行剩余语句。调用close()会退出yield语句执行其它语句。
+迭代器：`new Iterator(obj)` 实例每次调用next()返回1个数组["属性"，"值"]。没有下一项也会抛错。迭代数组的话每次返回["索引"，"值"]。如果传入2参true，就只返回索引。如要迭代自定义类型需先定义方法__iterator__()，它返回包含next()方法的对象。
+数组领悟：`array = [value for each (variable in values) condition]` 依次循环旧数组values->执行过滤条件condition->计算数组过滤值value->所有结果赋值给新数组。仅火狐支持，要使用这个功能需script的type属性值为"application/javascript;version=1.7"
+解构赋值：把数组的值分别赋值给变量；
+```
+var [a,b] = ["1","2"] //相当于var a="1",b="2"
+var [,b]] = ["1","2"] //相当于var b="2"
+[b,a] = [a,b]  //a b变量互换值
+var p ={name:"chen",age:"25"};
+var {name:a,age:b} = p;  //相当于var a="chen",b="25"
+var {age:b} = p; //相当于var b = "25"
+//总结：[]方括号形式可把数组值赋值变量，{}花括号形式可把对象属性值赋值给变量。
+```
 
 
 
