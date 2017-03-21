@@ -261,7 +261,7 @@ var person = new Person("Greg",29）；```
 解决：原型模式。
 prototype属性：指向一个原型对象(包含所有实例属性、方法)。给原型添加的属性方法能被构造函数的所有实例共享。
 原型对象自带属性:Person.prototype.`constructor`指向Person构造函数。实例指向原型的属性`__proto__`。实例指向原型链的属性constructor。
-检测是否关联方法：只要对象和原型对象存在关联，Person.prototype.`isPrototypeOf`(obj)会返true。等价`Object.getPrototypeOf`(obj)==Person.prototype返true
+检测是否关联方法：只要对象和原型对象存在关联，Person.prototype.`isPrototypeOf`(obj)会返true。等价ES5(`Object.getPrototypeOf`(obj)==Person.prototype)返true
 实例中定义的属性值会覆盖原型属性值。
 判断属性归属：obj.`hasOwnProperty`("")如果属性只属于实例返ture。in符："x" `in` obj返true表示对象有这属性无论原型或实例。合在一起用判断属性是否属于原型；`function hasprototypeProperty(obj, name){return !obj.hasOwnProperty(name) && (name in obj)}`
 提取属性数组：`Object.keys(obj)`obj.__proto__为原型按照顺序返回原型的`可枚举属性`字符串数组，obj为实例返回实例的。`Object.getOwnPropertyNames()`返回`所有属性`字符数组。这2个方法可用来替代for-in(IE9+)

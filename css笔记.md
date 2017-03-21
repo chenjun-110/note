@@ -409,3 +409,4 @@ content:attr(data-hover); 获取属性值给伪元素
 body {counter-reset: icecream;}
 input:checked {counter-increment: icecream;}
 .total::after {content: counter(icecream);}```
+只选取第1个和最后一个（IE8）:    div>a:first-child    div>a+a+..+a+a
