@@ -51,7 +51,7 @@ apply第1个参数是this指向，2参是数组。call是包装在apply上面的
 类数组变成数组：`[].slice.call(arguments)`，常见类数组还有HTML集合。
 删除并返回首元素：[].shift.call(arguments)
 合成参数：[].concat.call(args,[].slice.call(arguments))
-call实现借用方法：`(function(){ Array.prototype.push.call(arguments,3); })(1,2)` 借用方法在左边，操作对象放1参。这里的对象获得了push方法，可以push属性值到对象内。对操作对象有要求：要能存取属性，lengh属性可读写(低版本游览器要显式设置该属性)。因为number类型没有length属性，func类型length属性只读，都不能做操作对象。
+call实现借用方法：`(function(){ Array.prototype.push.call(arguments,3); })(1,2)` 借用方法在左边，操作对象放1参。这里的对象获得了push方法，可以push属性值到对象内。对操作对象有要求：要能存取属性，lengh属性可读写(低版本游览器要显式设置该属性)。因为number类型没有length属性，func类型length属性只读，都不能做操作对象。例如:obj2.getName.call(obj1);//obj1借用了obj2的方法
 call实现继承：
 ```
 var A = function(name){this.name=name;};
@@ -102,7 +102,46 @@ var report = (function(){
 ```
 闭包和面向对象的关系：对象方法保存过程，闭包在过程中用环境保存数据。闭包和面向对象和构造函数只是写法不同。
 命令模式：把命令接收者(逻辑执行代码)保存在闭包环境，只return出接口。命令发起者(调用者)通过接口调用命令。具体的命令又另外保存在一个地方。共3个封装，1个调用。
-
-
-
-
+闭包和内存：环境内的局部变量和全局变量是一回事，销毁就是Null。IE的循环引用则是把引用变量置为null。
+**高阶函数**
+条件：1.函数可做参数：可分离变化的业务逻辑 2.函数可做返回值
+回调函数：如果函数中有格格不入的逻辑，可以把它变成函数参数传入。如此可保证余下的逻辑复用。例如ajax的callback就是只处理数据不参与请求，所以作回调函数参数。例如Array.prototype.sort()。
+api:判断数据类型：toString.call(obj) 转换字符串：obj.tostring()
+```
+var isType = function(type){ //赋值时传参不同，调用就不同。
+	return function(obj){ //直接调用返回函数
+		return Object.prototype.toString.call(obj) === '[object ' +type+ ']'; //把可变的type作参数，
+}}； //这样弄把原本3个函数合1了。
+```
+返回函数：1个return就直接调用，2个return要带参数赋值再调用变量。
+AOP面向切面编程：把和业务逻辑无关的分离包括日志、安全、异常处理等。再动态织入。
+```
+Function.prototype.before = function( beforefn ){
+	var __self = this; // 保存原函数func的引用
+	return function(){ // 返回包含了原函数和新函数的"代理"函数
+		beforefn.apply( this, arguments); // 执行新函数，修正 this
+		return __self.apply( this, arguments );}}; // 执行原函数
+Function.prototype.after = function( afterfn ){
+	var __self = this;
+	return function(){
+		var ret = __self.apply(this, arguments); //arguments只是传递不限数量的参数，别想多了。
+		afterfn.apply( this, arguments ); 
+		return ret;}};
+var func = function(){console.log(2);};
+func = func.before(function(){console.log(1);}).after(function(){console.log(3);});
+func();//1 2 3按顺序。before先执行自己的参数，再执行return的。after先执行调用者，再执行自己的参数。
+```
+柯里化：传入参数并不执行而是保存在闭包环境，根据调用方式(返回函数的条件句)决定是否执行。
+反柯里化：不再依赖call借调，封装成通用方法,复制成有相同功能的方法，调用更方便。
+```
+Function.prototype.uncurrying = function () {
+	var self = this; //数组原型方法
+	return function() {
+		var obj = Array.prototype.shift.call(arguments); //obj是arguments
+		return self.apply(obj, arguments);};}; //arguments调用数组原型方法
+var push = Array.prototype.push.uncurrying();  //把uncurrying的返回函数赋值。
+(function(){ push(arguments,4); console.log(arguments);})(1,2,3);  //输出： [1, 2, 3, 4]
+```
+####设计模式
+**单例模式**：适合只出现一次的对象。调用n次，也只出现1次。登录框、全局缓存。
+定义：一类一实例，全局可访问。

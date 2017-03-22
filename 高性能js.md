@@ -45,6 +45,30 @@ function runForSeconds(s) {
     while (start + s * 1000 > (+new Date())) {}
 } //按时间算的循环，循环时间内阻塞
 ```
+短时间创建大量DOM:改为每隔200毫秒创建 8 个节点。
+```
+var timeChunk = function( ary, fn, count ){ //1参是创建节点的数据，2参是创建节点的函数，3参数每批创建的节点数量。
+	var obj, t, len = ary.length;
+	var start = function(){
+		for ( var i = 0; i < Math.min( count || 1, ary.length ); i++ ){
+			var obj = ary.shift();
+			fn( obj );    }};
+	return function(){
+		t = setInterval(function(){
+			if ( ary.length === 0 ){ // 如果全部节点都已经被创建好
+			return clearInterval( t );}
+			start();
+		}, 200 ); };}; // 分批执行的时间间隔，也可以用参数的形式传入
+
+var ary = [];
+for ( var i = 1; i <= 1000; i++ ){ary.push( i );};
+var renderFriendList = timeChunk( ary, function( n ){
+	var div = document.createElement( 'div' );
+	div.innerHTML = n;
+	document.body.appendChild( div );
+	}, 8 );
+renderFriendList(); //假设1000个好友的数据，我们利用 timeChunk 函数，每一批只往页面中创建 8 个节点：
+```
 如果GPU渲染频率比屏幕刷新率快，画面会撕裂。垂直同步就是限制GPU频率。
 requestAnimationFrame：脚本延迟时可自动降频30fps。把动画推迟到下一帧。把要推迟的代码放在raf内部。IE11+
 ```

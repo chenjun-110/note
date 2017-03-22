@@ -1330,7 +1330,7 @@ function Person(name){
 问题2：另一函数cc内部用Person.call(this,2)因为Person的this不指向自己的实例所以无法获取name属性。
 解决：cc.prototype = new Person();
 惰性载入函数问题：游览器兼容代码执行多次。
-解决：1.执行时return重写当前函数。2.加载时var自执行判断条件return函数赋值给var。
+解决：1.执行时return重写当前函数。2.加载时var自执行判断条件return函数赋值给var。3.
 函数绑定问题：回调函数调用另一个对象的方法时，方法内的this指向了回调函数而非对象。
 解决：1.保存this的环境 2.回调用闭包调用方法。ES5已经有bind()函数了。IE9+。适用于事件回调程序和定时器。
 ```
