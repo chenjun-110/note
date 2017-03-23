@@ -144,4 +144,82 @@ var push = Array.prototype.push.uncurrying();  //把uncurrying的返回函数赋
 ```
 ####设计模式
 **单例模式**：适合只出现一次的对象。调用n次，也只出现1次。登录框、全局缓存。
-定义：一类一实例，全局可访问。
+定义：一实例，全局可访问。重复调用返回原有实例。
+代理单例：把管理单例的逻辑用代理类分离出去，和原类组合能实现单例，不组合原类能实现多例。
+全局变量：`var a={}` 它就是单例模式，满足了唯一性，访问性。缺点是污染命名空间。
+解决：1.命名空间：全局变量都封装在全局对象里。2.动态命名空间：。3.用闭包封装__私有变量。
+惰性单例：用一个变量来标志是否创建过对象，如果是，则在下次直接返回这个已经创建好的对象。	
+```
+var getSingle = function(fn){ //fn传入需要单例的逻辑函数
+	var result; //单例变量
+	return function(){return result || (result=fn.apply(this,arguments));}
+}
+```
+**策略模式**：
+定义：定义一系列的算法，把它们一个个封装起来，并且使它们可以相互替换。分离算法的使用和实现。
+定义解释：定义一系列的算法，把它们各自封装成策略类，算法被封装在策略类内部的方法里。在客户对 Context 发起请求的时候， Context 总是把请求委给这些策略对象中间的某一个进行计算。
+貌似变量函数比声明函数适用范围广。
+思路：策略类封装了具体的算法，并负责具体的计算过程。 第二个部分是环境类接受客户的请求，随后把请求委托给某一个策略类。说明环境类要维持对某个策略对象的引用。
+```
+//根据绩效和工资算奖金
+var Bonus = function(){
+this.salary = null; // 原始工资
+this.strategy = null; // 绩效等级对应的策略对象
+};
+Bonus.prototype.setSalary = function( salary ){
+this.salary = salary; // 设置员工的原始工资
+};
+Bonus.prototype.setStrategy = function( strategy ){
+this.strategy = strategy; // 设置员工绩效等级对应的策略对象
+};
+Bonus.prototype.getBonus = function(){ // 取得奖金数额
+return this.strategy.calculate( this.salary ); 
+// 把计算奖金的操作委托给对应的策略对象,calculate就是具体算法，每个对象原型的calculate是不一样的！
+};
+```
+反思：变化的调用者用构造函数实例封装，变化的被调用者封装在调用者对象的原型上。如此可避免条件过多和逻辑函数过多。
+以上是传统面向对象版，来个Js简洁版。
+```
+var strategies = {
+	"S": function( salary ){return salary * 4;},
+	"A": function( salary ){return salary * 3;},
+	"B": function( salary ){return salary * 2;}
+};//把条件参数封装在属性
+var calculateBonus = function( level, salary ){ //发出计算奖金的请求，根据参数返回不同结果，正是多态。
+	return strategies[ level ]( salary );
+};//把逻辑封装在属性值，逻辑复杂的可以用回调传参。
+```
+缓动函数算法：
+```
+var tween = { //t已消耗时间、b原位置、c终点、d总持续时间
+	linear: function( t, b, c, d ){return c*t/d + b;},
+	easeIn: function( t, b, c, d ){return c * ( t /= d ) * t + b;},
+	strongEaseIn: function(t, b, c, d){return c * ( t /= d ) * t * t * t * t + b;},
+	strongEaseOut: function(t, b, c, d){return c * ( ( t = t / d - 1) * t * t * t * t + 1 ) + b;},
+	sineaseIn: function( t, b, c, d ){return c * ( t /= d) * t * t + b;},
+	sineaseOut: function(t,b,c,d){return c * ( ( t = t / d - 1) * t * t + 1 ) + b;}
+};
+```
+```
+var Animate = function( dom ){
+	this.dom = dom; // 进行运动的 dom 节点
+	this.startTime = 0; // 动画开始时间
+	this.startPos = 0; // 动画开始时， dom 节点的位置，即 dom 的初始位置
+	this.endPos = 0; // 动画结束时， dom 节点的位置，即 dom 的目标位置
+	this.propertyName = null; // dom 节点需要被改变的 css 属性名
+	this.easing = null; // 缓动算法
+	this.duration = null; // 动画持续时间
+};
+Animate.prototype.start = function( propertyName, endPos, duration, easing ){ //属性，终点，时间，算法
+	this.startTime = +new Date; // 动画启动时间
+	this.startPos = this.dom.getBoundingClientRect()[ propertyName ]; // dom 节点初始位置
+	this.propertyName = propertyName; // dom 节点需要被改变的 CSS 属性名
+	this.endPos = endPos; // dom 节点目标位置
+	this.duration = duration; // 动画持续事件
+	this.easing = tween[ easing ]; // 缓动算法
+	var self = this;
+	var timeId = setInterval(function(){ // 启动定时器，开始执行动画
+		if ( self.step() === false ){ // 如果动画已结束，则清除定时器
+			clearInterval( timeId );}
+}, 19 );};
+```

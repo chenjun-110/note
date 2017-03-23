@@ -590,3 +590,12 @@ setAttribute(key,value) 设置属性
 
 ##兼容
 谷歌是new Date('2013-10-21')，Safari是new Date('2013/10/21');
+
+####特效
+文件上传：
+<input type="file" name="file" onchange="fuc()"/>
+```
+oFReader = new FileReader();
+oFReader.readAsDataURL(input.files[0]);
+oFReader.onload = function (event) {path = event.target.result;}; 
+```
