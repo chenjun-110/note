@@ -210,16 +210,168 @@ var Animate = function( dom ){
 	this.easing = null; // 缓动算法
 	this.duration = null; // 动画持续时间
 };
-Animate.prototype.start = function( propertyName, endPos, duration, easing ){ //属性，终点，时间，算法
-	this.startTime = +new Date; // 动画启动时间
-	this.startPos = this.dom.getBoundingClientRect()[ propertyName ]; // dom 节点初始位置
-	this.propertyName = propertyName; // dom 节点需要被改变的 CSS 属性名
-	this.endPos = endPos; // dom 节点目标位置
-	this.duration = duration; // 动画持续事件
-	this.easing = tween[ easing ]; // 缓动算法
-	var self = this;
-	var timeId = setInterval(function(){ // 启动定时器，开始执行动画
-		if ( self.step() === false ){ // 如果动画已结束，则清除定时器
-			clearInterval( timeId );}
-}, 19 );};
+
 ```
+**代理模式**：适用于操作前进行某种处理。
+定义：当客户不方便直接访问一个对象或者不满足需要的时候，提供一个替身对象来控制对这个对象的访问，客户实际上访问的是替身对象。替身对象对请求做出一些处理之后，再把请求转交给本体对象。
+小明通过B送花给A，B会监听A的心情。
+保护代理：B会帮A过滤不合适的请求。实现B来控制对A的访问。适合控制不同权限的对象对目标的访问，难点在识别对象权限。
+虚拟代理：假设花是很消耗性能的操作，就让B来控制是否new Flower。
+单一职责原则：一个类/对象/函数应该只有一个引起变化的原因，如果原因(职责)过多会变化巨大。
+图片占位图预加载：这个简单的功能之所以用2个对象，还是因为单一职责原则的解耦。如果用1个对象写，myImage就要既设置src又预加载，因为预加载这个功能可删可不删，所以实行解耦。
+```
+var myImage = (function(){ //本体对象
+	var imgNode = document.createElement( 'img' );
+	document.body.appendChild( imgNode );
+	return {setSrc: function(src){imgNode.src = src;}
+}})();
+var proxyImage = (function(){ //虚拟代理对象
+	var img = new Image;
+	img.onload = function(){myImage.setSrc(this.src);} //网络图加载成功则显示
+	return {
+		setSrc: function(src){
+			myImage.setSrc('loading.gif'); //显示占位图
+			img.src = src; //网络图让隐藏图片加载
+}}})();
+proxyImage.setSrc('http://imgcache.qq.com/music/photo/k/000GGDys0yA0Nk.jpg');
+```
+接口一致：代理和本体的调用接口必须一致。1.用户无论调用哪个都要是相同的结果。2.代理本体可相互替换。
+合并HTTP请求：
+```
+var synchronousFile = function( id ){console.log( '开始同步文件， id 为: ' + id );}; //本地对象
+var checkbox = document.getElementsByTagName( 'input' );
+for ( var i = 0, c; c = checkbox[ i++ ]; ){ //批量绑定点击事件
+	c.onclick = function(){if ( this.checked === true ){proxySynchronousFile( this.id )
+;} 
+}}; //如果点击框被勾选则发送请求
+var proxySynchronousFile = (function(){           //虚拟代理对象
+	var cache = [], // 保存一段时间内需要同步的 ID
+		timer; // 定时器
+	return function( id ){
+		cache.push( id );
+		if ( timer ){return;} // 保证不会覆盖已经启动的定时器
+		timer = setTimeout(function(){
+			synchronousFile( cache.join( ',' ) ); // 2秒后向本体发送需要同步的 ID 集合
+			clearTimeout( timer ); // 清空定时器
+			timer = null;
+			cache.length = 0; // 清空 ID 集合
+		}, 2000 );
+}})(); //思路：2秒内重复点击会push数组->发送的时候合并数据->清除数组->发送。 2秒外就不存在重复点击了，因为数据被发送完毕了清空数组也没事了。 定时器等待过程中所有数据都被保存到数组定时器发送时合并数组。```
+miniconsole.js惰性加载中的虚拟代理:没加载该js前，用个代理把用户输出的语句保存在全局数组，加载js后再惰性重写代理对象并调用语句。
+缓存代理：存储之前的运算，如果参数相同则不用重复计算直接调结果。也可用于ajax分页数据，重点是异步数据得用回调。
+```
+var proxyMult = (function(){ //这里如果传个参数，就可以复用于多种运算函数了。
+	var cache = {};
+	return function(){
+		var args = Array.prototype.join.call(arguments, ',' );
+		if (args in cache){return cache[args];}  //如果传参存在于对象属性，则不计算返结果
+		return cache[args] = mult.apply(this, arguments ); //mult函数是运算函数，保存结果
+}})(); //该代理对象主要是判断参数是否相同，和存储旧结果。不和运算函数耦合。
+```
+防火墙代理：控制网络资源的访问，保护主题不让“坏人”接近。
+远程代理：为一个对象在不同的地址空间提供局部代表。
+智能引用代理：取代了简单的指针，它在访问对象时执行一些附加操作，比如计算一个对象被引用的次数。
+写时复制代理：通常用于复制一个庞大对象的情况。写时复制代理延迟了复制的过程，当对象被真正修改时，才对它进行复制操作。
+**迭代器模式**：
+定义：顺序访问一个聚合对象中的各个元素，而又不需要暴露该对象的内部表示。
+内部迭代：如$.each和Array.prototype.forEach。优点是方便。缺点是规则是死的。
+外部迭代：例如ES6的迭代器。必须显示请求下个元素。特点：循环操作是放在外面的。
+迭代类数组：只要它有length和能下表访问就能迭代。
+迭代对象：for-in字面量语句。
+倒序迭代器：把循环的i调成i--即可。
+终止迭代器：循环中判定条件break即可。
+迭代函数内的条件逻辑：
+```
+var iteratorUploadObj = function(){ //判断游览器，使用不同的函数
+	for ( var i = 0, fn; fn = arguments[ i++ ]; ){
+		var uploadObj = fn(); //每个条件执行一次
+		if ( uploadObj !== false ){return uploadObj;}}}; //返回没return false的函数(最后的条件)
+var uploadObj = iteratorUploadObj(条件1(), 条件2(), 条件3());
+```
+**发布-订阅模式**：
+作用：1.异步编程中是一种替代回调函数的方案。2.通信时，A对象不用再显示调用B对象了。
+手动触发DOM事件：IE:fireEvent 其它：dispatchEvent
+自定义事件：指定发布者->为发布者添加用于存放回调函数和订阅者的缓存列表->发布时遍历缓存列表依次调用回调函数。
+只订阅某一类型消息：订阅时把类型参数设为索引，回调设为值。发布时只执行该索引的回调。
+例子：只有登录才ajax渲染登录后的界面。显示用户名、头像。
+不好的做法是：登陆成功执行回调，缺点：是执行具体渲染的方法名不能被改，如果要添加的话必须翻出这段回调。导致渲染模块和登录模块耦合。观察者模式的登录模块就不需要关心渲染模块。
+全局发布-订阅：通过中介，发布者发送到中介，中介发送到订阅者。订阅者可以不关心发布者是谁，只关注消息。
+```
+var Event = (function(){ //把Event这个名字换成别的，就知道发布者是谁了，订阅也用那个名字的对象。
+	var clientList = {},listen,trigger,remove;
+	listen = function( key, fn ){
+		if (!clientList[key]){clientList[key] = [];} //如果找不到就是初次订阅。创建数组。
+		clientList[key].push(fn);  //把回调函数添加进数组
+	};
+	trigger = function(){
+		var key = Array.prototype.shift.call(arguments), //取出消息类型key
+		    fns = clientList[key];   //取出消息类型的回调集合value
+		if (!fns || fns.length === 0){return false;}  //如果没订阅消息就不触发！
+		for(var i = 0,fn;fn = fns[i++];){fn.apply(this,arguments);}  //依次触发回调
+	};
+	remove = function(key, fn){
+		var fns = clientList[key];
+		if (!fns){return false;}  //如果没被订阅就取消操作
+		if (!fn){fns && (fns.length = 0); //如果操作时没传具体回调，就删除所有回调。
+		}else{
+			for (var l = fns.length - 1;l >=0;l--){ 
+				var _fn = fns[l];
+				if (_fn === fn){fns.splice(l, 1);} //如果搜索到的回调和传参回调相同，就删除key对应的具体回调
+}}};
+	return {
+		listen: listen,
+		trigger: trigger,
+		remove: remove
+	}
+})();
+Event.listen('squareMeter88', function(price){ // 小红订阅消息
+	console.log('价格= ' + price); });         // 输出： '价格=200'
+Event.trigger('squareMeter88', 2000); // 售楼处发布指定类型的消息,这个2000传到了trigger的fn.apply(this,arguments）内。
+```
+上面这个对象可用于模块间的通信。缺点是：无从得知发布者是哪个模块。
+离线消息：ajax发布消息时，如果监听部分没加载好也就没注册事件，应该把消息缓存，注册时发送给它(只能1次)。
+消息名冲突：全局事件的消息种类过多，可能注册时会命名冲突，可以内部加命名空间方法，该方法内部也有注册删除触发等方法。
+观察者缺点：过度使用会难以跟踪bug。有些事件一直不发生，则纯属浪费。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
