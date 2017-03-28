@@ -511,6 +511,117 @@ order( 1, true, 500 );
 问题：对象和几十个对象有引用关系时，面向对象反而会降低可复用性。改一个对象要照顾到所有它通知的其它对象。
 解决：所有对象只引用中介者对象。将关系多对多转换为一对多。
 例子：没有指挥塔，飞机需要和所有飞机通信。
+各个对象都只调用中介对象。中介对象再内部自己识别。
+难点：中介者对象通常很巨大。虽解耦了它人但难以维护的反而是自身。所以不要过度设计，真正出现对象维护困难再采用它。
+####装饰者模式:用于讲究顺序或增加新功能
+定义：不改变对象，在程序运行时为对象添加功能。
+继承的缺点：超类和子类的强耦合。
+实现：把待扩展的对象存在新对象的属性里。新对象就可以调用旧对象的一切了。没有继承关系且形成请求链(包装链)，是聚合对象。新对象的同名方法调用旧对象的同名方法再扩展，使客户不用担心修改继承可能会影响子类的问题。
+```
+var plane = {fire: function(){console.log( '发射普通子弹' );}}
+var a = function(){};
+var b = function(){};
+var fire1 = plane.fire;  //保存最初的fire
+plane.fire = function(){fire1();a();}
+var fire2 = plane.fire;  //保存被包装过1次的fire
+plane.fire = function(){fire2();b();}
+plane.fire();
+```
+解决函数覆盖的问题：担心会覆盖或重写别人写的window.onload。
+```
+window.onload = function(){alert(1);}
+var _onload = window.onload || function(){};  //保存原函数的引用
+window.onload = funtion(){
+	_onload();   //在临摹这种写法时需注意this指向。
+	alert(2);};
+```
+前面AOP函数作用和这差不多。修改before的函数内部条件判断首个return可阻止其它return，可实现只有返回值满足条件才继续执行请求链。
+开发框架的时候，个性化功能应使用装饰链，可避免框架条件预测客户需求过多。
+####状态模式
+如果状态值只有2个，直接用if-else。但是有很多个呢？
+把每个状态都封装成类。并把请求委托给状态对象。
+定义：允许一个对象在其内部状态改变时改变它的行为。
+```
+var Light = function(){
+	this.offLightState = new OffLightState(this); // 持有初始状态对象的引用 
+	this.weakLightState = new WeakLightState(this);   //状态2
+	this.strongLightState = new StrongLightState(this);  //状态3
+	this.superStrongLightState = new SuperStrongLightState(this); //状态4
+	this.button = null;
+};
+Light.prototype.setState = function(newState){this.currState = newState;};
+OffLightState.prototype.buttonWasPressed = function(){  //必须有的方法
+	console.log( '弱光' );   //输出效果
+	this.light.setState( this.light.weakLightState ); };//切换下一个状态
+Light.prototype.init = function(){  //初始化创建按钮
+	var button = document.createElement('button'),self = this;
+	this.button = document.body.appendChild(button);
+	this.button.innerHTML = '开关';
+	this.currState = this.offLightState; // 设置默认初始状态
+	this.button.onclick = function(){self.currState.buttonWasPressed();} // 定义用户的请求动作
+};
+var OffLightState = function(light){this.light = light;};  //状态对象
+var light = new Light();
+light.init();
+```
+思路：把每个状态对象赋值到属性->点击按钮就切换状态对象(如何切换？调用1个所有状态都有的同名方法，把新状态赋值到currState)
+优点：状态过多会让对象巨大，把状态逻辑分离出去。添加状态方便。缺点：可读性差，逻辑分散。
+优化：如果状态改变很频繁，就一开始创建好所有状态对象。如果不频繁，则需要的时候再创建。
+js版状态机：
+```
+var Light = function(){
+	this.currState = FSM.off; // 设置当前状态
+	this.button = null;  };   // 按钮
+Light.prototype.init = function(){
+	var button = document.createElement( 'button' ),
+	  self = this;
+	button.innerHTML = '已关灯';
+	this.button = document.body.appendChild( button );
+	this.button.onclick = function(){
+		self.currState.buttonWasPressed.call( self ); // 把请求委托给 FSM 状态机
+	}};
+var FSM = {
+	off: {
+		buttonWasPressed: function(){
+			console.log( '关灯' );
+			this.button.innerHTML = '下一次按我是开灯';
+			this.currState = FSM.on;}},
+	on: {
+		buttonWasPressed: function(){
+			console.log( '开灯' );
+			this.button.innerHTML = '下一次按我是关灯';
+			this.currState = FSM.off;}}};
+var light = new Light();
+light.init();
+```
+####适配器模式
+定义：解决两个软件实体间的接口不兼容的问题。
+实现：1.第一种是修改原来的接口源码。2.适配器把原接口转换成标准接口。
+
+####设计原则
+1.单一职责原则：对象的变化、方法的变化、应只有一个影响的因素。一个对象/方法只做一件事。
+注意：如果影响的因素总是同时变化，则不需要分离。
+优点：更小颗粒有利于单元测试和复用。
+缺点：难写，增强了对象之间的联系。
+2.最少知识原则：最小化对象之间的联系。
+例如外观模式
+缺点：可能会出现庞大的第三者对象。
+3.开放封闭原则：类、函数应该是可扩展的，但不能被修改。
+例如装饰者模式、AOP。
+多态性：如果看到大量的if-else或switch-case就得思考如何用多态重构它们。
+放置挂钩、使用回调、
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
