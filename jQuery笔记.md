@@ -1,4 +1,4 @@
-载入jQ:`<head><script type="text/javascript" src="jquery.js"></script></head>`
+#### W3C
 文档加载后激活函数：`$(document).ready()`==`$().ready()`==`$()`
 点击触发：`$(selector).click()`
 隐藏：`$(selector).hide(speed,callback)`
@@ -8,9 +8,9 @@ Google CDN:`<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquer
 jq取代$符号防冲突：`var jq=jQuery.noConflict()`
 $(selector).html()输出内容
 ```
-$.noConflict();
-jQuery(document).ready(function($){ //这样可以再函数内部使用$，外部用单词```
-
+jq2 = jQuery.noConflict();
+jq2(function( $ ) { });// 在这个代码块中可以像往常一样使用 $ ;实际的jQuery 对象是 jq2 
+```
 
 one()只运行一次事件
 after()被选元素后插入指定内容
@@ -86,7 +86,7 @@ size() 返回匹配数量
 toArray() 返回数组个数
 $("div > span") 查找div的一级子级span元素
 
-####核心函数
+核心函数
 1.`jQuery(selector, [context])`设置选择器环境
 `$("span", this).addClass("bar");`等价于$(this).find("span")。在指定上下文中寻找选择器。
 2.`jQuery(element)`使用 DOM 元素
@@ -111,3 +111,76 @@ IE不许你创建input并改变类型；必须用`"<input type="checkbox" />"` �
 `jQuery.fx.off = true/false;`全局禁用/启用动画
 
 `jQuery.support.propvalue`测试是否支持某功能，返回布尔值。jQuery.support.ajax=ture支持ajax
+
+
+##锋利的jquery
+相互转换： 把js的dom转换为带jq方法的对象。
+```
+//jq转js
+var $cr=$("#cr"); //jq对象
+var cr=$cr.get(0); //dom对象
+var cr=$cr[0]; //dom对象
+//js转jq
+var cr=documnet.getElementById("cr"); //dom对象
+var $cr=$(cr); //jq对象
+```
+jq的优点：文件小(1张图片的事)、操作复杂DOM(隐式循环dom)、屏蔽兼容性(ajax)、易扩展。
+纠错：jq就是js,如果你用jq卡,说明有问题。性能只优化瓶颈(绝不可能是加载卡)
+适用范围：小网站、要求开发速度。
+$是jQuery的简写，完全相等。
+.ready 任何时候都可触发，比DOMContentLoaded适用范围广。 同理，动态加载的load回调也不会触发，因为事件已发生。
+链式调用的可读性：对同一对象不超过3个操作的写成一行。
+.html 等同innerHTML。但后者在IE里有Bug:如果属性值只有字母数字字符，就会丢失属性值引号。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

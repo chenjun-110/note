@@ -166,14 +166,14 @@ var Bonus = function(){
 this.salary = null; // 原始工资
 this.strategy = null; // 绩效等级对应的策略对象
 };
-Bonus.prototype.setSalary = function( salary ){
+Bonus.prototype.setSalary = function(salary){
 this.salary = salary; // 设置员工的原始工资
 };
-Bonus.prototype.setStrategy = function( strategy ){
+Bonus.prototype.setStrategy = function(strategy){
 this.strategy = strategy; // 设置员工绩效等级对应的策略对象
 };
 Bonus.prototype.getBonus = function(){ // 取得奖金数额
-return this.strategy.calculate( this.salary ); 
+return this.strategy.calculate(this.salary); 
 // 把计算奖金的操作委托给对应的策略对象,calculate就是具体算法，每个对象原型的calculate是不一样的！
 };
 ```
@@ -332,7 +332,7 @@ Event.trigger('squareMeter88', 2000); // 售楼处发布指定类型的消息,�
 离线消息：ajax发布消息时，如果监听部分没加载好也就没注册事件，应该把消息缓存，注册时发送给它(只能1次)。
 消息名冲突：全局事件的消息种类过多，可能注册时会命名冲突，可以内部加命名空间方法，该方法内部也有注册删除触发等方法。
 观察者缺点：过度使用会难以跟踪bug。有些事件一直不发生，则纯属浪费。
-####命令模式：发出请求后不关心接收者是谁和背后的处理。
+####命令模式：发出请求后不关心接收者是谁和背后的处理。适用于菜单有n多子菜单功能，可以让每个功能单独派人开发。
 例子：如果某程序员只负责绘制很多按钮，触发程序由别人写。如何绑定onclick事件？
 解一：传统面向对象写法。理解思路即可。
 ```
@@ -606,25 +606,107 @@ light.init();
 2.最少知识原则：最小化对象之间的联系。
 例如外观模式
 缺点：可能会出现庞大的第三者对象。
-3.开放封闭原则：类、函数应该是可扩展的，但不能被修改。
+3.**开放封闭原则**：类、函数应该是可扩展的，但不能被修改。所有设计都是朝这个方向。不修改旧代码是比较稳定的。
 例如装饰者模式、AOP。
 多态性：如果看到大量的if-else或switch-case就得思考如何用多态重构它们。
 放置挂钩、使用回调、
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+接受第一次愚弄：最初编写代码的时候，先假设变化永远不会发生，这有利于我们迅速完成需求。当变化发生并且对我们接下来的工作造成影响的时候，再回过头来封装这些变化的地方。然后确保我们不会掉进同一个坑里。
+4.接口：是对象能响应的请求的集合。
+面向接口编程：传统是面向超类编程、面向抽象编程(抽象类/模板方法模式)。因为js的动态类型，一般需要对接口传参进行类型检测。js不需要依靠超类
+利用鸭子类型检测接口：
+```
+var isArray = function( obj ){
+	return obj &&
+		typeof obj === 'object' &&  //检测对象
+		typeof obj.length === 'number' &&  //再检测长度
+		typeof obj.splice === 'function'  //最后检测方法
+};
+```
+####重构
+函数：如果函数需要加很多注释、过长。说明要重构。
+提炼函数：把逻辑封装成新函数，命名要好。
+合并条件内的重复：把重复的放在条件外部最后，反正是要执行的。
+提炼条件：如果条件判断可读性差、又长。把它重构成函数，取个好名字。
+循环合并条件：
+```
+var createXHR = function(){
+	var xhr;
+	try{xhr = new ActiveXObject( 'MSXML2.XMLHttp.6.0' );
+	}catch(e){try{xhr = new ActiveXObject( 'MSXML2.XMLHttp.3.0' );}catch(e){xhr = new ActiveXObject( 'MSXML2.XMLHttp' );}}
+	return xhr;};
+var xhr = createXHR();
+//修改如下
+var createXHR = function(){
+	var versions= [ 'MSXML2.XMLHttp.6.0ddd', 'MSXML2.XMLHttp.3.0', 'MSXML2.XMLHttp' ];
+	for ( var i = 0, version; version = versions[ i++ ]; ){
+		try{return new ActiveXObject( version );}catch(e){}   }};
+var xhr = createXHR();
+```
+提前退出条件：嵌套条件一般要看完整个条件，可读性差。用单行if判断不满足的直接return。不用读下面的语句了。一行行读条件比嵌套好。
+参数对象：代替过长参数
+```
+原
+var setUserInfo = function( id, name, address, sex, mobile, qq ){
+	console.log( 'id= ' + id );
+	console.log( 'name= ' +name );
+	console.log( 'address= ' + address );
+	console.log( 'sex= ' + sex );
+	console.log( 'mobile= ' + mobile );
+	console.log( 'qq= ' + qq );
+};
+setUserInfo( 1314, 'sven', 'shenzhen', 'male', '137********', 377876679 );
+改
+var setUserInfo = function( obj ){
+	console.log( 'id= ' + obj.id );
+	console.log( 'name= ' + obj.name );
+	console.log( 'address= ' + obj.address );
+	console.log( 'sex= ' + obj.sex );
+	console.log( 'mobile= ' + obj.mobile );
+	console.log( 'qq= ' + obj.qq );
+};
+setUserInfo({
+	id: 1314,
+	name: 'sven',
+	address: 'shenzhen',
+	sex: 'male',
+	mobile: '137********',
+	qq: 377876679
+});
+```
+减少参数：如果参数是可以计算出的，就不要传了。
+少用三目：简单的用三目，长逻辑用if可读性好些。
+链式调用：方法调用结束返回对象本身。 缺点：调试困难。
+```
+var User = function(){
+	this.id = null;
+	this.name = null;
+};
+User.prototype.setId = function( id ){
+	this.id = id;
+	return this;
+};
+User.prototype.setName = function( name ){
+	this.name = name;
+	return this;
+};
+console.log( new User().setId( 1314 ).setName( 'sven' ) );
+```
+或
+```
+var User = {
+	id: null,
+	name: null,
+	setId: function( id ){
+		this.id = id;
+		return this;},
+	setName: function( name ){
+		this.name = name;
+		return this;}
+};
+console.log( User.setId( 1314 ).setName( 'sven' ) );
+```
+避免大型类：用策略模式。
+return退出循环：比用break退出当层，break标记退出顶层好。如果循环之后还有语句直接放在return里。return a(i);
 
 
 
