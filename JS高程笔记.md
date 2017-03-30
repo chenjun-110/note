@@ -868,6 +868,10 @@ var EventUtil = {
                 case 7: 
                     return 0;
                 case 2: case 6: return 2; case 4: return 1;}}},
+	getshubiao:function(e){  //这个是自己写的，可能要加滚动条高宽
+		if(e.x){return e.x + e.y}  //IE鼠标坐标
+		else {return e.pageX + e.pageY} //火狐
+	},
     getCharCode: function(event){   //获取键码
         if (typeof event.charCode == "number"){return event.charCode;} //IE9
         else {return event.keyCode;} },
