@@ -1444,6 +1444,7 @@ app.update() 检查描述文件是否更新，肯呢个触发cached或updateread
 2.Cookie原理：服务器首先对任意请求响应Set-Cookie:name=value,之后所有请求都会有Cookie:name=value。
 限制：cookie是和域名绑定的。IE6每个域名最多20个cookie,IE7火狐50个,苹果谷歌无限制，超过会删除旧cookie。一个域名的cookie最大4095B。
 组成：名字-不分大小写，必须URL编码。值-字符串必须URL编码。域-子域名也有效。路径-域名的后面，可设置除了该路径其他路径不能发送cookie。失效时间-默认会话结束时，可设置GMT时间。安全标志-设置后，cookie只能用SSL连接https发送。以上，分号空格隔开，在Set-Cookie。请求时发送的只有name=value。
+expires=new Date()   expires.setTime(expires.getTime() - 1000);
 设置：`document.cookie=encodeURIComponent("name")+"="+encodeURIComponent("value")+"; expires="+expires.toGMTString()+"; path="+path+"; domain="+domain+"; secure"` 返回名值对。 被赋值时不会覆盖而是添加。
 获取：document.cookie.substring(name索引,document.cookie.indexOf(";",name索引))。 用decodeURIComponent()解码name和value。
 没有删除cookie的直接方法，是通过设置同名name有效时间到过去删除的。

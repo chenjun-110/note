@@ -123,7 +123,7 @@ jq2(function( $ ) { });// 在这个代码块中可以像往常一样使用 $ ;�
 $("#a ~ div") 等价于 $("#a").nextAll("div") 下所有同级div
 $("#a + div") 等价于 $("#a").next("div") 下一个div
 `:eq(index)` $("div:eq(index)") 第n个div(0开头)
-:gt(index) | :lt(index) 第n个的后面集合|前面集合
+:gt(index) | :lt(index) 第n个的后面集合 | 前面集合
 :header 所有h1-hn元素
 :contains("text") 文本含text的集合
 :empty | :parent 没有任何子节点的集合 | 有任何子节点的集合
@@ -141,13 +141,11 @@ ul li:noly-child  ul中只有1个li
 插入节点：prepend() 插在首位。after() | before() 插在同级下一个 | 插在同级上一个。 wrap() | wrapAll() 单独包裹，插入父节点 | 统一包裹
 删除节点：remove() | empty() 完全删除并返回被删节点 | 删除后代。  detach()删除但保留事件和附加数据
 操作节点：clone(true) 复制元素和事件 replaceWith("<p></p>") 替换 
-抓取节点：parent() | parents() 每个匹配的父元素集合 | 匹配的所有祖先元素集合。 children() | find() 儿子集合 | 后代集合。还有next() prev() siblings()等，注意这些都可以传参筛选。
+抓取节点：parent() | parents() 每个匹配的父元素集合 | 匹配的所有祖先元素集合。 children() | find() 儿子集合 | 后代集合。还有next() prev() siblings()等，高性能==筛选！ end()返回链式前一个jq对象
 获取文本内容：script用html() input/textarea用val() 其它用text()--innerText不兼容火狐
 获取特性值：attr()|removeAttr() 自定义属性标签用attr()。适用于`accesskey align class contenteditable href id label rel src tabindex title type width`
-获取属性值：prop()|removeProp(),如selectedIndex,tagName,nodeName,nodeType,ownerDocument, defaultChecked,defaultSelected。特性不随状态改变而改变，属性会改变。标签上本来就有的固有属性用prop()。它是取得计算结果。适用于`async autofocus checked location multiple readOnly selected`
-删除事件：prop("onclick",null)
-操作类名：addClass和attr：前者是追加样式，后者是设置样式。 toggleClass()先判断存在再切换样式。hasClass()==is()判断存在。removeClass
-改变选中项： val(): 传下拉<option>的文本值 | 传单选或多选的[value值]、这个要数组形式。 attr("selected",true)/attr("checked",true)
+获取属性值：prop()|removeProp(),如selectedIndex,tagName,nodeName,nodeType,ownerDocument, defaultChecked,defaultSelected。特性不随状态改变而改变，属性会改变。标签上本来就有的固有属性用prop()。它是取得计算结果。适用于`async autofocus checked location multiple readOnly selected disabled` 删除事件：prop("onclick",null)。只写属性名就生效用prop，只返回布尔值用prop。
+操作类名：addClass和attr：前者是追加样式，后者是设置样式。 toggleClass()先判断存在再切换样式`$(this)[$(this).hasClass("a") ? "removeClass":"addClass"]("a")`。hasClass()==is()判断存在。
 css():屏蔽了兼容性:IE的styleFloat、标准的cssFloat，IE的currentStyle runtimeStyle、标准的getComputedStyle()。属性有引号可以随便写，无引号必须驼峰。
 定位：offset()传入对象{top:0}可以修改定位 position() scrollTop() scrollLeft()传数字修改滚动条
 
@@ -168,16 +166,189 @@ toggle() 显示/隐藏 toggle("slow") 淡入/淡出 toggle(400,function(){}) 每
 off()移除所有事件 
 off("click","**")移除所有代理事件 
 off("click","div",fuc)移除指定事件 
-off("click.abc","div",fuc)移除指定命名空间的事件。注意当次移除的，在下次触发生效。
-事件委托：`$("tbdoy").on("click","tr",fuc)` 如果有1000个tr，这里委托在tbdoy。千万别写成$("tbdoy tr").on("click",fuc)。on()可以绑定在未生成的dom上。
+off("click.abc","div",fuc)移除所有属于.abc命名空间的事件，链式删除事件太繁琐。注意当次移除的，在下次触发生效。
+事件委托：`$("tbdoy").on("click","tr",fuc)` 如果有1000个tr，这里委托在tbdoy。千万别写成$("tbdoy tr").on("click",fuc)。on()可以绑定在未生成的dom上。 其它思路：1.绑在集合上，内部判断标签$(this).is("#a") 2.判断$(this).attr("class")
 on("click",false) 集合全部return false。
 on("click", {name: "Karl"},func)把name属性赋值到event.data.name 
 on({click:func,mouseenter:fuc})另一种形式
 on("click mouseenter",fuc)另一种形式
-
+one() 仅执行一次事件
 不支持冒泡的事件：load scroll error focus blur IE8的paste reset change submit。
 jq模拟了冒泡：change事件、submit事件。jq不支持事件捕获。
-trigger("xxx",["a"]) 2参传给on()回调的2参。
+模拟操作：
+trigger('click')==click() 传入on()设置的自定义事件名也可触发。
+trigger("click!")触发不在命名空间的事件
+trigger("xxx",["a"]) 2参传给on()回调的2参,数组的每项对应回调的每个形参。triggerHandler()触发事件回调并阻止默认。
+trigger({type:"a",user:"b",pass:"c"}) 触发时传入数据到event.user等属性上。
+
+**动画**
+动画抖动：DTD定义，标准模式。
+高、宽、透明度:show(600)/hide("fast")==toggle() 
+透明度: fadeIn()/fadeOut()==fadeToggle()   fadeTo("slow",0.2)
+高度: slideUp()/slideDown()==slideTogele() 
+animate({left:"+=5px",height:"2px"},900) 同时。顺序动画执行链式animate即可。css()改变样式需在animate回调中，否则会在开始执行。要移动的话元素需要相对定位或绝对定位，总之需要自己设置前提条件。只能穿数字属性，字符串的需要插件。step函数用于给动画属性调用。缓动需插件。
+```
+$( ".block:first" ).animate({left: 100,opacity:"toggle"}, {
+    duration: 1000,
+	queue:false,   //不进入动画队列
+    step: function( now, fx ){ //now是动画运动中的属性值，
+      $( ".block:gt(0)" ).css( "left", now ); }, //动第1个物体时，剩下的物体跟着一起动。
+	specialEasing: {  
+      width: 'linear',
+      height: 'easeOutBounce'},  //这个值要插件
+	complete: function() { 
+      $(this).after('<div>Animation complete.</div>');}});
+```
+stop() 仅停止当前动画。 stop(true)清空动画队列，适用于上个事件有链式动画或组合动画。stop(true,true)清空队列并暂停动画 stop(true,true,true)清空队列并到达动画末状态。
+$.fx.off=true 停止全局的动画 
+$(ele).is(":animated") 判断是否正在进行动画
+animate().delay(1000).animate() 延迟1秒
+
+**特效逻辑** 
+滑动滚动条 animate({scrollTop:"+=50"},400)
+慢慢放大：animate({height:"+=50"},400)
+改变选中项： val() 传下拉<option>的文本值 | 传单选或多选的[value值]、这个要数组形式。 attr("selected",true)/attr("checked",true)
+反选：each遍历选项并取反 this.checked=!this.checked   不建议用jq:$(this).attr("checked",!$(this).attr("checked"))
+关联全选和复选：each遍历选项 if(!this.checked){a=false} 如果a变量为false说明复选框有未选中项，a为true则选中全选框。其它思路：复选框组绑定点击，判断选框数量是否等于选中框。
+实时验证：通常是blur再检测表单。现在keyup时手动触发$(this).triggerHandler("blur")
+实时列表：keyup触发后先隐藏所有列表元素再根据value过滤出指定项并显示。`$("table tbody tr").hide().filter(":contains('"+($(this).val()+"')").show()`  原生js判断文本：`indexOf(str)!=-1` 或者用正则四法：match() search() replace() split() exec() test()
+选项卡：先高亮标题,再保存索引用于关联内容区 index=$("li").index(this); $(div).eq(index).show();  原生js元素索引：1. li[i].index=i遍历元素时把i赋值到该属性上 2.点击时遍历li和this对象比较，返回i。
+网页换肤：修改link标签的href属性值。 保存cookie:把换肤的href值保存在cookie内，加载后获取cookie值，存在则在link里插入cookie保存的css。插件用法：$.cookie("css",this.id,{path:'/',expires:10});var cookie_skin = $.cookie("css");if(cookie_skin){ //调用换肤}
+
+**Ajax**
+$.ajax是最底层
+load("test.html") 加载全部html且执行script
+load("test.html .abc") 加载class=abc的元素,不执行script
+load("test.php",{a:"1",b:"2"},fuc) 有参数就是POST，无2参时GET。回调1参响应数据，2参请求状态，3参xhr对象。请求完成执行回调。
+$.get() 用法同上，GET，回调没有第3参。请求成功才执行回调。用$()包裹1参可以操作返回的html片段。$.get()的4参可为"json"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
