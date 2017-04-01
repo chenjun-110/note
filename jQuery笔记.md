@@ -103,7 +103,7 @@ var cr=$cr[0]; //dom对象
 var cr=documnet.getElementById("cr"); //dom对象
 var $cr=$(cr); //jq对象
 //字符串转jq
-var $li=$("<li></li>") //创建jq对象,结合append()
+var $li=$("<li></li>") //动态创建jq对象,结合append()
 ```
 this指向：$(this)指向jq对象，this指向dom对象。
 jq的优点：文件小(1张图片的事)、操作复杂DOM(隐式循环dom)、屏蔽兼容性(ajax)、易扩展。
@@ -216,25 +216,71 @@ animate().delay(1000).animate() 延迟1秒
 网页换肤：修改link标签的href属性值。 保存cookie:把换肤的href值保存在cookie内，加载后获取cookie值，存在则在link里插入cookie保存的css。插件用法：$.cookie("css",this.id,{path:'/',expires:10});var cookie_skin = $.cookie("css");if(cookie_skin){ //调用换肤}
 
 **Ajax**
-$.ajax是最底层
+$.ajax是最底层，用它可实现下面大多。
 load("test.html") 加载全部html且执行script
 load("test.html .abc") 加载class=abc的元素,不执行script
 load("test.php",{a:"1",b:"2"},fuc) 有参数就是POST，无2参时GET。回调1参响应数据，2参请求状态，3参xhr对象。请求完成执行回调。
 $.get() 用法同上，GET，回调没有第3参。请求成功才执行回调。用$()包裹1参可以操作返回的html片段。$.get()的4参可为"json"
+$.getScript(url,fuc) $.getJSON() 用法同上，
+$.each(data,function(index,value){})  迭代器，只有return false才视为退出，其它返回值都会continue。
+$("#form").serialize() 把表单元素的键值对转成字符串，便于ajax传输。
+$(":radio").serializeArray() 把键值对转为JSON格式
+$.param() 把对象或数组转为a=1&b=2格式
+ajaxStart() | ajaxStop() ajax发起事件/请求结束。
+
+**插件**
+表单验证插件：Validation
+ajax表单插件:Form
+模态窗口插件：SimpleModal
+jQuery UI插件：鼠标交互，ui模板，动画
+编写插件：
+  插件命名：jquery.name.js
+  去处：1.对象方法应添加到`jQuery.fn`上。全局函数应添加到`jQuery`本身.
+  注意：插件内部的this指向jq对象。this.each遍历所有元素。分号必须规范。应当返回jq对象保证可链式操作。
+  `(function($){   })(jQuery)  //利用闭包编写插件内部使用$符`
+`jQuery.extend()` 1.可以扩展jq对象 2.可以合并对象(属性方法合并) 3.设置插件默认参数
+```
+function foo(p) {
+var a={
+		a:"bar",
+		b:5,
+		c:"xml"
+	};
+	jQuery.extend(jQuery,p||a)
+}
+foo(); //使用默认参数
+$.a //"bar"
+foo({a:"a",b:"b",c:"c"}) //设置插件参数。
+$.a //"a"
+```
+  
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+`jQuery.fn.extend()` 用法同上，区别是它可被jq对象调用。前者被$调用。
+```
+(function($){
+var a={
+		a:"bar",
+		b:5,
+		c:"xml"
+	};
+	$.fn.extend({
+		"color":function(value){
+			return this.css("color",value);}, //this指向jq对象，这里保证了可链式调用.
+		"reset":function(p){
+			jQuery.extend(jQuery,p||a)}
+	});
+})(jQuery);
+然后就可以使用了   
+$("div").color("red");  //设置样式
+$("div").reset()  //重置参数，不能链式了，因为没return this。
+```
+**性能**
+速度排行：
+1.$("#id")最快 底层调用document.getElementById()
+2.$("div")标签选择器 底层调用document.getElementsByTagName()
+3.$(".class") IE9底层是document.getElementsByClassName()。IE8是循环，不建议。
+4.$("[a=v]") 慢
 
 
 
