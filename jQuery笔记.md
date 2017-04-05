@@ -204,16 +204,6 @@ $.fx.off=true 停止全局的动画
 $(ele).is(":animated") 判断是否正在进行动画
 animate().delay(1000).animate() 延迟1秒
 
-**特效逻辑** 
-滑动滚动条 animate({scrollTop:"+=50"},400)
-慢慢放大：animate({height:"+=50"},400)
-改变选中项： val() 传下拉<option>的文本值 | 传单选或多选的[value值]、这个要数组形式。 attr("selected",true)/attr("checked",true)
-反选：each遍历选项并取反 this.checked=!this.checked   不建议用jq:$(this).attr("checked",!$(this).attr("checked"))
-关联全选和复选：each遍历选项 if(!this.checked){a=false} 如果a变量为false说明复选框有未选中项，a为true则选中全选框。其它思路：复选框组绑定点击，判断选框数量是否等于选中框。
-实时验证：通常是blur再检测表单。现在keyup时手动触发$(this).triggerHandler("blur")
-实时列表：keyup触发后先隐藏所有列表元素再根据value过滤出指定项并显示。`$("table tbody tr").hide().filter(":contains('"+($(this).val()+"')").show()`  原生js判断文本：`indexOf(str)!=-1` 或者用正则四法：match() search() replace() split() exec() test()
-选项卡：先高亮标题,再保存索引用于关联内容区 index=$("li").index(this); $(div).eq(index).show();  原生js元素索引：1. li[i].index=i遍历元素时把i赋值到该属性上 2.点击时遍历li和this对象比较，返回i。
-网页换肤：修改link标签的href属性值。 保存cookie:把换肤的href值保存在cookie内，加载后获取cookie值，存在则在link里插入cookie保存的css。插件用法：$.cookie("css",this.id,{path:'/',expires:10});var cookie_skin = $.cookie("css");if(cookie_skin){ //调用换肤}
 
 **Ajax**
 $.ajax是最底层，用它可实现下面大多。
@@ -256,7 +246,7 @@ $.a //"a"
   
 
 
-`jQuery.fn.extend()` 用法同上，区别是它可被jq对象调用。前者被$调用。
+`jQuery.fn.extend()` 用法同上，区别是它可被jq对象调用。前者被$调用。可以直接挂在jQuery.fn上
 ```
 (function($){
 var a={
@@ -280,21 +270,30 @@ $("div").reset()  //重置参数，不能链式了，因为没return this。
 1.$("#id")最快 底层调用document.getElementById()
 2.$("div")标签选择器 底层调用document.getElementsByTagName()
 3.$(".class") IE9底层是document.getElementsByClassName()。IE8是循环，不建议。
-4.$("[a=v]") 慢
+4.$("[a=v]") 属性慢
+5.$(":hidden") 伪选择器慢   这种必须指定上下文限制其搜索范围！
+缓存至全局属性：设置1个window.$my对象，把所有可能重用的选择器搜索结果都赋值为它的属性值。
+检测对象是否存在：必须检测长度。if($dom.length)
+拼接字符串：用join()代替+。
+用data()获取数据
+js和jq混用
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+**特效逻辑** 
+慢慢放大：animate({height:"+=50"},400)
+改变选中项： val() 传下拉<option>的文本值 | 传单选或多选的[value值]、这个要数组形式。 attr("selected",true)/attr("checked",true)
+反选：each遍历选项并取反 this.checked=!this.checked   不建议用jq:$(this).attr("checked",!$(this).attr("checked"))
+关联全选和复选：each遍历选项 if(!this.checked){a=false} 如果a变量为false说明复选框有未选中项，a为true则选中全选框。其它思路：复选框组绑定点击，判断选框数量是否等于选中框。
+实时验证：通常是blur再检测表单。现在keyup时手动触发$(this).triggerHandler("blur")
+实时列表：keyup触发后先隐藏所有列表元素再根据value过滤出指定项并显示。`$("table tbody tr").hide().filter(":contains('"+($(this).val()+"')").show()`  原生js判断文本：`indexOf(str)!=-1` 或者用正则四法：match() search() replace() split() exec() test()
+选项卡：先高亮标题,再保存索引用于关联内容区 index=$("li").index(this); $(div).eq(index).show();  原生js元素索引：1. li[i].index=i遍历元素时把i赋值到该属性上 2.点击时遍历li和this对象比较，返回i。
+网页换肤：修改link标签的href属性值。 保存cookie:把换肤的href值保存在cookie内，加载后获取cookie值，存在则在link里插入cookie保存的css。插件用法：$.cookie("css",this.id,{path:'/',expires:10});var cookie_skin = $.cookie("css");if(cookie_skin){ //调用换肤}
+禁用右键菜单："contextmenu"事件为return false
+检测游览器：IE:($.browser.msie && $.browser.version >= 8)  火狐:($.browser.mozilla && $.browser.version>="40") 苹果($.browser.safari) 谷歌($.browser.chrome) op($.browser.opera) 
+占位符：获焦时：if($.trim(input.val()) == "zhanweifu"){input.val('')} 失焦时：if($.trim(input.val()) == ''){input.val("zhanweifu")}
+滑至头部：$('html,body').stop().animate({scrollTop:0},500)
+鼠标坐标：$(document).on("mousemove",function(e){$("#div").html("x坐标为："+e.pageX+"  y的坐标为:"+e.pageY)})
+跳转页面：设置window.location。
+居中：css("top",($(window.height()-this.height())/2+$(window).scrollTop()+"px")
 
 
 
