@@ -1245,7 +1245,7 @@ GET请求：名称和值经常有格式问题，需要encodeURIComponent()转码
 修改响应MIME类型：overrideMimeType()
 接收响应时会持续触发onprogress事件，event有3个属性：lengthComputable进度信息是否可用、position已接收的字节、totalSize预期字节。利用这3个属性可创建进度条。
 **跨域**
-CORS:设置自定义请求头Origin:http://www.nczonline.net 返回匹配响应头Access-Control-Allow-Origin:http://www.nczonline.net 头部不匹配时服务器驳回请求。不含cookie。
+CORS: IE8 设置自定义请求头Origin:http://www.nczonline.net 返回匹配响应头Access-Control-Allow-Origin:http://www.nczonline.net 头部不匹配时服务器驳回请求。不含cookie。
 XDR对象：XDR和xhr的区别：不会收发cookie,只能设置请求头的Content-Type,不能访问响应头和状态码，只支持GET/POST,只能异步。其它xhr支持的xdr也支持。
 `new XDomainRequest`(); IE8+独有。       xdr.onload->xdr.open("get","url")仅有2参->xdr.send(null)
 xdr.onerror= 如果没有Access-Control-Allow-Origin响应头会触发错误事件
@@ -1266,9 +1266,15 @@ Access-Control-Max-Age:1728000   //Preflight请求缓存时间
 Access-Control-Allow-Credentials: true   //支持cookie IE不支持 如果请求设置了xhr.withCredentials=true;但又没这个响应会触发错误事件/status为0/responseText为空字符串
 ```
 检测是否支持CORS：if("withCredentials" in xhr) else if(typeof XDomainRequest != "undefined") else{xhr=null}
+**其它跨域**
+1.window.name保存的值，页面只要不是_blank的跳转，就会一直存在。
+2.location.hash：a.html创建src为b.html的iframe->b.html创建src和a.html同域的c.html的iframe->c.html可以改变同域祖父的hash,b.html可以改变c.html的hash。
+3.动态script
+4.document.domain:主页和iframe页都设置一样，就可以互相操作了。
+5.postMessage:必须是子域，子域调用window.postMessage('text',父url)。父域用message事件的data属性接收。a.com创建b.com域下的iframe->通过iframe向b.com传信息。
 **其它跨域方法**
 1.动态创建Image:设置src可单向传参，通过监听onload和onerror知道是否成功。常用于广告跟踪点击量。缺点：只能GET,无法获取响应文本数据。
-2.JSONP:例如callback({"name":"Nicholas"})  由回调函数和数据组成。
+2.JSONP:根据script.src的附带参数，服务器返回相应的json数据。例如callback({"name":"Nicholas"})，由回调函数和数据组成。
 ```
 function handleResponse(response){
 	alert("你的IP是"+ response.ip +",位于"+ response.city +","+ response.region_name);}
