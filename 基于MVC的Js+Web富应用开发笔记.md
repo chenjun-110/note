@@ -82,3 +82,12 @@ if (!Function.prototype.bind) {
 			return findById(id);};
 })();
 ```
+自定义事件关联‘后退前进’按钮：
+```
+$("#tabs").bind("change.tabs", function(e, tabName){
+	window.location.hash = tabName; }); //改变选项卡时，顺便修改hash
+$(window).bind("hashchange", function(){
+	var tabName = window.location.hash.slice(1); //获取hash
+	$("#tabs").trigger("change.tabs", tabName); //触发hashchange事件时，顺便改变选项卡
+});
+```
