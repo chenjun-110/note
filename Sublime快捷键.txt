@@ -1,5 +1,5 @@
 shift+ctrl+/     快捷注释
-ctrl+shift+c     调色板插件 
+ctrl+shift+c     调色板ColorPicker插件 
 Ctrl+D           多选一级
 Ctrl+K           多选跳过
 Alt+F3           全选
