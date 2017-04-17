@@ -15,7 +15,7 @@ ifrm.document.close();
 ```
 IE无法获取write写入iframe的原因：主页document.domain必须和子页面完全一样！
 write只能重写1次的原因：重写时加上一句设置document.domain！
-
+IE监听加载用：attachEvent，谷歌用onload。
 
 动态创建的script可以并行下载。
 谷歌白屏时间：`(chrome.loadTimes().firstPaintTime - chrome.loadTimes().startLoadTime)*1000`
