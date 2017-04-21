@@ -95,14 +95,15 @@ translate可用在绝对定位自身调整。
 transform-origin是以左上角(0,0)为准,默认中心点。
 translateZ是3D图形的半径，正值会朝元素面对的方向走去。
 rotatex正值在上边。rotatey正值在右边。
-视差滚动：鼠标滚动各层背景移速不同。
+视差滚动：鼠标滚动各层背景移速不同。性能在所有方案里最高。
 ```
-舞台div perspective: 1px;
+舞台div perspective: 1px;overflow: auto;
     容器div transform-style: preserve-3d;
-        背景div translateZ:-1px缩小1/2 scale(2);
-        多层背景调z值就行。
-        元素们absolute、rotate、translateZ
+        背景div translateZ(-1px) scale(2);
+        元素们absolute、rotate 多层背景调z值就行：translateZ(-2px);
 ```
+图片视差：background-attachment: fixed; 图片一直定在视口上，内容出现图片才显示。js监听scroll->计算window.scrollTop/data-speed，该值传给background-position进行视差定位。
+颠倒视差：滑动鼠标，往相反的方向运动。原理实际是向下滑鼠标，向上动的本来就是默认行为，向下动是js监听scroll->计算（scrollTop*i+默认top）值，该值传给style.top。自我感觉调top没background性能好。
 线运动：scale(0,1)水平运动-宽度逐渐变为原宽。
 transform: matrix(缩放x, 拉伸y, 拉伸x, 缩放y, 偏移x, 偏移y);
 transform:rotate(0deg) 旋转
