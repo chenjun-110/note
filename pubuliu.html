@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>瀑布流</title>
+	<style type="text/css">
+		.container{
+				width : 90%;
+				margin : 20px auto;
+				position :relative;
+			}
+
+			.unit{
+		        padding: 15px 0 0 15px;
+		        float:left;
+		    }
+		    .unit-cell{
+		        padding: 10px;
+		        border:1px solid #ccc;
+		        box-shadow: 0 0 6px #ccc;
+		        border-radius: 5px;
+		    }
+		    .unit-cell img{
+		        width:300px;
+		        height:auto;
+		    }
+
+			h2{
+				text-align: center;
+				margin-top: 20px;
+			}
+	</style>
+	<script type="text/javascript">
+		var imgArray = [
+				'http://ebay01.qiniudn.com/0dd7912397dda144d679b625b0b7d0a20cf48631.jpg-medium',
+				'http://ebay01.qiniudn.com/0df431adcbef7609fbad6e812cdda3cc7cd99e0e.jpg-medium',
+				'http://ebay01.qiniudn.com/14ce36d3d539b600750430bceb50352ac75cb7f6.jpg-medium',
+				'http://ebay01.qiniudn.com/37d12f2eb9389b506e32b4588735e5dde6116eee.jpg-medium',
+				'http://ebay01.qiniudn.com/37d12f2eb9389b50729890da8735e5dde6116ed6.jpg-medium',
+				'http://ebay01.qiniudn.com/472309f79052982227ecebc7d5ca7bcb0b46d4d3.jpg-medium',
+				'http://ebay01.qiniudn.com/4a36acaf2edda3cc006e77a203e93901203f92ae.jpg-medium',
+				'http://ebay01.qiniudn.com/4bed2e738bd4b31ccc4264a685d6277f9e2ff8b5.jpg-medium',
+				'http://ebay01.qiniudn.com/4e4a20a4462309f7d7426b97700e0cf3d7cad602.jpg-medium'
+			];
+
+
+
+		window.onload=function(){
+
+		    waterfall('container','unit');
+		    
+		    window.onscroll=function(){
+		        if(checkscrollside()){ //判断最后一个元素是否出现
+		            appendScrollDataOneByOne(); //滚动加载,创建dom
+		            // appendScrollDataOnce();
+		            waterfall('container','unit');
+
+		            // setTimeOut(10000,function (){
+		            // 	waterfall('container','unit');
+		            // });
+		        }
+		    };
+		};
+
+	function appendScrollDataOneByOne (){
+		var oParent = document.getElementById('container');// 父级对象
+	    for(var imgLen = imgArray.length,i = 0;i<imgLen;i++){
+	        var oPin=document.createElement('div'); //添加 元素节点
+	        oPin.className='unit';                   //添加 类名 name属性
+	        oParent.appendChild(oPin);              //添加 子节点
+	        var oBox=document.createElement('div');
+	        oBox.className='unit-cell';
+	        oPin.appendChild(oBox);
+	        var oImg=document.createElement('img');
+	        oImg.src = imgArray[i];
+	        oBox.appendChild(oImg);
+	    }
+	}
+
+	function appendScrollDataOnce (){
+		var container = document.getElementById('container');// 父级对象
+		var htmlArray = [];
+		for(var imgLen = imgArray.length,i = 0;i<imgLen;i++){
+			var unit = [];
+			unit.push('<div class="unit"><div class="unit-cell"><img src="');
+			unit.push(imgArray[i]);
+			unit.push('"></div></div>');
+			htmlArray.push(unit.join(''));
+		}
+
+		container.innerHTML = container.innerHTML + htmlArray.join('');
+	}
+
+
+
+	/*
+	    parend 父级id
+	    unit 元素id
+	*/
+	function waterfall(parent,unit){
+	    var oParent=document.getElementById(parent);// 父级对象
+	    var aPin=getClassObj(oParent,unit);// 获取存储块框dom的数组aPin 
+	    var iPinW=aPin[0].offsetWidth;// 单个块框固定宽
+	    var num=Math.floor(document.documentElement.clientWidth/iPinW);//每行中能容纳的列数【窗口宽度除以一个块框宽度】
+	    oParent.style.cssText='width:'+iPinW*num+'px;ma rgin:0 auto;';//设置父级居中样式：定宽+自动水平外边距
+
+	    var pinHArr=[];//用于存储 每列中的所有块框相加的高度。
+	    for(var i=0;i<aPin.length;i++){//遍历dom数组的每个块框元素
+	        var pinH=aPin[i].offsetHeight;
+	        if(i<num){
+	            pinHArr[i]=pinH; //第一行的块框高添加进数组pinHArr
+	        }else{
+	            var minH=Math.min.apply(null,pinHArr);//数组pinHArr中的最小值minH
+	            var minHIndex=getminHIndex(pinHArr,minH);//最小高的索引
+	            aPin[i].style.position='absolute';
+	            aPin[i].style.top=minH+'px'; //设置top 
+	            aPin[i].style.left=aPin[minHIndex].offsetLeft+'px'; //设置left
+	            //数组 最小高元素的高 + 添加上的aPin[i]块框高
+	            pinHArr[minHIndex]+=aPin[i].offsetHeight;//更新添加了块框后的列高
+	        }
+	    }
+	}
+
+	/****
+	    *通过父级和子元素的class类 获取该同类子元素的数组
+	    */
+	function getClassObj(parent,className){
+	    var obj=parent.getElementsByTagName('*');//获取 父级的所有子集
+	    var pinS=[];//创建一个数组 用于收集子元素
+	    for (var i=0;i<obj.length;i++) {//遍历子元素、判断类别、压入数组
+	        if (obj[i].className==className){
+	            pinS.push(obj[i]);
+	        }
+	    }
+	    return pinS;
+	}
+	/****
+	    *获取 pin高度 最小值的索引index
+	    */
+	function getminHIndex(arr,minH){
+	    for(var i in arr){
+	        if(arr[i]==minH){
+	            return i;
+	        }
+	    }
+	}
+
+
+	function checkscrollside(){
+	    var oParent=document.getElementById('container');
+	    var aPin=getClassObj(oParent,'unit');
+	    var lastPinH=aPin[aPin.length-1].offsetTop+Math.floor(aPin[aPin.length-1].offsetHeight/2);//创建高度：最后一个块框的距离网页顶部+自身高的一半(实现未滚到底就开始加载)
+	    // lastPinH=aPin[aPin.length-1].offsetTop + aPin[aPin.length-1].offsetHeight+Math.floor(10);//滚动到最下面才触发加载
+	    var scrollTop=document.documentElement.scrollTop||document.body.scrollTop;//注意解决兼容性
+	    var documentH=document.documentElement.clientHeight;//页面高度
+	    return (lastPinH<scrollTop+documentH)?true:false;//到达指定高度后 返回true，触发waterfall()函数
+	}
+	</script>
+</head>
+<body>
+	<div class="container" id="container">
+  
+	<div class="unit">
+    <div class="unit-cell">
+      <img src="http://ebay01.qiniudn.com/0dd7912397dda144d679b625b0b7d0a20cf48631.jpg-medium">
+    </div>
+  </div>
+  <div class="unit">
+    <div class="unit-cell">
+      <img src="http://ebay01.qiniudn.com/0df431adcbef7609fbad6e812cdda3cc7cd99e0e.jpg-medium">
+    </div>
+  </div>
+  <div class="unit">
+    <div class="unit-cell">
+      <img src="http://ebay01.qiniudn.com/14ce36d3d539b600750430bceb50352ac75cb7f6.jpg-medium">
+    </div>
+  </div>
+  <div class="unit">
+    <div class="unit-cell">
+      <img src="http://ebay01.qiniudn.com/37d12f2eb9389b506e32b4588735e5dde6116eee.jpg-medium">
+    </div>
+  </div>
+  <div class="unit">
+    <div class="unit-cell">
+      <img src="http://ebay01.qiniudn.com/37d12f2eb9389b50729890da8735e5dde6116ed6.jpg-medium">
+    </div>
+  </div>
+  <div class="unit">
+    <div class="unit-cell">
+      <img src="http://ebay01.qiniudn.com/472309f79052982227ecebc7d5ca7bcb0b46d4d3.jpg-medium">
+    </div>
+  </div>
+  <div class="unit">
+    <div class="unit-cell">
+      <img src="http://ebay01.qiniudn.com/4a36acaf2edda3cc006e77a203e93901203f92ae.jpg-medium">
+    </div>
+  </div>
+  <div class="unit">
+    <div class="unit-cell">
+      <img src="http://ebay01.qiniudn.com/4bed2e738bd4b31ccc4264a685d6277f9e2ff8b5.jpg-medium">
+    </div>
+  </div>
+  <div class="unit">
+    <div class="unit-cell">
+      <img src="http://ebay01.qiniudn.com/4e4a20a4462309f7d7426b97700e0cf3d7cad602.jpg-medium">
+    </div>
+  </div>
+  
+</div>
+</body>
+</html>
