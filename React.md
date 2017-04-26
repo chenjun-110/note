@@ -1,3 +1,4 @@
+兼容IE8：html5shiv兼容h5标签，es5-shim兼容ES5数组方法。es5-sham兼容对象方法。console-polyfill兼容console.*。
 JSX语法：
 首字母大、小写来区分本地组件的类和 HTML 标签。
 script标签的type="text/babel"
@@ -7,21 +8,29 @@ class属性要写成`className`,for属性要写成`htmlFor`。tabindex写成`tab
 react.js react-dom.js Browser.js是把JSX转js语法的，消耗性能，应在服务器上转。
 模板转HTML并插入：ReactDOM.render()
 创建组件类实例：`React.createClass({render:function(){}})`,内部HTML标签顶层只允许一个,变量首字母大写,组件上的属性对应`this.props.属性`,
-
+render:仅仅是子组件的快照。
 遍历:`React.Children.map()` this.props.children可获取组件标签内所有子节点-如果无子就是udf,有1子则类型是object,有多子则类型是array。 如果渲染数组的索引是纯数字(哈希值)，有可能导致乱序，需要给索引加字符串前缀items['result-' + result.id] = <li>{result.text}</li>; 
 
-propTypes属性是用来验证组件实例的属性是否符合要求. propTypes:{len:React.PropTypes.number}
-getDefaultProps方法可以用来设置组件属性的默认值。如果父级没传入props，它就声明默认值。
-ref属性值：`this.refs.[refName]` 获取真实DOM元素。只在虚拟DOM插入后生效，一般在onClick回调中使用。
-getInitialState方法用于定义初始状态return对象,可用`this.state`获取该对象。`this.setState()`方法就修改状态值且重新渲染组件。
-读取文本框的值：event.target.value
+ref：ref='refName' 
+  `this.refs.refName.getDOMNode()` 获取真实DOM元素。只在虚拟DOM插入后生效，一般在onClick回调中使用。
+  `React.findDOMNode(this.refs.refName)`同效。
+  ref={function(c){React.findDOMNode(c).focus();}} ref值为回调函数。
 
 设置样式：style=`{{opacity: this.state.opacity}}` 第一重大括号表示这是JS语法，第二重大括号表示样式对象。
 变量用()包裹html。
+表单或<textarea>的值通过value设置。要么不写，写不能写死，要用onChange监听state
+  读取文本框的值：event.target.value
 
+
+**props**
+propTypes属性是用来验证组件实例的属性是否符合要求. propTypes:{len:React.PropTypes.number}
 父组件向子组件通信：父组件设置属性，子组件用this.props.x获取。
-展开属性：`<A {...obj} />` 把obj的属性和值都传到组件上
+展开属性：
+  `<A {...obj} />` 把obj的属性和值都传到组件上.
+  var {checked,...other}=this.props; 这个checked被列出来就不会传递下去，<div {...other} />。如果想传递列出来的属性，就<div {...other} checked={checked} />。
+  单纯的<div {...this.props} />会把所有属性传下去。
 HTML插入JSX：`<div dangerouslySetInnerHTML={{'{{'}}__html: 'First &middot; Second'}} />`
+**state**：通常放在组件上层，向下流动。
 无状态组件：无状态组件只负责渲染数据，在它的上层创建state组件封装交互逻辑，再通过props传给无状态组件。
 this.state:内部保存基础交互数据，其它数据由它计算出最好。
 子组件状态：style={{ '{{'}}display: 'none' }}状态子组件最好隐藏而非删除。
@@ -62,13 +71,18 @@ componentDidMount：成功render并渲染完成真实DOM后触发，可以修改
 运行中阶段
 componentWillReceiveProps:父组件修改属性触发，可以修改新属性，修改状态
 shouldComponentUpdate:返回false会阻止render调用,提高性能
-componentWillUpeate:在收到新props/state之前触发,不能修改属性和状态
+componentWillUpeate:组件更新前触发，在收到新props/state之前触发,不能修改属性和状态
   render:只能访问this.props和this.state，只有一个顶层组件，不允许修改状态和DOM输出
 componentDidUpdate:组件更新后触发，可以修改DOM
 销毁阶段：
 componentWillUnMount:在删除组件之前进行清理操作，比如计时器和事件监听器。
 
-
+getDefaultProps方法可以用来设置组件属性的默认值。如果父级没传入props，它就声明默认值。
+getInitialState方法用于定义初始状态return对象,可用`this.state`获取该对象。`this.setState()`方法就修改状态值且重新渲染组件。
+forceUpdate:适合嵌套极深的组件改变state时，而不是从先祖流下。
+shouldComponentUpdate: function(nextProps, nextState) {
+  return this.props.value !== nextProps.value;
+}
 支持的标签：
 ```
 a abbr address area article aside audio b base bdi bdo big blockquote body br
