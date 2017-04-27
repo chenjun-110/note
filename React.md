@@ -133,6 +133,8 @@ key:属性，值在兄弟节点唯一，优化diff算法匹配时间。key应该
 
 
 
-
-
-
+React-router:
+<Route path={`${match.url}/:topicId`} component={Topic}/> 注意这是``符，no引号。{}符，no括号。
+Link:to决定url，replace仅替换不存历史 activeStyle或activeClassName活跃状态的链接样式
+Route:当path匹配时，显示component。把Route放在Route内部，配合{this.props.children}，子组件只和子组件切换，父导航不消失。
+区别：Route负责定义显示什么，Link定义去向哪里。
