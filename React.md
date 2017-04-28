@@ -137,4 +137,42 @@ React-router:
 <Route path={`${match.url}/:topicId`} component={Topic}/> 注意这是``符，no引号。{}符，no括号。
 Link:to决定url，replace仅替换不存历史 activeStyle或activeClassName活跃状态的链接样式
 Route:当path匹配时，显示component。把Route放在Route内部，配合{this.props.children}，子组件只和子组件切换，父导航不消失。
+  path="/a/:b/:c" 冒号是参数，关联Link的to,取值用{this.props.params.b/c}，参数路由一般写在底部，因为可能规则和静态相似就覆盖掉了。{this.props.location.query.bar}可取url键值对。
+  {this.props.children}关联component,放在父组件内，Route放在父Route内。可实现不消失的全局导航。
+  进入路由触发onEnter属性，离开触发onLeave。
 区别：Route负责定义显示什么，Link定义去向哪里。
+<IndexRoute component={Home}/>：n个子路由中的默认路由，随主组件一同出现。关联to="/"
+IndexLink：解决索引路由总是处在活跃的问题(或Link使用属性onlyActiveOnIndex={true})。
+Router:history={hashHistory}。用{browserHistory}可以得到干净的url,但刷新会访问不到，需要配置服务器：package.json修改`"start": "webpack-dev-server --inline --content-base . --history-api-fallback"`,然后把css/js路径改为绝对路径。
+  routes={a},可以把Route写在a变量里。
+Redirect：从url自动跳转到另一url.
+表单跳转：
+  handleSubmit(event) {
+    event.preventDefault()
+    const userName = event.target.elements[0].value
+    const repo = event.target.elements[1].value
+    const path = `/repos/${userName}/${repo}`
+    browserHistory.push(path)
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
