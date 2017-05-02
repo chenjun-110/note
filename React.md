@@ -133,7 +133,7 @@ key:属性，值在兄弟节点唯一，优化diff算法匹配时间。key应该
 
 
 
-React-router:
+**React-router**:
 <Route path={`${match.url}/:topicId`} component={Topic}/> 注意这是``符，no引号。{}符，no括号。
 Link:to决定url，replace仅替换不存历史 activeStyle或activeClassName活跃状态的链接样式
 Route:当path匹配时，显示component。把Route放在Route内部，配合{this.props.children}，子组件只和子组件切换，父导航不消失。
@@ -155,14 +155,15 @@ Redirect：从url自动跳转到另一url.
     browserHistory.push(path)
   },
 
-
-
-
-
-
-
-
-
+**Redux**:
+数据容器：const store = createStore(reducer);
+获取数据快照：const state = store.getState(); 一快照对应一视图
+创建消息：function add(t){return {type:'ADD_TODO',payload：t}}   const action=add('message');  一种消息对应一Action。用户通过View影响State。
+发送消息：store.dispatch({type:'ADD_TODO',payload:'message'})等价于store.dispatch(add('message'));   接收一个Action对象参数
+修改快照：reducer函数接收state参数和action参数，返回新state。创建容器时传入，自动返回快照。
+监听快照：store.subscribe(fuc) 快照改变则触发fuc,所以fuc是修改View的函数(render/setState) 解除监听是调用它的返回值。
+解耦reducer:combineReducers({}) 合并多个reducer
+中间件：原理给dispatch添加功能。createStore(reducer,state,applyMiddleware(fuc))
 
 
 
