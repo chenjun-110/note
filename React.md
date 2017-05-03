@@ -164,7 +164,10 @@ Redirect：从url自动跳转到另一url.
 监听快照：store.subscribe(fuc) 快照改变则触发fuc,所以fuc是修改View的函数(render/setState) 解除监听是调用它的返回值。
 解耦reducer:combineReducers({}) 合并多个reducer
 中间件：原理给dispatch添加功能。createStore(reducer,state,applyMiddleware(fuc))
-
+**react-redux**
+生成容器组件：input把state变成ui上的props,output把交互变成action。
+  const Rongqi=connect(input,output)(Ui)
+Provider组件：组件放在它内部可以拿到state。
 
 
 

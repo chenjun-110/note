@@ -7,12 +7,6 @@ npm list express 查看模块版本号
 npm list 查看本地所有模块
 npm config set proxy null 解决抛错npm err! Error: connect ECONNREFUSED 127.0.0.1:8087 
 
-npm init 生成package.json，创建模块的前提
-npm adduser 模块注册用户
-npm publish 发布模块
-npm install -g cnpm --registry=https://registry.npm.taobao.org 淘宝npm
-cnpm install 淘宝下载
-
 ctrl + c - 退出当前终端
 .save filename - 保存当前的 Node REPL 会话到指定文件
 .load filename - 载入当前 Node REPL 会话的文件内容。
