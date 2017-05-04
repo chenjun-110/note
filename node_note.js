@@ -10,8 +10,10 @@ npm config set proxy null 解决抛错npm err! Error: connect ECONNREFUSED 127.0
 npm init 生成package.json，创建模块的前提
 npm adduser 模块注册用户
 npm publish 发布模块
+
 npm install -g cnpm --registry=https://registry.npm.taobao.org 淘宝npm
 cnpm install 淘宝下载
+cnpm install express --save 安装express
 
 ctrl + c - 退出当前终端
 .save filename - 保存当前的 Node REPL 会话到指定文件
