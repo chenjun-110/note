@@ -39,9 +39,10 @@ IE兼容渲染语义元素CSS：head脚本加载HTML5 Shiv
 `strokeText()`画空心文本(text,x,y,maxWidth)
 
 `beginPath();` 开始或重置路径。
-`moveTo(0,0);`画直线起点`lineTo(1,1);`画直线结点(可多次) 
+`moveTo(0,0);`画直线起点  `lineTo(1,1);`画直线结点(可多次) 
 bezierCurveTo() 画贝塞尔曲线
-closePath(); 结束路径
+`closePath();` 结束路径
+setLineDash([2, 5]);画虚线
 `arc(x,y,r,sAngle,eAngle,counterclockwise)`画弧线(整圆角是2*Math.PI,默认false顺时针)
 `stroke()；` 绘制路径
 
@@ -50,7 +51,17 @@ closePath(); 结束路径
 
 `drawImage()`画布上绘制图像、画布或视频.
 两种语法：1.(img,x,y,width,height) 2.(img,sx,sy,swidth,sheight,x,y,width,height)裁剪。sx正值从左裁图左移，负值右裁右移。sy正值从上裁图上移，负值下裁下移。swidth,sheight裁后图永远撑满盒子。
+getBoundingClientRect() 获取元素距离页面的偏移，利用它获得canvas的鼠标座标。
 
+技巧：
+  把某些绘制封装在函数内，开头调用save(),结尾restore()，不会影响之前。
+  解决粗线条矩形空隙：lineCap="round" lineJoin="round" 
+  两点距离计算公式：Math.sqrt(Math.pow((loc1.x-loc2.x),2)+Math.pow((loc1.y-loc2.y),2)) d = √[(x₁-x₂)²+(y₁-y₂)²]
+  线宽随速度变化公式：max线宽-(v-minv)/(maxv-minv) * (max线宽-min线宽) 
+  解决平滑过度线宽：上次线宽占2/3，当次线宽占1/3。
+  重置画布：先clearRect()->再调用初始化背景函数。
+  
+触控事件：多点触控存在数组内e.touches[0] touchstart-touchmove-touchend
 ----------
 
 `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" >`svg命名空间
