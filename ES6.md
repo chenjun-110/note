@@ -77,8 +77,8 @@ var getGlobal = function () {
   4. tag`Hello ${5+10} world ${5*10}`等价于tag(['Hello ',' world ',''], 15, 50); 特殊函数调用形式，注意区分是模板还是函数。
 
 类数组转数组： 代替[].slice.call(obj)
-	1. `Array.from(obj)` 
-	2. `[...document.querySelectorAll('div')]`  点点点也可以转数组
+	1. `Array.from(obj)` 万能转
+	2. `[...document.querySelectorAll('div')]`  点点点转数组，仅限有Iterator接口的对象。
 筛选数组： 代替indexOf
 	1. [-1,-2,1].find(n=>n<0) //-1  返回首个条件true的项
 	2. [].findIndex() 返回首个条件true的项索引
@@ -100,10 +100,46 @@ function foo(x, y = function(){x = 2;}) {
 foo();
 x; 
 ```
+严格模式：只要函数参数使用了默认值、解构赋值、或者扩展运算符，就不能显式指定严格模式。
 扩展运算符：
 	1. ...用于形参：多余参数序列转为数组。 
-	2. ...用于传参/用于数组项：数组转为参数序列。 代替了`fuc.apply(null,arrgs)`/代替了`concat`
-	3. ...用于[...'abc']:字符串转为数组。可识别unicode，可解决ES5操作乱码问题。
+	2. ...用于传参：数组转为参数序列。 代替了`fuc.apply(null,arrgs)`
+	3. ...用于数组项：代替了`concat`
+	3. ...用于[...'abc']:字符串转为数组。可识别unicode，可解决ES5操作乱码问题。代替split('')
+	4. ...用于数组追加数组：arr1.push(...arr2) 代替了`Array.prototype.push.apply(arr1, arr2);`
+	5. ...用于Generator函数：返回遍历值的数组。
+箭头函数：简化回调
+	1. 函数体多余一条语句，要{    return}包裹
+	2. 返回值是对象，圆括包裹 id=>({a:1,b:2});
+	3. `({a,b}) => a+' '+b` 等价于 `o => o.a+' 'o.b` 不用写对象名咯
+	4. 注意：不能用arguments、yield、构造函数。也不能用call/apply/bind改变this。
+	5. 箭头函数根本不存在自己的this! 它的this是外层对象的this。arguments、super、new.target都是外层函数的变量。
+	6. 简写λ演算
+绑定符：ES7,双冒号`obj::f(...arguments)` 代替了`f.apply(obj,arguments)`
+尾调用优化:即只保留内层函数的调用帧。如果尾调函数引用了父函数的变量，就会占内存，多层嵌套尾调会很占内存。所以把函数放在`return f(x)`处能减少内存。
+尾递归：不会栈溢出。return f(n-1,n*t)比return n*f(n-1)写法强很多。
+	1. 如果递归函数最后1步还有多余操作的话，可以在父函数多加几个形参。如果考虑到递归函数的可读性，可以外部嵌套父函数 / 柯里化把多参数转为单参数 / 设默认参数。 
+	2. 注意：尾递归优化仅在ES6严格模式有效，低版本用蹦床函数把递归转化为循环。
+```
+function tco(f) { //f是要递归的函数
+  var value,active = false,accumulated = [];
+  return function accumulator() {
+    accumulated.push(arguments);
+    if (!active) {
+      active = true; //状态变量
+      while (accumulated.length) { //循环条件
+        value = f.apply(this, accumulated.shift());
+      }
+      active = false;
+      return value;  }};}
+var sum = tco(function(x, y) { 
+  if (y > 0) {
+    return sum(x + 1, y - 1) //递归调用sum,但因为active=true
+  }else {return x}
+});
+sum(1, 100000)
+```
+
 	
 
 es6-API介绍：
