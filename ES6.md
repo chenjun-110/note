@@ -129,7 +129,7 @@ function tco(f) { //f是要递归的函数
       active = true; //状态变量
       while (accumulated.length) { //循环条件
         value = f.apply(this, accumulated.shift());
-      }
+    }
       active = false;
       return value;  }};}
 var sum = tco(function(x, y) { 
@@ -140,6 +140,10 @@ var sum = tco(function(x, y) {
 sum(1, 100000)
 ```
 
+对象：
+  1. 变量传入属性名，等同传入属性值`obj={foo}`等价于`obj={foo:foo}`
+  2. 无func函数传入方法名 `obj={m(){}}`等价于`obj={m:funcion(){}}` 类似getter/setter。如果是Generator函数要`obj={* m(){}}`
+  3. module.exports = { getItem, setItem, clear }; 类似如此传入函数名、变量名即可生成对象。
 	
 
 es6-API介绍：
@@ -166,13 +170,19 @@ Array.of 参数转数组
 [].fill 覆盖数组某些项
 [].keys/values/entries 返回数组的遍历器对象
 0 in [] 判断0位是否有值。避免出现数组空位。
-
-
-
-
-
-
-
+Object.is 判断严格相等值，取代=== ==。解决了+0不等于-0，NaN等于NaN的问题。
+Object.assign 合并对象，只拷贝自身属性，非继承/不可枚举属性。注意1.（嵌套对象中）浅拷贝的是对象的引用，原对象改变会影响合并对象。2.浅拷贝会有顶级同名属性覆盖的问题。3.数组会按键名覆盖。4.适用于为对象添加属性方法 Object.assign(this,{x,y},fuc(){})
+Object.getOwnPropertyDescriptor 返回某个属性的描述对象
+**遍历属性**：按属性名顺序"数字->字符串->symbol"
+1. for...in 遍历自身+继承(可枚举，不含symbol)
+2. Object.keys 遍历自身(可枚举，不含symbol)
+3. Object.getOwnPropertyNames 遍历自身所有(不含symbol)
+4. Object.getOwnPropertySymbols 遍历自身(仅symbol)
+5. Reflect.ownKeys 遍历自身所有
+6. Object.values 遍历属性值(可枚举)
+7. Object.entries 遍历自身属性和属性值(可枚举，不含symbol)
+Object.setPrototypeOf 设置原型，代替了__proto__
+Object.getPrototypeOf 返回原型
 
 
 
