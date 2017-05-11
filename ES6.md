@@ -101,13 +101,17 @@ foo();
 x; 
 ```
 严格模式：只要函数参数使用了默认值、解构赋值、或者扩展运算符，就不能显式指定严格模式。
-扩展运算符：
+**扩展运算符**：
 	1. ...用于形参：多余参数序列转为数组。 
 	2. ...用于传参：数组转为参数序列。 代替了`fuc.apply(null,arrgs)`
 	3. ...用于数组项：代替了`concat`
 	3. ...用于[...'abc']:字符串转为数组。可识别unicode，可解决ES5操作乱码问题。代替split('')
 	4. ...用于数组追加数组：arr1.push(...arr2) 代替了`Array.prototype.push.apply(arr1, arr2);`
 	5. ...用于Generator函数：返回遍历值的数组。
+	6. ...用于对象剩余键值对会生成对象(浅拷贝-值对象引用-无原型)。
+	 61. {x,...{y,z}}=o中x可以读取o的继承属性，yz只能读取o的自身属性。
+	 62. ab={...a,...b} 先展开属性再合并对象，代替`Object.assign({}, a, b)` 如果展开对象里有getter会执行。
+	7. ...用于数组剩余参数会生成数组。
 箭头函数：简化回调
 	1. 函数体多余一条语句，要{    return}包裹
 	2. 返回值是对象，圆括包裹 id=>({a:1,b:2});
@@ -116,6 +120,7 @@ x;
 	5. 箭头函数根本不存在自己的this! 它的this是外层对象的this。arguments、super、new.target都是外层函数的变量。
 	6. 简写λ演算
 绑定符：ES7,双冒号`obj::f(...arguments)` 代替了`f.apply(obj,arguments)`
+存在符：ES7,a?.b 判断a是否存在,存在就调用a.b   
 尾调用优化:即只保留内层函数的调用帧。如果尾调函数引用了父函数的变量，就会占内存，多层嵌套尾调会很占内存。所以把函数放在`return f(x)`处能减少内存。
 尾递归：不会栈溢出。return f(n-1,n*t)比return n*f(n-1)写法强很多。
 	1. 如果递归函数最后1步还有多余操作的话，可以在父函数多加几个形参。如果考虑到递归函数的可读性，可以外部嵌套父函数 / 柯里化把多参数转为单参数 / 设默认参数。 
@@ -144,7 +149,24 @@ sum(1, 100000)
   1. 变量传入属性名，等同传入属性值`obj={foo}`等价于`obj={foo:foo}`
   2. 无func函数传入方法名 `obj={m(){}}`等价于`obj={m:funcion(){}}` 类似getter/setter。如果是Generator函数要`obj={* m(){}}`
   3. module.exports = { getItem, setItem, clear }; 类似如此传入函数名、变量名即可生成对象。
-	
+**Symbol类型**
+数据类型：undefined、null、布尔值、字符串、数值、对象、Symbol
+用法：`var s = Symbol();  o[s]=1; o={[s]:fuc}; o.a=Symbol();`   
+调用：`o[s]; o[s]();` 不能用点号。
+隐式转换：Symbol不是字符串，所以不能被+转换。可以被String(s)/s.toString()显式转。能转成布尔值。
+适用于：
+  1. 在其他人开发的对象上增加属性名(不用担心属性名覆盖)，每个Symbol是唯一的。
+  2. 适合做常量值。
+  3. 代替唯一变量，如条件里的比较字符串。
+  4. 不能被常规方法遍历，适合既是公有方法，又只用于内部。
+  5. 单例模式免覆盖 module.exports = global[s] = new A();
+
+
+
+
+
+
+
 
 es6-API介绍：
 repeat() 复制字符串n次
@@ -172,17 +194,42 @@ Array.of 参数转数组
 0 in [] 判断0位是否有值。避免出现数组空位。
 Object.is 判断严格相等值，取代=== ==。解决了+0不等于-0，NaN等于NaN的问题。
 Object.assign 合并对象，只拷贝自身属性，非继承/不可枚举属性。注意1.（嵌套对象中）浅拷贝的是对象的引用，原对象改变会影响合并对象。2.浅拷贝会有顶级同名属性覆盖的问题。3.数组会按键名覆盖。4.适用于为对象添加属性方法 Object.assign(this,{x,y},fuc(){})
-Object.getOwnPropertyDescriptor 返回某个属性的描述对象
 **遍历属性**：按属性名顺序"数字->字符串->symbol"
 1. for...in 遍历自身+继承(可枚举，不含symbol)
 2. Object.keys 遍历自身(可枚举，不含symbol)
 3. Object.getOwnPropertyNames 遍历自身所有(不含symbol)
-4. Object.getOwnPropertySymbols 遍历自身(仅symbol)
-5. Reflect.ownKeys 遍历自身所有
+4. Object.getOwnPropertySymbols 遍历自身的symbol 
+5. Reflect.ownKeys 遍历自身所有(含symbol)
 6. Object.values 遍历属性值(可枚举)
 7. Object.entries 遍历自身属性和属性值(可枚举，不含symbol)
 Object.setPrototypeOf 设置原型，代替了__proto__
 Object.getPrototypeOf 返回原型
+Object.getOwnPropertyDescriptor 返回某个属性的描述对象
+
+Symbol() 每次调用返回都不一样
+Symbol.for() 只创建1次Symbol值并登记到全局
+Symbol.keyFor() 返回已登记symbol的参数
+Symbol.hasInstance内部方法 调用instanceof触发
+Symbol.isConcatSpreadable属性 调用concat触发，可不展开合并嵌套。
+Symbol.species属性 调用new触发，更换构造函数
+Symbol.match 调用match触发，返回该方法的返回值
+Symbol.replace 调用replace触发，返回该方法的返回值
+Symbol.search 调用search触发，
+Symbol.split 调用split触发
+Symbol.iterator  调用for of循环触发
+Symbol.toPrimitive 值被转成原始类型触发，根据类型返回不同值
+Symbol.toStringTag 调用toString触发，返回值通常表示对象类型。
+Symbol.unscopables 调用with触发，作用域可设置不查找某个属性。
+
+
+
+
+
+
+
+
+
+
 
 
 
