@@ -16,6 +16,9 @@ npm install -g cnpm --registry=https://registry.npm.taobao.org 淘宝npm
 cnpm install 淘宝下载
 cnpm install express --save 安装express
 
+$ node --expose-gc
+global.gc() 手动垃圾回收
+process.memoryUsage() 查看内存占用
 =======
 >>>>>>> e92839421b666749e2781ea698fea3281dcc7901
 ctrl + c - 退出当前终端
