@@ -200,7 +200,10 @@ map.forEach(function(value, key, map) {
 **Proxy**
 var proxy = new Proxy(target, handler);
 特点：拦截并处理target对象的访问。重载了点运算符。
+--
 
+
+--
 
 
 
