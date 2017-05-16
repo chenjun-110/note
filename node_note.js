@@ -67,7 +67,7 @@ buf1.compare(buf2); //比大小，返回值>0 <0 =0
 buf1.copy(buf2); //buf1的值复制到buf2
 buf.slice(0,2); //裁剪返回buf的0 1位字符内存
 buf.length; //内存长度,不会随内容改变而改变
-buf[i]; //设置或获取指定字节
+buf[i]; //设置或获取指定字节.
 
 var fs = require("fs");
 fs.readFile('input.txt', function (err, data) { //读取文件内容，非阻塞是无顺序的。
