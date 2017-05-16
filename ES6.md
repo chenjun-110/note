@@ -200,10 +200,12 @@ map.forEach(function(value, key, map) {
 **Proxy**
 var proxy = new Proxy(target, handler);
 特点：拦截并处理target对象的访问。重载了点运算符。
---
+handler：get:function(操作对象，属性，receiver）{return 读取返回值} set/apply拦截作函数调用/construct拦截作new调用/还十几个拦截各种方法。。。
+技巧：
+  1. 把proxy实例设置为obj的属性。
+  2. 把proxy设置为obj的原型，访问obj不存在的属性就拦截。
+  3. 
 
-
---
 
 
 
