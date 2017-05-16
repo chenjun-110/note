@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="51254997-a103-46fb-80a6-07280e4c77f1" name="fuwuqi" url="http://175.9.140.241:9090">
+        <fileTransfer port="0" mountedRoot="C:\Users\chenjun\Desktop\Alldemo\svg\duang" accessType="MOUNT" />
+      </webServer>
+    </option>
+  </component>
+</project>

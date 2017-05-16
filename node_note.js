@@ -157,6 +157,8 @@ beforeExit 清空事件循环并没有其他安排时触发
 uncaughtException 异常冒泡回到事件循环时触发
 Signal 进程接收到信号时就触发
  */
+
+
 process.on('exit', function(code) {
   console.log('退出码为:', code);
 });
