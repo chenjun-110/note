@@ -205,7 +205,7 @@ handler：get:function(操作对象，属性，receiver）{return 读取返回�
   1. 把proxy实例设置为obj的属性。
   2. 把proxy设置为obj的原型，访问obj不存在的属性就拦截。
   3. 
-
+get:读取属性前执行函数。
 
 
 
