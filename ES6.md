@@ -9,7 +9,7 @@ test.printName();
 ```
 `module.exports=Student;`  //Student是个对象/构造函数
 `var Student=require('./test');`
-  等价于，因为module.exports和exports对象指向同一变量。
+  等价于，因为module.exports和exports对象指向同一变量。         
 `exports.Student=Student;`
 `var Student=require('./test').Student;`
 ----end-------
@@ -204,8 +204,36 @@ handler：get:function(操作对象，属性，receiver）{return 读取返回�
 技巧：
   1. 把proxy实例设置为obj的属性。
   2. 把proxy设置为obj的原型，访问obj不存在的属性就拦截。
-  3. 
-get:读取属性前执行函数。
+  3. writable、configurable属性必须为true。
+  4. 代理对象this指向Proxy代理对象。所以无法取到外部属性。某些原生对象如new Date的this不一，就无法代理(必须绑定作用域)。
+  5. 适合WEB接口，不用为美中数据作适配，统一写到Proxy里。
+handler：
+	1. get:({}，属性，receiver），读取属性前执行函数。
+	2. set：拦截某属性的赋值操作。适合赋值时验证数据，还有数据绑定，禁止操作私有属性等。
+	3. apply:({}，this,对象的参数)，拦截对象调用自身/call/apply。
+	4. has:({},属性), in符
+	5. construct：({},参数,新{}), new符，必须返回对象
+	6. deleteProperty：({},属性)，delete符，返回false/抛错就阻止。
+	7. defineProperty:拦截了Object.defineProperty，return false阻止添加修改属性。
+	8. getOwnPropertyDescriptor 拦截描述符、getPrototypeOf 拦截原型、isExtensible 拦截拓展、preventExtensions 拦截扩展、setPrototypeOf 拦截原型、
+	9. ownKeys 拦截遍历属性，忽略不存在/Symbol属性/否定enumerable,return []要遍历的属性列在[]内。[]里必须返回不可配置不可拓展的属性。
+	10. Proxy.revocable 可取消代理实例，适合带权限的访问代理。
+**Reflect**
+目的：封装了语言内部方法。Reflect.defineProperty将代替Object.defineProperty
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -278,9 +306,85 @@ new Map()
 
 
 
+**ES6代码收藏**：
+生成DOM节点的函数
+```
+const dom = new Proxy({}, {
+  get(target, property) {
+    return function(attrs = {}, ...children) {
+      const el = document.createElement(property);
+      for (let prop of Object.keys(attrs)) {
+        el.setAttribute(prop, attrs[prop]);  //设属性
+      }
+      for (let child of children) {
+        if (typeof child === 'string') {
+          child = document.createTextNode(child); //设文本
+        }
+        el.appendChild(child);     //非字符串就追加
+      }
+      return el;
+    }
+  }
+});
 
+const el = dom.div({},
+  'Hello, my name is ',
+  dom.a({href: '//example.com'}, 'Mark'),
+  '. I like:',
+  dom.ul({},
+    dom.li({}, 'The web'),
+    dom.li({}, 'Food'),
+    dom.li({}, '…actually that\'s it')
+  )
+);
 
+document.body.appendChild(el);
+```
+赋值时验证数据：
+```
+let validator = {
+  set: function(obj, prop, value) {
+    if (prop === 'age') {
+      if (!Number.isInteger(value)) {
+        throw new TypeError('The age is not an integer');
+      }
+      if (value > 200) {
+        throw new RangeError('The age seems invalid');
+      }
+    }
 
+    // 对于age以外的属性，直接保存
+    obj[prop] = value;
+  }
+};
+
+let person = new Proxy({}, validator);
+person.age = 100;
+person.age // 100
+person.age = 'young' // 报错
+person.age = 300 // 报错
+```
+禁止操作_私有属性：
+```
+var handler = {
+  get (target, key) {
+    invariant(key, 'get');
+    return target[key];
+  },
+  set (target, key, value) {
+    invariant(key, 'set');
+    target[key] = value;
+    return true;
+  }
+};
+function invariant (key, action) {
+  if (key[0] === '_') {throw new Error(`Invalid attempt to ${action} private "${key}" property`);}  //判断属性名下划线，抛错会结束拦截方法。throw一个异常会退出这个函数的调用堆栈，直到其上级堆栈有捕获为止。如果都没有捕获，那么程序退出。
+}
+var target = {};
+var proxy = new Proxy(target, handler);
+proxy._prop  // Error: Invalid attempt to get private "_prop" property
+proxy._prop = 'c'  // Error: Invalid attempt to set private "_prop" property
+```
 
 
 
