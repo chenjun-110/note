@@ -206,7 +206,7 @@ handler：get:function(操作对象，属性，receiver）{return 读取返回�
   2. 把proxy设置为obj的原型，访问obj不存在的属性就拦截。
   3. writable、configurable属性必须为true。
   4. 代理对象this指向Proxy代理对象。所以无法取到外部属性。某些原生对象如new Date的this不一，就无法代理(必须绑定作用域)。
-  5. 适合WEB接口，不用为美中数据作适配，统一写到Proxy里。
+  5. 适合WEB接口，不用为每种数据作适配，统一写到Proxy里拦截。
 handler：
 	1. get:({}，属性，receiver），读取属性前执行函数。
 	2. set：拦截某属性的赋值操作。适合赋值时验证数据，还有数据绑定，禁止操作私有属性等。
@@ -215,14 +215,51 @@ handler：
 	5. construct：({},参数,新{}), new符，必须返回对象
 	6. deleteProperty：({},属性)，delete符，返回false/抛错就阻止。
 	7. defineProperty:拦截了Object.defineProperty，return false阻止添加修改属性。
-	8. getOwnPropertyDescriptor 拦截描述符、getPrototypeOf 拦截原型、isExtensible 拦截拓展、preventExtensions 拦截扩展、setPrototypeOf 拦截原型、
-	9. ownKeys 拦截遍历属性，忽略不存在/Symbol属性/否定enumerable,return []要遍历的属性列在[]内。[]里必须返回不可配置不可拓展的属性。
-	10. Proxy.revocable 可取消代理实例，适合带权限的访问代理。
+	8. ownKeys 拦截遍历属性，忽略不存在/Symbol属性/否定enumerable,return []要遍历的属性列在[]内。[]里必须返回不可配置不可拓展的属性。
+	9. Proxy.revocable 可取消代理实例，适合带权限的访问代理。
+	10. getOwnPropertyDescriptor 拦截描述符、getPrototypeOf 拦截原型、isExtensible 拦截拓展、preventExtensions 拦截扩展、setPrototypeOf 拦截原型。。。
 **Reflect**
-目的：封装了语言内部方法。Reflect.defineProperty将代替Object.defineProperty
-
-
-
+目的：封装了语言内部方法。比如：Reflect.defineProperty将代替Object.defineProperty
+Proxy对象和Object的方法，Reflect对象都有相同的默认行为，因此Proxy内部可以调用Reflect没修改过的相同API。
+特点：同名方法里Reflect会报错，Object不会(返回false/udf)。
+方法：
+    1. get:如果读取属性是getter，它内部的this指向receiver对象非目标对象！
+    2. set:(target, name, value, receiver),如果设置属性是setter,this指向receiver！注意Reflect.set会触发Proxy.defineProperty拦截。
+    3. getPrototypeOf：读取__proto__属性，对应Object.getPrototypeOf(区别：参数非对象Object会转为对象，Reflect会报错)。
+    4. setPrototypeOf：同上，Reflect的会报错。
+    5. `Reflect.apply(Math.min, Math, ages)`代替`Math.min.apply(Math, ages)`。`Reflect.apply(Object.prototype.toString, 1, [])`代替`Object.prototype.toString.call(1)`
+    6. ownKeys:代替getOwnPropertyNames、getOwnPropertySymbols之和。
+    7. has deleteProperty construct getOwnPropertyDescriptor isExtensible preventExtensions 同上
+**Promise**
+用法：`p = new Promise((resolve, reject)=>{resolve()});  p.then((v)=>{v();}).catch();`
+特点：
+  1. 对象状态不被外界影响：Pending（进行中）、Resolved（已成功）、Rejected（已失败）。
+  2. 状态改变，就会状态凝固：Pending变Resolved、Pending变Rejected。
+  3. 无法中途取消。
+  4. new Promise内的代码会立即执行，then是等待同步任务后执行。
+  5. 任何时候都能取结果：then/catch任何时候都能拿到P的值。(和Event不同)
+  6. 频繁事件用stream模式是比部署Promise更好。
+resolve：
+  1. resolve()触发和.then的1参关联。
+  2. resolve的参数会传递到then的回调参数v内。
+then：
+  1. 如果return的是另一Promise，则可链式调用.then监听它。
+  2. 尽量不在它内部定义Reject，使用catch。
+catch:
+  1. 等价于then(null,fuc)。它默认返回P对象。
+  2. 如果then内抛错，promise内抛错，reject(e)，catch内抛错, 则进入catch。
+  3. 2种状态只存在1个，resolve或throw/reject。
+  4. 顺序：p.then().catch()，如果p失败-catch捕获p,如果p成功-catch捕获then返回的promise。
+  5. 冒泡：错误会传递直到被catch捕获。
+  6. try-catch:区别是不设.catch，node没事(谷歌报错)。
+  7. promise内部用setTimeout抛错无效，它离开了promise。Node的unhandledRejection事件可监听未捕获的reject错误。
+  8. 
+Promise.all:  
+  1. 格式：([p1,p2])参数都是promise的实例，把多个P实例包装成新P实例。
+  2. 状态：参数只要有1个reject，状态就是reject，首个reject参数的返回值传递给它.catch。参数都是fulfilled，状态才是fulfilled，[参数的返回值]组成数组传递给它.then。
+  3. 参数要有Iterator接口。
+  4. 适用于等待promise参数都返回结果了，再触发all。
+Promise.race:用法同上，区别是参数实例状态只要有1个变化，它就变化并凝固。
 
 
 
@@ -385,9 +422,48 @@ var proxy = new Proxy(target, handler);
 proxy._prop  // Error: Invalid attempt to get private "_prop" property
 proxy._prop = 'c'  // Error: Invalid attempt to set private "_prop" property
 ```
+简单观察者模式：
+```
+const queuedObservers = new Set();
+const observe = fn => queuedObservers.add(fn);
+const observable = obj => new Proxy(obj, {set});
+function set(target, key, value, receiver) {
+  const result = Reflect.set(target, key, value, receiver);
+  queuedObservers.forEach(observer => observer());
+  return result;}
 
-
-
+//使用方法：
+const person = observable({name: '张三', age: 20});
+function print() {console.log(`${person.name}, ${person.age}`)}
+observe(print);
+person.name = '李四';
+```
+异步加载图片：
+```
+function loadImageAsync(url) {
+  return new Promise(function(resolve, reject) { //新建时会立即执行
+    var image = new Image();
+    image.onload = function() {
+      resolve(image);  //参数为成功回调
+    };
+    image.onerror = function() {
+      reject(new Error('Could not load image at ' + url)); //参数为失败回调
+    };
+    image.src = url;
+  });
+}
+```
+5秒内无结果就触发reject：
+```
+const p = Promise.race([
+  fetch('/resource-that-may-take-a-while'),
+  new Promise(function (resolve, reject) {
+    setTimeout(() => reject(new Error('request timeout')), 5000)
+  })
+]);
+p.then(response => console.log(response));
+p.catch(error => console.log(error));
+```
 
 
 
