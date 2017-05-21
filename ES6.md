@@ -27,7 +27,8 @@ ES6：包括ES2015.2016.2017
 let：作用域
  1. 只在{let a=1;}代码块内有效，在for循环内有效(注意：循环体的let和条件的let作用域不同，条件是父作用域)。
  2. var变量提升：声明前可调用变量，值为`udf`。let会报错。
- 3. let会形成封闭作用域，全局变量将失效！let之前也不能修改同名全局变量值，typeof检测封闭变量会报错，而非udf。`{{{let a}}}`代码块可任意嵌套，内可访外，外不访内。
+ 3. let会形成封闭作用域，全局变量将失效！let之前也不能修改同名全局变量值，
+ 4. 检测封闭变量会报错，而非udf。`{{{let a}}}`代码块可任意嵌套，内可访外，外不访内。
 函数：
  1. 函数参数设默认值也有封闭作用域，赋值依顺序未声明会报错。
  2. 在if内声明函数，ES5会跳出if，ES6会形成封闭作用域、if之前无法调用与全局同名的函数。前者条件形同虚设，后者游览器不兼容。尽量采用函数表达式以避免。
@@ -245,13 +246,14 @@ resolve：
 then：
   1. 如果return的是另一Promise，则可链式调用.then监听它。
   2. 尽量不在它内部定义Reject，使用catch。
+  3. 本轮时间循环的末尾执行。
 catch:
   1. 等价于then(null,fuc)。它默认返回P对象。
   2. 如果then内抛错，promise内抛错，reject(e)，catch内抛错, 则进入catch。
   3. 2种状态只存在1个，resolve或throw/reject。
   4. 顺序：p.then().catch()，如果p失败-catch捕获p,如果p成功-catch捕获then返回的promise。
   5. 冒泡：错误会传递直到被catch捕获。
-  6. try-catch:区别是不设.catch，node没事(谷歌报错)。
+  6. try-catch:区别是不设.catch，node没事(谷歌报错)。只能捕获异步错误，不能捕获同步错误。
   7. promise内部用setTimeout抛错无效，它离开了promise。Node的unhandledRejection事件可监听未捕获的reject错误。
   8. 
 Promise.all:  
@@ -260,6 +262,112 @@ Promise.all:
   3. 参数要有Iterator接口。
   4. 适用于等待promise参数都返回结果了，再触发all。
 Promise.race:用法同上，区别是参数实例状态只要有1个变化，它就变化并凝固。
+Promise.resolve:
+  1. 参数不是对象，等价于new Promise(resolve=>resolve(x)),参数传进resolve转为P对象。
+  2. 参数为有同名then方法的对象，转换时立即执行该方法。
+  3. 不带参数，本轮“事件循环”的结束时返回一个Resolved状态的Promise对象。执行顺序在setTimeout(,0)之前。
+Promise.reject：返回一个rejected状态的Promise对象，特点同上，参数有then方法的对象抛错的话，catch捕获的是then而非原参。
+.done: 防止回调链尾部错误未捕捉。
+```
+Promise.prototype.done = function (onFulfilled, onRejected) {
+  this.then(onFulfilled, onRejected)
+    .catch(function (reason) {
+      setTimeout(() => { throw reason }, 0); // 抛出一个全局错误
+    });
+};
+```
+.finally:2种状态都一定会执行的回调。
+```
+Promise.prototype.finally = function (callback) {
+  let P = this.constructor;
+  return this.then(
+    value  => P.resolve(callback()).then(() => value),
+    reason => P.resolve(callback()).then(() => { throw reason })
+  );
+};
+```
+Promise.try：
+  1. 目的：让同步代码同步执行，异步代码异步执行。
+  2. 代替了`(()=>new Promise(resolve=>resolve(f())))()`和`(async()=>f())().then().catch()`
+  3. 包装过的代码抛的同步/异步错误都能被catch捕获。
+**Iterator接口**
+目的：通用为各种数据结构遍历
+遍历器对象：一定有next方法，return一个带数据的对象{value:1,done:true} done为true通常表示遍历结束。
+原生带接口的数据结构：数组、类数组的对象、Set和Map结构。可被for..of循环。
+默认部署：在数据结构的［Symbol.iterator］属性方法是个返回遍历器对象的函数。`arr[Symbol.iterator]().next();`
+手动部署：
+```
+class RangeIterator {
+  constructor(start, stop) {
+    this.value = start;
+    this.stop = stop;}
+  [Symbol.iterator]() { return this; } //被for..of识别
+  next() {                               //遍历对象必须有的next方法，for..of会循环该方法。
+    var value = this.value;
+    if (value < this.stop) {
+      this.value++;     //遍历顺序规则
+      return {done: false, value: value};}
+    return {done: true, value: undefined};}}
+function range(start, stop) {return new RangeIterator(start, stop);}
+for (var value of range(0, 3)) {console.log(value);}
+```
+while遍历：
+```
+var $iterator = ITERABLE[Symbol.iterator]();
+var $result = $iterator.next();
+while (!$result.done) {
+  var x = $result.value;
+  // ...
+  $result = $iterator.next();
+}
+```
+类数组对象(有数值键名和length属性)：`obj.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator];`直接引用数组的接口很方便，也可用Array.from。
+底层默认调用Iterator接口：解构赋值、扩展运算符、yield*、函数(传数组参数)等。
+覆盖原生的Symbol.iterator方法，达到修改遍历器行为的目的。比如修改value值可以扰乱遍历输出。
+return方法：for...of提前退出触发(报错/break/continue)
+throw方法：配合生成器使用。
+for..of：
+  1. 内部调用[Symbol.iterator]()。
+  2. `obj[Symbol.iterator] = arr[Symbol.iterator].bind(arr);`这样遍历obj等于遍历arr。
+  4. 对于数组：for...in遍历的是键名，for...of遍历的是(仅数值索引)的键值。
+  5. 对于Map：for ([k,v] of m)可以遍历键值。返回值是数组。顺序为添加顺序。
+  6. 供for..of使用:`entries()`键值对，keys()键名，values()键值。
+  7. 对于对象：for...in遍历的是键名。for...of报错：1.`Object.keys`获得键名进而obj[k]获得键值。2.Generator包装对象。
+  8. for..of解决的问题：不会像for-in无顺序还遍历非数字键和原型键。不会像forEach中途无法break退出。比for简洁。 
+**Generator状态机**
+用法：
+```
+function* helloWorldGenerator() {
+  yield 'hello';    //状态
+  yield 'world';
+  return 'ending';  //遍历终点{value: "ending", done: true}
+}
+var g = helloWorldGenerator(); //返回遍历器对象 .next()遇到yield会停止
+```
+yield：
+  1. yield表达式的值就是value的值。
+  2. 该表达式是惰性求值，只在next到来时计算。
+  3. yield在Generator内部不能放在其它函数的回调函数内部(for循环可以，forEach不行)。单纯作参数是可以的。
+  4. yield在另一表达式内，要包裹`(yield)`
+  5. next()遇到yield停止，yield之前的未执行的会执行，已执行的不执行。
+next:
+  1. `var reset = yield i`每次执行到yield i就结束了，reset永远不会有值。如果next(a)带了参数，参数会作为yield的上一次返回值，reset就被初始化为a了。这样可以动态改变Generator行为。
+  2. next()无参数，那上一阶段的yield表达式值为undefined
+```
+function* dataConsumer() {
+  console.log('Started');
+  console.log(`1. ${yield}`);
+  console.log(`2. ${yield}`);
+  return 'result';}
+```
+
+技巧：
+  1. 延迟执行：Generator函数只在调用next()才执行，赋值给变量不执行。
+  2. 遍历：obj[Symbol.iterator]=function*(){} 作迭代接口用。yield为返回值。
+
+
+
+
 
 
 
@@ -464,6 +572,31 @@ const p = Promise.race([
 p.then(response => console.log(response));
 p.catch(error => console.log(error));
 ```
-
+Iterator做指针结构：每调用一次内部指针移动到下个实例
+```
+function Obj(value) {
+  this.value = value;
+  this.next = null;}
+Obj.prototype[Symbol.iterator] = function() {
+  var iterator = {next: next};
+  var current = this;
+  function next() {
+    if (current) {
+      var value = current.value;
+      current = current.next;
+      return {
+        done: false,
+        value: value};
+    } else {
+      return {
+        done: true};}}
+  return iterator;}
+var one = new Obj(1);
+var two = new Obj(2);
+var three = new Obj(3);
+one.next = two;
+two.next = three;
+for (var i of one){console.log(i);}
+```
 
 
