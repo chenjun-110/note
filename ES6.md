@@ -332,8 +332,9 @@ for..of：
   4. 对于数组：for...in遍历的是键名，for...of遍历的是(仅数值索引)的键值。
   5. 对于Map：for ([k,v] of m)可以遍历键值。返回值是数组。顺序为添加顺序。
   6. 供for..of使用:`entries()`键值对，keys()键名，values()键值。
-  7. 对于对象：for...in遍历的是键名。for...of报错：1.`Object.keys`获得键名进而obj[k]获得键值。2.Generator包装对象。
+  7. 对于对象：for...in遍历的是键名。for...of报错：1.`Object.keys`获得键名进而obj[k]获得键值。2.Generator包装对象。3.Generator赋值到[Symbol.iterator]。
   8. for..of解决的问题：不会像for-in无顺序还遍历非数字键和原型键。不会像forEach中途无法break退出。比for简洁。 
+  9. 对于Generator：for..of只能遍历yield,不包括return。如果格式:yield [k,o[k]]，那可以解构赋值for([key,value] of g()){console.log(`${key}: ${value}`);}
 **Generator状态机**
 用法：
 ```
@@ -350,6 +351,12 @@ yield：
   3. yield在Generator内部不能放在其它函数的回调函数内部(for循环可以，forEach不行)。单纯作参数是可以的。
   4. yield在另一表达式内，要包裹`(yield)`
   5. next()遇到yield停止，yield之前的未执行的会执行，已执行的不执行。
+yield*: +遍历器对象。
+  1. 功能：在a生成器内部调用b生成器，next()也会按顺序执行b的状态。
+  2. next无视b的return。获得返回值需要`a=yield* gg();`
+  3. 等价于for (var v of gg) {yield v;}
+  4. yield*后面：跟的既可以是遍历器对象，也可以是带Iterator接口的数据结构。
+  5. 嵌套数组：yield* g(arr[i])，通过递归迭代。
 next:
   1. `var reset = yield i`每次执行到yield i就结束了，reset永远不会有值。如果next(a)带了参数，参数会作为yield的上一次返回值，reset就被初始化为a了。这样可以动态改变Generator行为。
   2. next()无参数，那上一阶段的yield表达式值为undefined
@@ -360,14 +367,22 @@ function* dataConsumer() {
   console.log(`2. ${yield}`);
   return 'result';}
 ```
-
+throw:
+  1. 遍历器对象调用throw会被Generator内部未执行的catch捕获，如果catch执行过了就抛出到外部。
+  2. g.throw()被内部catch捕获后，会自动执行一次后面的next()。
+return:
+  1. g.return(a)终结生成器，返回{ value: a, done: true }
+  2. 如果内部有try-finally,g.return行为会进入finally句执行一次next()。finally句外部的yield都会失效。return值将移动到finally句末尾。
 技巧：
   1. 延迟执行：Generator函数只在调用next()才执行，赋值给变量不执行。
   2. 遍历：obj[Symbol.iterator]=function*(){} 作迭代接口用。yield为返回值。
-
-
-
-
+  3. 正常的F函数无法当对象实例，如果把*F绑定在空对象上，F内部的this.x会赋值到obj上/原型上。`F.call(obj)`或`F.call(F.prototype)`
+  4. 状态机：无限循环切换yield。`var clock = function* () {while (true) {console.l('Tick!');yield; console.log('Tock!');yield;}};`
+  5. 异步：把g.next()放在yield表达式回调中执行，可以异步执行g函数剩下的部分。记得通过next参数把数据传回g函数内。
+**异步编程**
+协程的定义：一个线程或函数执行到一半，可以暂停并切换到执行另一线程或函数。协程是以多占用内存为代价，实现多任务的并行。对js异步的好处是，抛错的时候能找到原始调用栈。
+回调函数：就是把函数分成2个函数，第1个执行完关闭上下文后再执行回调函数(1的返回值可能要传入回调参数)。缺点是横向发展可读性差。
+Promise：把横向代码改为纵向链式调用。解决了可读性。它只是语法糖。
 
 
 
@@ -447,7 +462,7 @@ new Map()
   values 值-遍历器
   entries 键值-遍历器
   forEach 
-
+精确判断对象类型：`Object.prototype.toString.call(arr)`可替代typeof符。
 
 
 
@@ -598,5 +613,140 @@ one.next = two;
 two.next = three;
 for (var i of one){console.log(i);}
 ```
+Generator包装js对象：遍历对象
+```
+function* objectEntries(obj) {
+  let propKeys = Reflect.ownKeys(obj);
+  for (let propKey of propKeys) {
+    yield [propKey, obj[propKey]];
+  }
+}
+let jane = { first: 'Jane', last: 'Doe' };
+for (let [key, value] of objectEntries(jane)) {
+  console.log(`${key}: ${value}`);
+}
+```
+对象添加遍历接口：
+```
+function* objectEntries() {
+  let propKeys = Object.keys(this);
+  for (let propKey of propKeys) {
+    yield [propKey, this[propKey]];
+  }
+}
+let jane = { first: 'Jane', last: 'Doe' };
+jane[Symbol.iterator] = objectEntries;
+for (let [key, value] of jane) {  //解构赋值
+  console.log(`${key}: ${value}`);
+}
+```
+yield*遍历嵌套数组:
+```
+function* iterTree(tree) {
+  if (Array.isArray(tree)) { //非数组成员转成yield状态输出
+    for(let i=0; i < tree.length; i++) { //嵌套数组成员就递归几次，深度优先。
+      yield* iterTree(tree[i]); //嵌套成员递归
+    }
+  } else {
+    yield tree;
+  }
+}
+const tree = [ 'a', [['b','b.1'], 'c'], ['d', 'e'] ];
+for(let x of iterTree(tree)) {
+  console.log(x);
+}
+```
+yield*遍历二叉树(嵌套对象)：  感觉make分发格式有待改进，[1]位嵌套无法遍历，且只能判断前3项。对格式要求严格。
+```
+function Tree(left, label, right) {//二叉树的构造函数， 三个参数分别是左树、当前节点和右树
+  this.left = left;
+  this.label = label;
+  this.right = right;
+}
+function* inorder(t) { // 递归提取嵌套对象并输出，所以左树和右树要用yield*遍历
+  if (t) {
+    yield* inorder(t.left);
+    yield t.label;
+    yield* inorder(t.right);
+  }
+}
+function make(array) { // 生成二叉树
+  if (array.length == 1) return new Tree(null, array[0], null);
+  return new Tree(make(array[0]), array[1], make(array[2])); 
+}  
+let tree = make([[['a'], 'b', ['c']], 'd', [['e'], 'f', ['g']]]);
+var result = [];
+for (let node of inorder(tree)) { 
+  result.push(node);
+}
+```
+同步形式的异步Ajax:
+```
+function* main() {
+  var result = yield request("http://some.url");
+  var resp = JSON.parse(result);
+    console.log(resp.value);
+}
+function request(url) {
+  makeAjaxCall(url, function(response){
+    it.next(response);  //执行剩余部分，把数据传给result。
+  });
+}
+var it = main();
+it.next();
+```
+同步控制流管理：Generator > Promise > 嵌套回调
+```
+Promise.resolve(step1) //promise同步的分步控制。
+  .then(step2)
+  .then(step3)
+  .then(step4)
+  .then(function (value4) {}, function (error) {})
+  .done();
+//下面是靠递归的Generator控制流。。
+function* longRunningTask(value1) {  //任务化分为步骤
+  try {
+    var value2 = yield step1(value1);
+    var value3 = yield step2(value2);
+    var value4 = yield step3(value3);
+    var value5 = yield step4(value4);
+  } catch (e) {    
+  }
+}
+scheduler(longRunningTask(initialValue));
+function scheduler(task) {
+  var taskObj = task.next(task.value);  //下一步
+  if (!taskObj.done) {   //递归至下一步
+    task.value = taskObj.value
+    scheduler(task);  
+  }
+}
+////下面是靠循环的Generator控制流。。
+let steps = [step1Func, step2Func, step3Func];  //任务化分为步骤
+function *iterateSteps(steps){
+  for (var i=0; i< steps.length; i++){
+    var step = steps[i];
+    yield step();
+  }
+}
+let jobs = [job1, job2, job3];    //把项目划分为任务
+function* iterateJobs(jobs){
+  for (var i=0; i< jobs.length; i++){
+    var job = jobs[i];
+    yield* iterateSteps(job.steps);
+  }
+}
+var it = iterateJobs(jobs);
+var res = it.next();
+while (!res.done){  //保证iterateJobs执行完毕->保证iterateSteps执行完毕（深度优先）
+  var result = res.value;
+  res = it.next();
+}
+```
 
 
+
+
+
+
+函数表达式：运行速度：`+function(){;}()`>`1 && function(){;}()`>`(function(){;}())` IE9速度都一样。
