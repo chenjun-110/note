@@ -299,7 +299,8 @@ js和jq混用
 滚动ajax加载：滚动时如果窗体高度`$(window).scrollTop()+$(window).height()`大于文档高度$(document).height()就->用ajax的响应数据append到body尾部。注意：在请求url时，把已经请求的数据数量作参数发送到服务器，让服务器根据这个值来决定返回什么数据。
 瀑布流布局：列数=总宽/列宽->把各个列高存入数组，把响应数据按高依次填充到列里，重存列高->resize时
 
-
+**SVG动画**
+path描边:stroke-dasharray 长度，stroke-dashoffset 控制运动。 配合animation或过渡。
 
 
 

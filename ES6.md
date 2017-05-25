@@ -383,10 +383,16 @@ return:
 协程的定义：一个线程或函数执行到一半，可以暂停并切换到执行另一线程或函数。协程是以多占用内存为代价，实现多任务的并行。对js异步的好处是，抛错的时候能找到原始调用栈。
 回调函数：就是把函数分成2个函数，第1个执行完关闭上下文后再执行回调函数(1的返回值可能要传入回调参数)。缺点是横向发展可读性差。
 Promise：把横向代码改为纵向链式调用。解决了可读性。它只是语法糖。
-
-
-
-
+批量执行异步方案：
+  1. Thunk函数:原生js是传值调用即传参时会计算参数。Thunk把参数用函数封装，就能传参时不计算。适用于自动执行异步Generator函数(普通循环执行只适合同步)。npm install thunkify。只要yield后面是Thunk函数就性。
+  2. co模块：
+批量异步的原理：
+  1. 回调函数。将异步操作包装成 Thunk 函数，在回调函数里面交回执行权。
+  2. Promise 对象。将异步操作包装成 Promise 对象，用then方法交回执行权。
+**async**
+特点：
+  1. 语法糖：内置执行器，不再需要Thunk、co模块即可批量异步。
+  2. 返回值是Promise。
 
 
 
@@ -743,7 +749,34 @@ while (!res.done){  //保证iterateJobs执行完毕->保证iterateSteps执行完
   res = it.next();
 }
 ```
+Thunk函数转换器：解决传参不计算参数、不执行回调。
+```
+// 正常版本的readFile（多参数版本）
+fs.readFile(fileName, callback);
 
+// ES5版本
+var Thunk = function(fn){
+  return function (){
+    var args = Array.prototype.slice.call(arguments);
+    return function (callback){
+      args.push(callback);
+      return fn.apply(this, args);
+    }
+  };
+};
+
+// ES6版本
+const Thunk = function(fn) {
+  return function (...args) {
+    return function (callback) {
+      return fn.call(this, ...args, callback);
+    }
+  };
+};
+
+var readFileThunk = Thunk(fs.readFile);
+readFileThunk(fileA)(callback);
+```
 
 
 
