@@ -393,11 +393,26 @@ Promise：把横向代码改为纵向链式调用。解决了可读性。它只�
 特点：
   1. 语法糖：内置执行器，不再需要Thunk、co模块即可批量异步。
   2. 返回值是Promise。
-
-
-
-
-
+  3. await不能插在普通函数的回调内。可以在for循环内。
+```
+async function() f{await g();return}
+f().then(); //then会接收return值为参数
+```
+技巧：
+  1. 顺序：不reject不return(中断)的话必须等async内部的await都执行完才会执行then回调。
+  2. 防止中断：try-catch包裹await可以忽略该异步是否失败，不会中断后面的await。或者把.catch写到await表达式内`await g().catch()`。(await表达式抛错会中断async)
+  3. 如果异步成功就退出循环，如果异步失败就再次执行。
+```
+async function test() {
+  for (i = 0; i < 3; ++i) {
+    try {
+      await superagent.get('http://google.com/this-throws-an-error');
+      break;
+    } catch(err) {}
+  }
+}
+```
+  4. 多个await的异步没有继发关系，最好同时执行。`await Promise.all([a(),b()])`或者不放在await内。
 
 
 
@@ -777,8 +792,36 @@ const Thunk = function(fn) {
 var readFileThunk = Thunk(fs.readFile);
 readFileThunk(fileA)(callback);
 ```
+批量异步：取得上个异步值传入下个函数 Promise
+```
+function logInOrder(urls) {
+  // 远程一个个读取所有URL
+  const textPromises = urls.map(url => {
+    return fetch(url).then(response => response.text());
+  });
 
+  // 按次序输出
+  textPromises.reduce((chain, textPromise) => {
+    return chain.then(() => textPromise)
+      .then(text => console.log(text));
+  }, Promise.resolve());
+}
+```
+批量异步：取得上个异步值传入下个函数 async
+```
+async function logInOrder(urls) {
+  // 并发读取远程URL
+  const textPromises = urls.map(async url => {
+    const response = await fetch(url);
+    return response.text();
+  });
 
+  // 按次序输出
+  for (const textPromise of textPromises) {
+    console.log(await textPromise);
+  }
+}
+```
 
 
 
