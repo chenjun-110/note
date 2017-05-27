@@ -61,7 +61,7 @@ var getGlobal = function () {
    1. [a,b,c] = F(); 只要右侧有Iterator接口、或Generator函数也行。 
    2. 有默认值的必须严格等于undefined才生效。如果d=F(),d能取到值就不会执行F();
    3. [x,y,z] = "ABC" 字符串被转换成类数组，所以生效。
- 对象格式：`let {foo=1, bar:b=2,c=3} = {foo: "A", bar: "B", c:undefined};` 无序但名字必须对应。
+ 对象格式：`let {foo=1, bar:b=2,c=3} = {foo: "A", bar: "B", c:undefined};` 无序但名字必须对应。必须要声明！
    1. 真正被赋值的是b,不是bar。foo是foo:foo的简写。名字只是模式匹配，操作的是属性值!嵌套对象里理清哪个是模式很重要。
    2. 先声明let foo; 再赋值`({foo}={foo:1});` 必须用圆括号。除了这形式，禁止在解构中用圆括号。
    3. 利用该特性可以轻松把对象的属性值、方法转移到变量上。
@@ -113,7 +113,7 @@ x;
 	 61. {x,...{y,z}}=o中x可以读取o的继承属性，yz只能读取o的自身属性。
 	 62. ab={...a,...b} 先展开属性再合并对象，代替`Object.assign({}, a, b)` 如果展开对象里有getter会执行。
 	7. ...用于数组剩余参数会生成数组。
-箭头函数：简化回调
+**箭头函数**：简化回调
 	1. 函数体多余一条语句，要{    return}包裹
 	2. 返回值是对象，圆括包裹 id=>({a:1,b:2});
 	3. `({a,b}) => a+' '+b` 等价于 `o => o.a+' 'o.b` 不用写对象名咯
@@ -413,13 +413,143 @@ async function test() {
 }
 ```
   4. 多个await的异步没有继发关系，最好同时执行。`await Promise.all([a(),b()])`或者不放在await内。
+**Class**
+用法/语法糖：代替构造函数,参数传给constructor,方法传给原型(无需function关键字，无需逗号)。super指向父类构造函数。
+```
+let a = "to"；
+class Point { 
+  constructor(x,y){ //构造函数
+    this.x=x
+  }
+  static b(){} //静态方法，相当于Point.b--实例继承不了b
+  tostring() {}  //原型方法Point.prototype.tostring
+  [a]() {}  //用a变量命名的原型方法
+  Object.assign(Point.prototype, {  //可使用该方法复制可枚举属性/方法到原型
+	  toString(){},
+	  toValue(){}
+  }
+  get c(){} //c属性的getter
+  set c(v){}
+  * [Symbol.iterator]() {  //可供外部for..of遍历该类的实例
+    for (let arg of this.args) {
+      yield arg;
+    }
+  }
 
-
-
-
-
-
-
+  x=x;         //ES7写法，等价于this.x=x,特殊的是就这有分号。需要babel.
+  static c=3;  //ES7写法，静态属性，ES6只能外部设置Point.x=3。
+  #d;          //ES7写法，私有属性
+}
+let m = new class{}('x')； //立即执行实例 
+class ColorPoint extends Point {
+  constructor(x, y, color) {
+    super(x, y);              // 必须调用父类的constructor(x, y)，创建this
+    this.color = color;
+  }
+  toString() {
+    return this.color + ' ' + super.toString(); // 调用父类的toString()
+  }
+}
+```
+特点：
+  1. 不可枚举:class内的定义的(原型)方法，都不可枚举。而直接通过prototype定义的是可枚举的。
+  2. constructor方法默认reutrn this。修改return Object.create(null)值new出来就不是实例了。
+  3. 不存在变量提升：防止子类继承父类时，父类没定义。
+  4. 默认严格模式，不用use strict。
+  5. super：
+    51. 子类constructor的参数流入super,调用父类constructor设置属性并把属性和值传回子类。super相当于把父类的构造属性继承到子类中。子类的实例同时也是父类的实例。
+    52. super内部的this是指向子类的。this相当于(B的父类是A)：`A.prototype.constructor.call(this)` 
+    53. super():子类的constructor中必须显示调用super()创建this。如果没有该方法则默认设置。
+    54. super.x(constructor中):super指向父类`A.prototype`,注意this指向子类自身(同名属性要注意)。super.x=3等价于this.x=3
+    55. super.x(static中):super指向父类`A的static`，而非A.prototype。
+  6. __proto__和prototype:实例查属性是通过`__proto__`找到类的`prototype`上。(b是实例，B是子类，A是父类)因为`b.__proto__=B.prototype;`，所以`B.prototype.__proto__=A.prototype；`，`B.__proto__ = A;`。由此推出：修改`b.__proto__.__proto__`可以影响实例a。
+  7. call:baseinstance.showMsg.call(instance);阅读为“将instance当做baseinstance来调用，调用它的对象方法showMsg”。如果baseinstance是构造函数，那调用的是函数外部的showMsg属性，如果是实例，调用的是构造函数内部的this.showMsg。
+  8. extends：可继承原生类Boolean()Number()String()Array()Date()Function()RegExp()Error()Object()。ES5不行。
+  9. static:不会被实例继承。static关键字就是直接在构造函数上添加的属性。编写class时，static不能用于属性，仅方法。静态属性只能外部赋值。ES7可解决。
+  10. new.target:返回new调用的当前构造函数。
+技巧：
+1. 私有方法：
+```
+const bar = Symbol('bar');
+const snaf = Symbol('snaf');
+export default class myClass{
+	foo(baz) {this[bar](baz);}  //公有方法
+	[bar](baz) {return this[snaf] = baz;}  //私有方法
+}
+```
+2. 绑定this：class方法如果解构出来单独用，需要处理this指向。
+```
+方法一：把原型方法挂在同名构造属性上。
+constructor() {this.printName = this.printName.bind(this);}
+方法二：箭头代替bind。
+constructor() {
+    this.printName = (name = 'there') => {this.print(`Hello ${name}`);};
+  }
+方法三：Proxy劫持。
+function selfish (target) {
+  const cache = new WeakMap();
+  const handler = {
+    get (target, key) {
+      const value = Reflect.get(target, key);
+      if (typeof value !== 'function') {
+        return value;
+      }
+      if (!cache.has(value)) {
+        cache.set(value, value.bind(target));
+      }
+      return cache.get(value);
+    }
+  };
+  const proxy = new Proxy(target, handler);
+  return proxy;
+}
+const logger = selfish(new Logger()); //实例
+```
+3. 让函数只能被new调用：
+```
+function Person(name) {
+  if (new.target === Person) {
+    this.name = name;
+  } else {
+    throw new Error('必须使用new生成实例');
+  }
+}
+```
+4. 只能用于继承的类：不能new
+```
+class Shape {
+  constructor() {
+    if (new.target === Shape) {
+      throw new Error('本类不能实例化');
+    }
+  }
+}
+```
+5. Mixin模式:合并多个类。constructor内的无法继承
+```
+function mix(...mixins) {
+  class Mix {}
+  for (let mixin of mixins) {   //把每个类拿出来
+    copyProperties(Mix, mixin);
+    copyProperties(Mix.prototype, mixin.prototype);
+  }
+  return Mix;
+}
+function copyProperties(target, source) {
+  for (let key of Reflect.ownKeys(source)) {  //把每个类的每个属性拿出来
+    if ( key !== "constructor"
+      && key !== "prototype"
+      && key !== "name"
+    ) {
+      let desc = Object.getOwnPropertyDescriptor(source, key); //把每个属性克隆进Mix类
+      Object.defineProperty(target, key, desc);
+    }
+  }
+}
+class DistributedEdit extends mix(Loggable, Serializable) {
+  // 使用
+}
+```
 
 
 #### es6-API介绍：
