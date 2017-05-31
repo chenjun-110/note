@@ -1,28 +1,81 @@
-CMD用于服务器，AMD用于游览器。
----node.js中的模块语法---
+《ES6入门》笔记--阮一峰
+最初发布时间：2015.6   每年6月发布
+ES6：包括ES2015.2016.2017
+
+**模块语法**
+区别：
+ 1. CommonJS用于服务器：let { stat, exists, readFile } = require('fs'); 原理是加载整个fs对象并运行查找fs对象属性。不能动态更新，输出的是值的缓存。
+ 2. AMD用于游览器。
+ 3. import不会引用整个模块，它不是对象。动态更新。
+---node.js中的CommonJS语法---
 ```
 exports.setName=setName;
 exports.printName=printName;
-var test=require('./test'); //test代表exports
+var test=require('./test');  // test代表exports
 test.setName('Byron');
 test.printName();
 ```
 `module.exports=Student;`  //Student是个对象/构造函数
 `var Student=require('./test');`
-  等价于，因为module.exports和exports对象指向同一变量。         
+  //等价于，因为module.exports和exports对象指向同一变量。         
 `exports.Student=Student;`
 `var Student=require('./test').Student;`
 ----end-------
-
 ES6
 ```
 export default a 
-import s from 'demo' ```//导入没有花括号，名字随意。 
+import s from 'demo' 
+```//导入没有花括号，名字随意。 
+
+特点：
+  1. 模块顶层this指向undefined。
+  2. 
+export：
+  1. 用法：export输出单个变量/函数/类，多个变量用`export {a,b,c}`括号框起来。 输出单个时必须关键字声明，不声明就用{}包裹。
+  2. 别名：`export {A as a, B as b, B as c}` 可取多个别名
+  3. 输出的变量必须存在。
+  4. 必须书写在模块顶层。
+  5. default:`export default a` 不用声明a，因为这是把a变量的值赋值给default变量。`export default function(){}`
+import:
+  1. 位置：相对、绝对路径。仅单模块名必须有配置文件。
+  2. 别名：同上。
+  3. import有代码提升。
+  4. import './a' 仅执行，不输值。
+  5. 整体加载：`import * as all from './a' ` 星号会加载所有export变量并传给在all对象的属性。注意：all对象不能改变以便静态分析。星号会忽略default变量。
+  6. default：引入时任意名字。`import a,{b} from 'A' `a指向default。
+复合写法：
+  1. export { foo, bar } from 'my_module'; 先加载这俩，再输出这俩。
+  2. export { es6 as default } from './someModule'; 先加载{es6},再输出为default。
 
 
-《ES6入门》笔记--阮一峰
-最初发布时间：2015.6   每年6月发布
-ES6：包括ES2015.2016.2017
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 let：作用域
  1. 只在{let a=1;}代码块内有效，在for循环内有效(注意：循环体的let和条件的let作用域不同，条件是父作用域)。
@@ -550,6 +603,23 @@ class DistributedEdit extends mix(Loggable, Serializable) {
   // 使用
 }
 ```
+**@修饰器**
+```
+@testable  // 修饰Person类
+class Person {
+  @readonly  // 修饰name方法
+  @nonenumerable
+  name() { return `${this.first} ${this.last}` }
+}
+```
+特点：同一方法有多个修饰器，顺序：装饰器函数闭包的按顺序，return的按倒序执行。
+第三方模块：core-decorators.js
+
+
+
+
+
+
 
 
 #### es6-API介绍：
