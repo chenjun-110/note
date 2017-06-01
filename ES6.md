@@ -4,9 +4,20 @@ ES6：包括ES2015.2016.2017
 
 **模块语法**
 区别：
- 1. CommonJS用于服务器：let { stat, exists, readFile } = require('fs'); 原理是加载整个fs对象并运行查找fs对象属性。不能动态更新，输出的是值的缓存。
+ 1. CommonJS用于服务器：let { stat, exists, readFile } = require('fs'); 原理是加载整个fs对象并运行查找fs对象属性。
+  11. 不能动态更新(对象的getter方法可以取到模块内部被修改的值)，输出的是值的拷贝缓存。多次调用require只会返回第一次生成的缓存。
+  12. module.exports是一个包含各接口的对象。module是个模块对象。
+  13. 只要模块内有import/export语法，Node就视为ES6模块。
+  14. 顶层this指向当前模块。
+  15. ES6加载CMD模块：
+    151. 查找顺序(不指定)：`import './foo'` 先搜索foo.js->./foo/package.json->./foo/index.js。`import 'baz'`搜索node_modules文件夹下的baz.js->baz/package.json->baz/index.js没结果就返回上级node_modules目录继续。
+    152. `module.exports={} 等价于 export default {}` 所以用ES6语法，import a from ''/import {default as a} from ''即可
+    153. `import * as a from ''` 这个a.default对象==module.exports==default。 ES6引用CMD模块行为和ES6模块有点小区别。
+    154. CommonJS 模块的输出缓存机制，在 ES6 加载方式下依然有效不会动态更新。
+  16. CMD加载ES6模块：所有export接口都会赋值为require对象的属性，动态更新失效。
+  17. 
  2. AMD用于游览器。
- 3. import不会引用整个模块，它不是对象。动态更新。
+ 3. import不会引用整个模块，它不是对象。动态更新。输出的是值的引用。
 ---node.js中的CommonJS语法---
 ```
 exports.setName=setName;
@@ -24,30 +35,39 @@ test.printName();
 ES6
 ```
 export default a 
-import s from 'demo' 
-```//导入没有花括号，名字随意。 
-
+import s from 'demo' //导入default没有花括号，名字随意。 
+```
 特点：
   1. 模块顶层this指向undefined。
-  2. 
+  2. 模块顶层变量，外部不可见。
+  3. 自动严格模式。
+  4. 不同模块加载的是同一个的引用。
 export：
   1. 用法：export输出单个变量/函数/类，多个变量用`export {a,b,c}`括号框起来。 输出单个时必须关键字声明，不声明就用{}包裹。
   2. 别名：`export {A as a, B as b, B as c}` 可取多个别名
   3. 输出的变量必须存在。
   4. 必须书写在模块顶层。
-  5. default:`export default a` 不用声明a，因为这是把a变量的值赋值给default变量。`export default function(){}`
+  5. default:`export default a` 不用声明a，因为这是把a变量的值赋值给default变量。`export default function(){}` 只能用一次
 import:
   1. 位置：相对、绝对路径。仅单模块名必须有配置文件。
   2. 别名：同上。
-  3. import有代码提升。
+  3. import有代码提升。编译期加载，不能放置在代码块内，无法实现require按需/条件加载。提案`import().then()`可以。
   4. import './a' 仅执行，不输值。
   5. 整体加载：`import * as all from './a' ` 星号会加载所有export变量并传给在all对象的属性。注意：all对象不能改变以便静态分析。星号会忽略default变量。
   6. default：引入时任意名字。`import a,{b} from 'A' `a指向default。
+提案import():
+  1. 运行期加载，类似require句法。它是个对象。
+  2. 解构输出接口变量：import().then(({e1,e2,default:e3})=>{})
+  3. 输出接口对象：Promise.all([import(a),import(b)]).then(([mo1,mo2])=>{})
+  
 复合写法：
   1. export { foo, bar } from 'my_module'; 先加载这俩，再输出这俩。
   2. export { es6 as default } from './someModule'; 先加载{es6},再输出为default。
-
-
+技巧：
+  1. 大量零散常量：新建放置常量的文件夹，存放各模块化的常量js，新建index.js->用复合写法把零散常量输出，各模块仅加载index.js获取所需常量即可。
+加载：
+  1. async 下载完执行，无顺序
+  2. defer 渲染完执行 等价于 type="module"
 
 
 
