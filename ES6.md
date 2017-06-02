@@ -12,10 +12,10 @@ ES6：包括ES2015.2016.2017
   15. ES6加载CMD模块：
     151. 查找顺序(不指定)：`import './foo'` 先搜索foo.js->./foo/package.json->./foo/index.js。`import 'baz'`搜索node_modules文件夹下的baz.js->baz/package.json->baz/index.js没结果就返回上级node_modules目录继续。
     152. `module.exports={} 等价于 export default {}` 所以用ES6语法，import a from ''/import {default as a} from ''即可
-    153. `import * as a from ''` 这个a.default对象==module.exports==default。 ES6引用CMD模块行为和ES6模块有点小区别。
+    153. `import * as a from ''` 这个a.default对象==module.exports==exports==default。 ES6引用CMD模块行为和ES6模块有点小区别。
     154. CommonJS 模块的输出缓存机制，在 ES6 加载方式下依然有效不会动态更新。
   16. CMD加载ES6模块：所有export接口都会赋值为require对象的属性，动态更新失效。
-  17. 
+  17. 循环加载：require('a')的写法比require('a').foo好
  2. AMD用于游览器。
  3. import不会引用整个模块，它不是对象。动态更新。输出的是值的引用。
 ---node.js中的CommonJS语法---
@@ -42,6 +42,7 @@ import s from 'demo' //导入default没有花括号，名字随意。
   2. 模块顶层变量，外部不可见。
   3. 自动严格模式。
   4. 不同模块加载的是同一个的引用。
+  5. 循环加载：先执行的a.js遇到import会停止执行->执行完b.js->最后执行a剩余a.js
 export：
   1. 用法：export输出单个变量/函数/类，多个变量用`export {a,b,c}`括号框起来。 输出单个时必须关键字声明，不声明就用{}包裹。
   2. 别名：`export {A as a, B as b, B as c}` 可取多个别名
@@ -68,38 +69,12 @@ import:
 加载：
   1. async 下载完执行，无顺序
   2. defer 渲染完执行 等价于 type="module"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  3. 游览器内联模块type="module"内部可以用import加载模块：需要URL .js后缀不能省略 可用export
 
 
 let：作用域
  1. 只在{let a=1;}代码块内有效，在for循环内有效(注意：循环体的let和条件的let作用域不同，条件是父作用域)。
- 2. var变量提升：声明前可调用变量，值为`udf`。let会报错。
+ 2. var变量提升：声明前可调用变量，值为`udf`。let会报错。 var在if和for条件或循环体内会溢出。
  3. let会形成封闭作用域，全局变量将失效！let之前也不能修改同名全局变量值，
  4. 检测封闭变量会报错，而非udf。`{{{let a}}}`代码块可任意嵌套，内可访外，外不访内。
 函数：
@@ -108,6 +83,7 @@ let：作用域
 const: 不可更改
  1. 作用域和let完全相同：{}、封死作用域、不提升、不可声明同名变量。
  2. const只能保证引用关系不变，不能保证内存地址变化。如对象、数组的数据仍可变动。应用冻结`const foo = Object.freeze({});`
+ 3. 可读性好，性能比let高，函数式思想只新建不改变值
 
 完全冻结对象：Object.freeze对属性值是对象的无效。
 ```
@@ -635,7 +611,17 @@ class Person {
 特点：同一方法有多个修饰器，顺序：装饰器函数闭包的按顺序，return的按倒序执行。
 第三方模块：core-decorators.js
 
-
+**代码规范**
+1. 多用const，少用let,抛弃var。
+2. 静态字符串用单引号或反引号。动态字符串使用反引号。抛弃双引号。
+3. 多用对象的解构赋值。
+4. 多行定义的对象，最后一个成员以逗号结尾。定义对象用简写。
+5. 对象静态化，添加属性用Object.assign，直接添加属性只适用对象已存在的属性。
+6. 简单函数用箭头函数代替function回调，代替bind
+7. 函数如有配置参数，应是对象格式，放末位。
+8. import代替require，default只单独用，有多个接口时就不用。放弃星号。函数接口首字母小写。对象接口首字母大写。
+9. class代替原型
+10. eslint插件检查代码风格。
 
 
 
