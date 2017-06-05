@@ -60,3 +60,24 @@ var throttle = function ( fn, interval ) {
 window.onresize = throttle(function(){
 console.log( 1 );
 }, 500 );
+
+//字符串转Unicode
+function encodeUnicode(str) {
+    var res = [];
+    for ( var i=0; i<str.length; i++ ) {
+        res[i] = ( "00" + str.charCodeAt(i).toString(16) ).slice(-4);
+    }
+    return "\\u" + res.join("\\u");
+}
+//批量获取属性并转为数组
+ustring=$.makeArray($('#ontheroad>li>a')).map((i)=>i.href)
+//批量赋值给json对象
+let arr=[];
+ustring.forEach((v,i,a)=>{
+    let b={};
+    b.title=v;
+    arr.push(b);
+})
+href.forEach((v,i,a)=>{arr[i].url=v;})
+src.forEach((v,i,a)=>{arr[i].img_url=v;})
+JSON.stringify(arr).replace(/\\\\/g, "\\");  //把双反斜杠转义成单反斜杠

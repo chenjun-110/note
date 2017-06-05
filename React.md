@@ -1,10 +1,41 @@
 兼容IE8：html5shiv兼容h5标签，es5-shim兼容ES5数组方法。es5-sham兼容对象方法。console-polyfill兼容console.*。
 JSX语法：
-首字母大、小写来区分本地组件的类和 HTML 标签。
+  1. 标签必须闭合，首字母大写。组件的最终目的是输出虚拟元素，也就是需要被渲染到界面的结构。
+  2. 组件库写法：<MUI.xxx label="Default" /> 
+  3. 注释写法：
+     31. 写在组件子级或同级 `{/* note */}`  
+     32. 写在组件标签内 <Nav `/* note */` />
+     33. 游览器条件注释： { (!!window.ActiveXObject || 'ActiveXObject' in window) ? <p>IE</p> : '' }
+  4. 组件属性：都是标准属性，除了className、htmlFor、tabIndex
+```
+const Header = ({title, children}) => (
+	<h3 title={title}>{children}</h3>
+);      //定义组件，<h3>的属性和<Header>的属性区别是，后者的值可以在组件内部随意传递。
+<Header title="hello world">{a ? Hello world:<A />}</Header>  //调用组件
+```
+    41. 简写布尔值：值如为true可不写值 <Checkbox checked />， 值如为false可不写属性。
+    42. 属性不写死：<C name={name} /> 等价于 c=<C />; c.props.name=name;
+    43. 展开属性：data={name:'foo'}  <C name={data.name} /> 等价于 <C `{...data}` />
+    44. 阻止转义字符串：用在html元素上。<div `dangerouslySetInnerHTML`={{__html: 'cc &copy; 2015'}} /> 或者 <div>{['cc ', <span>&copy;</span>, ' 2015']}</div> 或者 用UTF8字符、Unicode编码。
+组件：
+  1. 无状态组件写法：仅function-return即可，函数名就是组件名。没有实例不占内存、没有this、没有生命周期。(参考上面的Header)
+  2. 正常组件写法： React.Component已经取代了React.createClass
+```
+class InputControlES6 extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {};   //取代getInitialState
+		this.handleClick = this.handleClick.bind(this); 
+	}   //手动绑定方法的this，通常不再这绑定：<div onClick={()=>this.handleClick()}></div>
+	handleClick(){}
+	render(){return();}
+
+	static propTypes = {} //ES7静态属性，取代propTypes:{}
+	static defaultProps = {} //取代getDefaultProps
+}
+```
 script标签的type="text/babel"
 `<`开头就用HTML规则解析。`{`开头就用js规则解析。
-class属性要写成`className`,for属性要写成`htmlFor`。tabindex写成`tabIndex`。
-注释：在子节点内部`{/* */}`
 react.js react-dom.js Browser.js是把JSX转js语法的，消耗性能，应在服务器上转。
 模板转HTML并插入：ReactDOM.render()
 创建组件类实例：`React.createClass({render:function(){}})`,内部HTML标签顶层只允许一个,变量首字母大写,组件上的属性对应`this.props.属性`,
@@ -173,7 +204,7 @@ Provider组件：组件放在它内部可以拿到state。
 
 
 
-
+问题：extends继承组件与JSX嵌套有什么区别？
 
 
 
