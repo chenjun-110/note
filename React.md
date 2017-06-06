@@ -31,16 +31,29 @@ class InputControlES6 extends Component {
 	render(){return();}
 
 	static propTypes = {} //ES7静态属性，取代propTypes:{}
-	static defaultProps = {} //取代getDefaultProps
+	static defaultProps = {} //取代getDefaultProps，定义在本组件内不需要父级传入
 }
 ```
+  3. 动态渲染子组件：render(){List=this.state.List return(<div>{List.map(e,i)=><A key={i} p={e} />}</div>)} 先用事件监听触发ajax,返回数据传给setState，再map遍历state渲染。
+state：通常放在组件上层，向下流动。
+  1. 无状态组件：无状态组件只负责渲染数据，在它的上层创建state组件封装交互逻辑，再通过props传给无状态组件。
+  2. this.state:内部保存基础交互数据，其它数据由它计算出最好。
+  3. 子组件状态：style={{ '{{'}}display: 'none' }}状态子组件最好隐藏而非删除。
+  4. setState是异步方法，一个周期内的setState会合并。
+  5. 设计状态：state多针对组件自身
+    51. 智能组件：state在组件内更新。
+    52. 木偶组件：state在组件外更新。if ('b' in this.props) 传入state
+props:多从父组件传入、或默认。
+  1. children:内置prop。`React.Children.map(this.props.children，()=>{})` this.props.children可获取组件标签内所有子节点-如果无子就是udf,有1子则类型是object,有多子则类型是array。
+
+
 script标签的type="text/babel"
 `<`开头就用HTML规则解析。`{`开头就用js规则解析。
 react.js react-dom.js Browser.js是把JSX转js语法的，消耗性能，应在服务器上转。
 模板转HTML并插入：ReactDOM.render()
 创建组件类实例：`React.createClass({render:function(){}})`,内部HTML标签顶层只允许一个,变量首字母大写,组件上的属性对应`this.props.属性`,
-render:仅仅是子组件的快照。
-遍历:`React.Children.map()` this.props.children可获取组件标签内所有子节点-如果无子就是udf,有1子则类型是object,有多子则类型是array。 如果渲染数组的索引是纯数字(哈希值)，有可能导致乱序，需要给索引加字符串前缀items['result-' + result.id] = <li>{result.text}</li>; 
+render:仅仅是子组件的快照。 
+如果渲染数组的索引是纯数字(哈希值)，有可能导致乱序，需要给索引加字符串前缀items['result-' + result.id] = <li>{result.text}</li>; 
 
 ref：ref='refName' 
   `this.refs.refName.getDOMNode()` 获取真实DOM元素。只在虚拟DOM插入后生效，一般在onClick回调中使用。
@@ -61,10 +74,6 @@ propTypes属性是用来验证组件实例的属性是否符合要求. propTypes
   var {checked,...other}=this.props; 这个checked被列出来就不会传递下去，<div {...other} />。如果想传递列出来的属性，就<div {...other} checked={checked} />。
   单纯的<div {...this.props} />会把所有属性传下去。
 HTML插入JSX：`<div dangerouslySetInnerHTML={{'{{'}}__html: 'First &middot; Second'}} />`
-**state**：通常放在组件上层，向下流动。
-无状态组件：无状态组件只负责渲染数据，在它的上层创建state组件封装交互逻辑，再通过props传给无状态组件。
-this.state:内部保存基础交互数据，其它数据由它计算出最好。
-子组件状态：style={{ '{{'}}display: 'none' }}状态子组件最好隐藏而非删除。
 
 mixin:组件和组件间需要共享某种功能。如果引入了多个mixin，会按引入顺序执行，最后执行组件内方法。
 ```
@@ -83,7 +92,8 @@ var SetIntervalMixin = {
 ```
 
 组件的生命周期：
-Mounting：已插入真实DOM。Updating：正在被重新渲染。Unmounting：已移出真实DOM。will函数在进入状态之前调用，did函数在进入状态之后调用。
+Mounting：已插入真实DOM。Updating：正在被重新渲染。Unmounting：已移出真实DOM。
+will函数在进入状态之前调用，did函数在进入状态之后调用。
 componentWillMount() 
 componentDidMount()
 componentWillUpdate(object nextProps, object nextState)

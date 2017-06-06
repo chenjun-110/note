@@ -60,7 +60,6 @@ import:
   1. 运行期加载，类似require句法。它是个对象。
   2. 解构输出接口变量：import().then(({e1,e2,default:e3})=>{})
   3. 输出接口对象：Promise.all([import(a),import(b)]).then(([mo1,mo2])=>{})
-  
 复合写法：
   1. export { foo, bar } from 'my_module'; 先加载这俩，再输出这俩。
   2. export { es6 as default } from './someModule'; 先加载{es6},再输出为default。
@@ -72,7 +71,7 @@ import:
   3. 游览器内联模块type="module"内部可以用import加载模块：需要URL .js后缀不能省略 可用export
 
 
-let：作用域
+**let**：作用域
  1. 只在{let a=1;}代码块内有效，在for循环内有效(注意：循环体的let和条件的let作用域不同，条件是父作用域)。
  2. var变量提升：声明前可调用变量，值为`udf`。let会报错。 var在if和for条件或循环体内会溢出。
  3. let会形成封闭作用域，全局变量将失效！let之前也不能修改同名全局变量值，
@@ -84,7 +83,6 @@ const: 不可更改
  1. 作用域和let完全相同：{}、封死作用域、不提升、不可声明同名变量。
  2. const只能保证引用关系不变，不能保证内存地址变化。如对象、数组的数据仍可变动。应用冻结`const foo = Object.freeze({});`
  3. 可读性好，性能比let高，函数式思想只新建不改变值
-
 完全冻结对象：Object.freeze对属性值是对象的无效。
 ```
 var constantize = (obj) => {
@@ -93,7 +91,6 @@ var constantize = (obj) => {
     if ( typeof obj[key] === 'object' ) {constantize( obj[key] );}
 });};
 ```
-
 全局对象:
  1. let/const/class声明的不属于全局对象属性，var/function仍属于。
  2. 游览器的window，Node的global，WebWorker的self 指向全局。考虑到一处代码多处运行可作兼容处理：
@@ -104,6 +101,10 @@ var getGlobal = function () {
   if (typeof global !== 'undefined') { return global; }
   throw new Error('unable to locate global object');};
 ```
+对象简写：
+  1. 只写变量a={name},自动赋值{name:1}
+  2. 返回对象：c=(a,b)=>{return {a,b}} //c(1,2)返回{a:1,b:2} 形参为属性，传参为值的对象。
+
 
 **解构赋值**：等号右边的值不是对象或数组，就先将其转为对象。
  数组格式：`[a, [[b], c], ,d=5,...e] = [1, [[2], 3],4,undefined,6,7];` 顺序必须对应。
