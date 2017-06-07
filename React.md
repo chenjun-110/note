@@ -1,4 +1,16 @@
-兼容IE8：html5shiv兼容h5标签，es5-shim兼容ES5数组方法。es5-sham兼容对象方法。console-polyfill兼容console.*。
+第三方库：
+  兼容IE8：html5shiv兼容h5标签，es5-shim兼容ES5数组方法。es5-sham兼容对象方法。console-polyfill兼容console.*。react-ie8
+  事件库：add-dom-event-listener 或 bean 或 自定义PubSubJS
+  class库：classnames
+  Ajax库： natty-fetch 兼容IE8、兼容jsonp、使用类似jq。
+  动画库：
+    1. 拖拽动画 react-motion
+    2. 加类名进场动画 ReactCSSTransitionGroup 
+    3. 动画生命周期 ReactTransitionGroup 
+    4. 非进场动画 rc-animate
+react无法做的事：
+  1. 调用Audio/Video的play方法 和 input的focus方法，只能直接操作DOM.
+  2. 事件绑定在根节点之外。document
 JSX语法：
   1. 标签必须闭合，首字母大写。组件的最终目的是输出虚拟元素，也就是需要被渲染到界面的结构。
   2. 组件库写法：<MUI.xxx label="Default" /> 
@@ -26,7 +38,7 @@ class InputControlES6 extends Component {
 		super(props);
 		this.state = {};   //取代getInitialState
 		this.handleClick = this.handleClick.bind(this); 
-	}   //手动绑定方法的this，通常不再这绑定：<div onClick={()=>this.handleClick()}></div>
+	}   //手动绑定方法的this(性能高)，或者：<div onClick={()=>this.handleClick()}></div>
 	handleClick(){}
 	render(){return();}
 
@@ -36,7 +48,7 @@ class InputControlES6 extends Component {
 ```
   3. 动态渲染子组件：render(){List=this.state.List return(<div>{List.map(e,i)=><A key={i} p={e} />}</div>)} 先用事件监听触发ajax,返回数据传给setState，再map遍历state渲染。
 state：通常放在组件上层，向下流动。
-  1. 无状态组件：无状态组件只负责渲染数据，在它的上层创建state组件封装交互逻辑，再通过props传给无状态组件。
+  1. 无状态组件：无状态组件只负责渲染数据，在它的上层创建state组件封装交互逻辑，再通过props传给无状态组件。不会新建实例(refs、findDOMNode失效)
   2. this.state:内部保存基础交互数据，其它数据由它计算出最好。
   3. 子组件状态：style={{ '{{'}}display: 'none' }}状态子组件最好隐藏而非删除。
   4. setState是异步方法，一个周期内的setState会合并。
@@ -45,20 +57,42 @@ state：通常放在组件上层，向下流动。
     52. 木偶组件：state在组件外更新。if ('b' in this.props) 传入state
 props:多从父组件传入、或默认。
   1. children:内置prop。`React.Children.map(this.props.children，()=>{})` this.props.children可获取组件标签内所有子节点-如果无子就是udf,有1子则类型是object,有多子则类型是array。
+  2. refs:   挂在div上就是dom节点，挂在组件上就是组件实例(可调用实例方法)
+    21. `ref={(ref)=>this.a=ref}`  this.a指向实例(如果是组件可以调用子组件方法this.refs.a.x()获取子组件的this.b也就是子根dom节点)
+    22. `ref='n'`  Dom=`this.refs.n`指向实例 不推荐但如需组件转节点调用`findDOMNode(Dom)` 
+。
+
+通信技巧：  父组件向下传函数时要绑定this：hanlde={this.handle.bind(this)}
+  1. 子组件向父组件传值:子组件用事件触发onChange={this.props.father}调用父组件的函数。
+  2. 子组件向父组件传值预处理：把onChange={this.me}把father回调封装在me内。
+  3. 孙组件传给爷组件：`孙：onChange={this.props.a}->父：a={this.props.b}->爷：b={this.c.bind(this)}`
+  4. 兄弟组件传值：
+  5. 不相关组件传值
+技巧：
+  1. state控制dom的增改：`{this.state.list.map((item) => <div>{item}</div>)}` 推荐用这种方法控制dom而非findDOMNode。
+  2. state控制dom属性变化：`<a href={this.state.link}></a>`
+  3. state控制class变化：`<a className={classnames({'hide': !this.state.show,})}></a>`
+  4. state控制css变化：`style={{background: this.state.background,}}`
+生命周期：
+  1. 更新state:shouldComponentUpdate->componentWillUpdate->render->componentDidUpdate。
+  2. 更新props:componentWillReceiveProps->同上。
+ReactDOM:
+  1. findDOMNode:多用于componentDid-Mount/Update内部。ReactDOM.findDOMNode(this)获取当前组件dom实例。
+  2. unmountComponentAtNode:卸载
+  3. render:3参为渲染后的回调函数。
+  4. unstable_renderSubtreeIntoContainer：更新组件到任何dom上。
+  5. unstable_batchedUpdates
+
+
 
 
 script标签的type="text/babel"
 `<`开头就用HTML规则解析。`{`开头就用js规则解析。
 react.js react-dom.js Browser.js是把JSX转js语法的，消耗性能，应在服务器上转。
 模板转HTML并插入：ReactDOM.render()
-创建组件类实例：`React.createClass({render:function(){}})`,内部HTML标签顶层只允许一个,变量首字母大写,组件上的属性对应`this.props.属性`,
 render:仅仅是子组件的快照。 
 如果渲染数组的索引是纯数字(哈希值)，有可能导致乱序，需要给索引加字符串前缀items['result-' + result.id] = <li>{result.text}</li>; 
 
-ref：ref='refName' 
-  `this.refs.refName.getDOMNode()` 获取真实DOM元素。只在虚拟DOM插入后生效，一般在onClick回调中使用。
-  `React.findDOMNode(this.refs.refName)`同效。
-  ref={function(c){React.findDOMNode(c).focus();}} ref值为回调函数。
 
 设置样式：style=`{{opacity: this.state.opacity}}` 第一重大括号表示这是JS语法，第二重大括号表示样式对象。
 变量用()包裹html。
@@ -68,7 +102,6 @@ ref：ref='refName'
 
 **props**
 propTypes属性是用来验证组件实例的属性是否符合要求. propTypes:{len:React.PropTypes.number}
-父组件向子组件通信：父组件设置属性，子组件用this.props.x获取。
 展开属性：
   `<A {...obj} />` 把obj的属性和值都传到组件上.
   var {checked,...other}=this.props; 这个checked被列出来就不会传递下去，<div {...other} />。如果想传递列出来的属性，就<div {...other} checked={checked} />。
@@ -110,20 +143,22 @@ componentWillMount：render之前最后一次修改状态的机会
   render：只能访问this.props和this.state，只有一个顶层组件，不允许修改状态和DOM输出
 componentDidMount：成功render并渲染完成真实DOM后触发，可以修改DOM
 运行中阶段
-componentWillReceiveProps:父组件修改属性触发，可以修改新属性，修改状态
-shouldComponentUpdate:返回false会阻止render调用,提高性能
+componentWillReceiveProps:父组件修改属性触发，可以修改新属性，修改setState。
+shouldComponentUpdate:返回false会阻止render调用,提高性能.判断待更新的props和state。
 componentWillUpeate:组件更新前触发，在收到新props/state之前触发,不能修改属性和状态
   render:只能访问this.props和this.state，只有一个顶层组件，不允许修改状态和DOM输出
 componentDidUpdate:组件更新后触发，可以修改DOM
 销毁阶段：
 componentWillUnMount:在删除组件之前进行清理操作，比如计时器和事件监听器。
 
+方法：
 getDefaultProps方法可以用来设置组件属性的默认值。如果父级没传入props，它就声明默认值。
 getInitialState方法用于定义初始状态return对象,可用`this.state`获取该对象。`this.setState()`方法就修改状态值且重新渲染组件。
 forceUpdate:适合嵌套极深的组件改变state时，而不是从先祖流下。
 shouldComponentUpdate: function(nextProps, nextState) {
   return this.props.value !== nextProps.value;
 }
+
 支持的标签：
 ```
 a abbr address area article aside audio b base bdi bdo big blockquote body br
@@ -216,7 +251,7 @@ Provider组件：组件放在它内部可以拿到state。
 
 问题：extends继承组件与JSX嵌套有什么区别？
 
-
+![](http://i.imgur.com/yrrNGZi.png)
 
 
 
