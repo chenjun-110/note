@@ -81,3 +81,27 @@ ustring.forEach((v,i,a)=>{
 href.forEach((v,i,a)=>{arr[i].url=v;})
 src.forEach((v,i,a)=>{arr[i].img_url=v;})
 JSON.stringify(arr).replace(/\\\\/g, "\\");  //把双反斜杠转义成单反斜杠
+
+
+//e.target.matches('div.home') 字符参数和调用dom匹配则返回ture 支持IE8
+function matchesSelector(element,selector){
+    if(element.matches){
+        return element.matches(selector);
+    } else if(element.matchesSelector){
+        return element.matchesSelector(selector);
+    } else if(element.webkitMatchesSelector){
+        return element.webkitMatchesSelector(selector);
+    } else if(element.msMatchesSelector){
+        return element.msMatchesSelector(selector);
+    } else if(element.mozMatchesSelector){
+        return element.mozMatchesSelector(selector);
+    } else if(element.oMatchesSelector){
+        return element.oMatchesSelector(selector);
+    } else if(element.querySelectorAll){  //IE8
+        var matches = (element.document || element.ownerDocument).querySelectorAll(selector),
+            i = 0;
+        while(matches[i] && matches[i] !== element) i++;
+        return matches[i] ? true: false;
+    }
+    throw new Error('Your browser version is too old,please upgrade your browser');
+}

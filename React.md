@@ -46,7 +46,7 @@ class InputControlES6 extends Component {
 	static defaultProps = {} //取代getDefaultProps，定义在本组件内不需要父级传入
 }
 ```
-  3. 动态渲染子组件：render(){List=this.state.List return(<div>{List.map(e,i)=><A key={i} p={e} />}</div>)} 先用事件监听触发ajax,返回数据传给setState，再map遍历state渲染。
+  
 state：通常放在组件上层，向下流动。
   1. 无状态组件：无状态组件只负责渲染数据，在它的上层创建state组件封装交互逻辑，再通过props传给无状态组件。不会新建实例(refs、findDOMNode失效)
   2. this.state:内部保存基础交互数据，其它数据由它计算出最好。
@@ -59,20 +59,26 @@ props:多从父组件传入、或默认。
   1. children:内置prop。`React.Children.map(this.props.children，()=>{})` this.props.children可获取组件标签内所有子节点-如果无子就是udf,有1子则类型是object,有多子则类型是array。
   2. refs:   挂在div上就是dom节点，挂在组件上就是组件实例(可调用实例方法)
     21. `ref={(ref)=>this.a=ref}`  this.a指向实例(如果是组件可以调用子组件方法this.refs.a.x()获取子组件的this.b也就是子根dom节点)
-    22. `ref='n'`  Dom=`this.refs.n`指向实例 不推荐但如需组件转节点调用`findDOMNode(Dom)` 
-。
+    22. `ref='n'`  Dom=`this.refs.n`指向实例 不推荐但如需组件转节点调用`findDOMNode(Dom)`。
+  3. var {checked,...other}=this.props; 这个checked被列出来就不会传递下去，<div {...other} />。如果想传递列出来的属性，就<div {...other} checked={checked} />。
+  4. 单纯的<div {...this.props} />会把所有属性传下去。
+  5. propTypes属性是用来验证组件实例的属性是否符合要求. propTypes:{len:React.PropTypes.number}
 
 通信技巧：  父组件向下传函数时要绑定this：hanlde={this.handle.bind(this)}
   1. 子组件向父组件传值:子组件用事件触发onChange={this.props.father}调用父组件的函数。
   2. 子组件向父组件传值预处理：把onChange={this.me}把father回调封装在me内。
   3. 孙组件传给爷组件：`孙：onChange={this.props.a}->父：a={this.props.b}->爷：b={this.c.bind(this)}`
   4. 兄弟组件传值：
-  5. 不相关组件传值
+  5. 不相关组件传值:
+  6. 组件外更新：componentWillReceiveProps(nextProps)
+  7. 组件内更新：子组件调用父组件回调更新父组件
 技巧：
   1. state控制dom的增改：`{this.state.list.map((item) => <div>{item}</div>)}` 推荐用这种方法控制dom而非findDOMNode。
   2. state控制dom属性变化：`<a href={this.state.link}></a>`
   3. state控制class变化：`<a className={classnames({'hide': !this.state.show,})}></a>`
-  4. state控制css变化：`style={{background: this.state.background,}}`
+  4. state控制css变化：`style={{background: this.state.background ? 'red' :'block'}}`
+  5. {...ref}:把ref对象提出来可以加条件判断是否赋值。比直接写在组件上灵活。
+  6. 动态渲染子组件：render(){List=this.state.List return(<div>{List.map(e,i)=><A key={i} p={e} />}</div>)} 先用事件监听触发ajax,返回数据传给setState，再map遍历state渲染。
 生命周期：
   1. 更新state:shouldComponentUpdate->componentWillUpdate->render->componentDidUpdate。
   2. 更新props:componentWillReceiveProps->同上。
@@ -82,7 +88,18 @@ ReactDOM:
   3. render:3参为渲染后的回调函数。
   4. unstable_renderSubtreeIntoContainer：更新组件到任何dom上。
   5. unstable_batchedUpdates
-
+React事件：
+  1. 原生事件对象：nativeEvent。阻止默认preventDefault。
+  2. 阻止冒泡：
+    21. stopPropagation只能阻止React事件冒泡。
+    22. 原生事件阻止冒泡：判断`e.target.matches`退出回调。原生的阻止冒泡可以阻止React冒泡。
+  3. 合成事件统一由最外层代理监听。
+  4. 绑定this写法：
+    41. 传参：onClick={this.handleClick.bind(this, 'test')} 
+    42. 不传参：onClick={::this.handleClick}  (stage0草案)
+    43. 如果函数是以箭头定义的或手动绑定在constructor内：onClick={this.handleClick}
+  5. 绑定原生事件：addEventListener必须配合removeEventListener消除引用。写在div内或dom0级绑定都可以。
+  6. 没有捕获阶段。
 
 
 
@@ -100,13 +117,6 @@ render:仅仅是子组件的快照。
   读取文本框的值：event.target.value
 
 
-**props**
-propTypes属性是用来验证组件实例的属性是否符合要求. propTypes:{len:React.PropTypes.number}
-展开属性：
-  `<A {...obj} />` 把obj的属性和值都传到组件上.
-  var {checked,...other}=this.props; 这个checked被列出来就不会传递下去，<div {...other} />。如果想传递列出来的属性，就<div {...other} checked={checked} />。
-  单纯的<div {...this.props} />会把所有属性传下去。
-HTML插入JSX：`<div dangerouslySetInnerHTML={{'{{'}}__html: 'First &middot; Second'}} />`
 
 mixin:组件和组件间需要共享某种功能。如果引入了多个mixin，会按引入顺序执行，最后执行组件内方法。
 ```
