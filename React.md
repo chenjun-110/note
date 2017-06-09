@@ -8,7 +8,7 @@
     2. 加类名进场动画 ReactCSSTransitionGroup 
     3. 动画生命周期 ReactTransitionGroup 
     4. 非进场动画 rc-animate
-react无法做的事：
+无法做的事：
   1. 调用Audio/Video的play方法 和 input的focus方法，只能直接操作DOM.
   2. 事件绑定在根节点之外。document
 JSX语法：
@@ -79,6 +79,7 @@ props:多从父组件传入、或默认。
   4. state控制css变化：`style={{background: this.state.background ? 'red' :'block'}}`
   5. {...ref}:把ref对象提出来可以加条件判断是否赋值。比直接写在组件上灵活。
   6. 动态渲染子组件：render(){List=this.state.List return(<div>{List.map(e,i)=><A key={i} p={e} />}</div>)} 先用事件监听触发ajax,返回数据传给setState，再map遍历state渲染。
+  7. 1个事件函数处理2个表单：onChange={this.handleChange.bind(this, 'name') -> this.setState({[name]: value,}); 利用对象表达式的特性、传参进去。
 生命周期：
   1. 更新state:shouldComponentUpdate->componentWillUpdate->render->componentDidUpdate。
   2. 更新props:componentWillReceiveProps->同上。
@@ -100,7 +101,19 @@ React事件：
     43. 如果函数是以箭头定义的或手动绑定在constructor内：onClick={this.handleClick}
   5. 绑定原生事件：addEventListener必须配合removeEventListener消除引用。写在div内或dom0级绑定都可以。
   6. 没有捕获阶段。
-
+表单：
+  1. 读取文本框的值：e.target.value，值通过v={this.state.v}设置(注意textarea元素也是如此！)
+  2. 多选select：multiple={true} value={[ov1,ov2]} 数组形式表示多选
+  3. 受控组件：推荐。state决定默认值->onChange双向绑定setState组件。好处是取值放值之间可以做特殊处理。(注意：单选复选的`checked={}`、下拉的`value={}`都是用来双向绑定渲染选中项的。)
+  4. 不受控组件：数据被写死、配合dom操作。defaultChecked、defaultValue=""默认值。state并不能改变value。
+CSS:
+  1. style=`{{opacity: this.state.opacity}}` 第一重大括号表示这是JS语法，第二重大括号表示样式对象。
+  2. 前缀大写WebkitTransition会转换成-webkit-transition。仅ms小写。
+  3. 不用写px单位。
+  4. CSS Modules：需要css-loader。sass仅解决css编程能力，没有解决模块化。Shadow DOM可以但外部无法重写过于局部化。
+    41. 配置webpack：css?modules&localIdentName=[name]__[local]-[hash:base64:5] 表示css文件名--类名-hash名。在组件内import该css。
+    42. 写法：默认局部模式，如需全局样式就这么定义类`:global(.btn{ } .box{ })`
+      1. 复用写法：`.p{composes:base}`拿到.base的类。`.p{composes:$base from './a.css'}`拿到外部css文件的.base类。 非合并类，是2个类名在一个变量中。 如果用了sass，composes语法报错。
 
 
 script标签的type="text/babel"
@@ -109,14 +122,7 @@ react.js react-dom.js Browser.js是把JSX转js语法的，消耗性能，应在�
 模板转HTML并插入：ReactDOM.render()
 render:仅仅是子组件的快照。 
 如果渲染数组的索引是纯数字(哈希值)，有可能导致乱序，需要给索引加字符串前缀items['result-' + result.id] = <li>{result.text}</li>; 
-
-
-设置样式：style=`{{opacity: this.state.opacity}}` 第一重大括号表示这是JS语法，第二重大括号表示样式对象。
 变量用()包裹html。
-表单或<textarea>的值通过value设置。要么不写，写不能写死，要用onChange监听state
-  读取文本框的值：event.target.value
-
-
 
 mixin:组件和组件间需要共享某种功能。如果引入了多个mixin，会按引入顺序执行，最后执行组件内方法。
 ```
@@ -259,7 +265,9 @@ Provider组件：组件放在它内部可以拿到state。
 
 
 
-问题：extends继承组件与JSX嵌套有什么区别？
+问题：
+  1. extends继承组件与JSX嵌套有什么区别？
+  2. react的<select value={v}>和原生select.value有什么区别？类似的还有<input checked={!true}>
 
 ![](http://i.imgur.com/yrrNGZi.png)
 
