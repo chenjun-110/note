@@ -1,13 +1,17 @@
 第三方库：
   兼容IE8：html5shiv兼容h5标签，es5-shim兼容ES5数组方法。es5-sham兼容对象方法。console-polyfill兼容console.*。react-ie8
   事件库：add-dom-event-listener 或 bean 或 自定义PubSubJS
-  class库：classnames
+  class库：
+    1. classnames
+    2. react-css-modules <div styleName="classa"> 这个库可以避免写style.classa的对象名。
   Ajax库： natty-fetch 兼容IE8、兼容jsonp、使用类似jq。
   动画库：
     1. 拖拽动画 react-motion
     2. 加类名进场动画 ReactCSSTransitionGroup 
     3. 动画生命周期 ReactTransitionGroup 
     4. 非进场动画 rc-animate
+  mixin库：react-addons-pure-render-mixin
+  装饰器库：core-decorators
 无法做的事：
   1. 调用Audio/Video的play方法 和 input的focus方法，只能直接操作DOM.
   2. 事件绑定在根节点之外。document
@@ -68,10 +72,11 @@ props:多从父组件传入、或默认。
   1. 子组件向父组件传值:子组件用事件触发onChange={this.props.father}调用父组件的函数。
   2. 子组件向父组件传值预处理：把onChange={this.me}把father回调封装在me内。
   3. 孙组件传给爷组件：`孙：onChange={this.props.a}->父：a={this.props.b}->爷：b={this.c.bind(this)}`
-  4. 兄弟组件传值：
-  5. 不相关组件传值:
+  4. 兄弟组件传值：兄->父->弟
+  5. 不相关组件传值: 自定义事件，a组件挂载时订阅、卸载时取消。b组件触发自定义事件并传入参数。关系易混乱应从结构上考虑更优解。
   6. 组件外更新：componentWillReceiveProps(nextProps)
   7. 组件内更新：子组件调用父组件回调更新父组件
+  8. Context:越级向下传递，组件内定义`getChildContext(){return{color:'red'}}`，后代组件调用`this.context.color` 另外本组件还要定义static childContextTypes={color: PropTypes.string,} 接收组件也要定义static contextTypes = {color: PropTypes.string,}; 动态数据不推荐使用，适合不会更改的全局信息，该方法是不稳定的，转成高阶组件使用。
 技巧：
   1. state控制dom的增改：`{this.state.list.map((item) => <div>{item}</div>)}` 推荐用这种方法控制dom而非findDOMNode。
   2. state控制dom属性变化：`<a href={this.state.link}></a>`
@@ -110,10 +115,24 @@ CSS:
   1. style=`{{opacity: this.state.opacity}}` 第一重大括号表示这是JS语法，第二重大括号表示样式对象。
   2. 前缀大写WebkitTransition会转换成-webkit-transition。仅ms小写。
   3. 不用写px单位。
-  4. CSS Modules：需要css-loader。sass仅解决css编程能力，没有解决模块化。Shadow DOM可以但外部无法重写过于局部化。
+  4. CSS-Modules：需要css-loader。sass仅解决css编程能力，没有解决模块化。Shadow DOM可以但外部无法重写过于局部化。仅对类名生效。
     41. 配置webpack：css?modules&localIdentName=[name]__[local]-[hash:base64:5] 表示css文件名--类名-hash名。在组件内import该css。
-    42. 写法：默认局部模式，如需全局样式就这么定义类`:global(.btn{ } .box{ })`
-      1. 复用写法：`.p{composes:base}`拿到.base的类。`.p{composes:$base from './a.css'}`拿到外部css文件的.base类。 非合并类，是2个类名在一个变量中。 如果用了sass，composes语法报错。
+    42. 写法：
+      1. composes继承语法：`.p{composes:base}`拿到.base的类。`.p{composes:$base from './a.css'}`拿到外部css文件的.base类。 非合并类，是2个类名在一个变量中。 和预处理器不兼容。
+      
+      3. :export语法：`:export{A:a}` 把css的a属性赋值给A变量并输出到js文件的style.A。(css和css变量共享用postcss-loader)
+      4. :global语法：默认局部模式，如需全局样式就这么定义类`:global(.btn{ } .box{ })` 
+    43. 用法：默认局部`className={style.title}` style为导入名。全局模式：`className="title"`
+    44. 技巧：
+      1. 类命名：模块名-节点名--状态名。不层叠class，只用单个class。用composes复用类。
+      2. 覆盖样式：因为class名无法预知，所以把覆盖类写进组件属性。`[date-role="btn"]{}` date-role="btn"
+      3. react-css-modules库： <div className="a" `styleName="b"`>  export default `库名(组件名，样式对象名)`； 可不写样式对象名。className可看作全局类，styleName可看作局部类。
+公用方法：
+  1. mixin:官方库里不允许同名方法覆盖。可合并生命周期、state、方法。仅适合createClass
+  2. @mixin:import { mixin } from 'core-decorators'; @mixin(PureRender, Theme) 允许同名方法。缺点是难维护。
+  3. 高阶组件：接收一个组件，返回另一个组件。
+    31. 属性代理：把组件传入函数，返回加工过的组件：控制props、重写refs、把组件的函数抽象到高阶上。
+    32. 反向继承：条件渲染、劫持渲染。
 
 
 script标签的type="text/babel"

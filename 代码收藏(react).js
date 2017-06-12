@@ -26,3 +26,52 @@ handleChange(e) {
         area,
     });
 }
+//mixin
+import React, { Component } from 'React';
+import { mixin } from 'core-decorators';
+    const PureRender = {
+        shouldComponentUpdate() {}
+    };
+    const Theme = {
+        setTheme() {}
+    };
+    @mixin(PureRender, Theme)
+    class MyComponent extends Component {
+        render() {}
+    }
+//高阶组件，属性代理
+import React, { Component } from 'React';
+    const MyContainer = (WrappedComponent) =>
+        class extends Component {
+            proc(a){a.A()}
+            render() {
+                const newProps = {text: newText};  //增加props
+                const props = Object.assign({}, this.props, {
+                    ref: this.proc.bind(this),
+                    name: {
+                        value: this.state.name,
+                        onChange: this.onNameChange, //把组件上的方法抽象到高阶上
+                    },
+                }); //重写ref指向
+                return <WrappedComponent {...this.props} {...newProps}/>;
+            }
+        }
+import React, { Component } from 'React';
+//@MyContainer
+class MyComponent extends Component {
+    render() {
+        return <input name="name" {...this.props.name} />;
+    }
+}
+export default MyContainer(MyComponent);
+//高阶组件-反向继承
+const MyContainer = (WrappedComponent) =>
+    class extends WrappedComponent {
+        render() {
+            if (this.props.loggedIn) {
+                return super.render(); //条件渲染
+            } else {
+                return null;
+            }
+        }
+    }
