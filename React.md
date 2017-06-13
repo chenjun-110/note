@@ -10,8 +10,14 @@
     2. 加类名进场动画 ReactCSSTransitionGroup 
     3. 动画生命周期 ReactTransitionGroup 
     4. 非进场动画 rc-animate
-  mixin库：react-addons-pure-render-mixin
+  mixin库：
+	1. react-addons-pure-render-mixin
+	2. ramda 用compose组合多个高阶组件
   装饰器库：core-decorators
+  高阶组件找回对应组件名：recompose 
+  pure-render优化：react-addons-pure-render-mixin / pure-render-decorator
+  不可变优化：immutable.js / immutable/contrib/cursor
+  
 无法做的事：
   1. 调用Audio/Video的play方法 和 input的focus方法，只能直接操作DOM.
   2. 事件绑定在根节点之外。document
@@ -85,6 +91,9 @@ props:多从父组件传入、或默认。
   5. {...ref}:把ref对象提出来可以加条件判断是否赋值。比直接写在组件上灵活。
   6. 动态渲染子组件：render(){List=this.state.List return(<div>{List.map(e,i)=><A key={i} p={e} />}</div>)} 先用事件监听触发ajax,返回数据传给setState，再map遍历state渲染。
   7. 1个事件函数处理2个表单：onChange={this.handleChange.bind(this, 'name') -> this.setState({[name]: value,}); 利用对象表达式的特性、传参进去。
+组件抽象：
+  1. 划分合理(界面抽象):如果组件内的界面能拆分组装成别的界面，应该拆分。
+  2. 逻辑抽象:把state、事件回调、生命周期函数，都放在高阶组件内定义。向下传进被包裹的组件props。
 生命周期：
   1. 更新state:shouldComponentUpdate->componentWillUpdate->render->componentDidUpdate。
   2. 更新props:componentWillReceiveProps->同上。
@@ -103,7 +112,7 @@ React事件：
   4. 绑定this写法：
     41. 传参：onClick={this.handleClick.bind(this, 'test')} 
     42. 不传参：onClick={::this.handleClick}  (stage0草案)
-    43. 如果函数是以箭头定义的或手动绑定在constructor内：onClick={this.handleClick}
+    43. 如果函数是以箭头定义的或手动绑定在constructor内：onClick={this.handleClick} 推荐！
   5. 绑定原生事件：addEventListener必须配合removeEventListener消除引用。写在div内或dom0级绑定都可以。
   6. 没有捕获阶段。
 表单：
@@ -132,8 +141,22 @@ CSS:
   2. @mixin:import { mixin } from 'core-decorators'; @mixin(PureRender, Theme) 允许同名方法。缺点是难维护。
   3. 高阶组件：接收一个组件，返回另一个组件。
     31. 属性代理：把组件传入函数，返回加工过的组件：控制props、重写refs、把组件的函数抽象到高阶上。
-    32. 反向继承：条件渲染、劫持渲染。
-
+    32. 反向继承：条件渲染、劫持渲染。避免增加state。
+    33. 找回原组件名：设置static displayName = `HOC(${getDisplayName(WrappedComponent)})`;
+    34. 往常开发维护时不断增加props应对需求
+性能优化：
+  1. 纯函数：
+    1. 输入输出确定：内部行为依赖传参Math.random/不改变原数组splice/不随时间变化Date。
+    2. 无副作用：不改变外部对象或数组。
+    3. 无状态依赖：不使用共享变量，状态只在方法的生命周期内存活。
+  2. Pure Render：引入react-addons-pure-render-mixin库，然后组件constructor内定义`this.shouldComponentUpdate = raprm.shouldComponentUpdate.bind(this)`, 自动判断props一致就不更新。
+    1. 调用组件会创建新组件：`style={this.props.style||{}}` 代替 style={{color:'red'}} 更新时新对象引用不等于原来。
+    2. 事件this绑定：在构造器内，非组件上。
+  3. Immutable.js：Map就是对象，List就是数组，ArraySet是不重复数组。
+    1. 数据很安全，改变的数据新建，没改变的结构引用。
+    2. react-redux的connect优化了shouldComponentUpdate，不需要它。
+    3. 用于组件，只渲染变化节点的祖先节点，不渲染子节点。
+PureRender适合浅比较，Immutable适合深比较。如果this.state.a的值是个对象，就用Immutable。
 
 script标签的type="text/babel"
 `<`开头就用HTML规则解析。`{`开头就用js规则解析。

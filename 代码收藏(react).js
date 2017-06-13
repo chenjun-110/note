@@ -75,3 +75,119 @@ const MyContainer = (WrappedComponent) =>
             }
         }
     }
+//高阶组件-反向继承-修改render结果
+const MyContainer = (WrappedComponent) =>
+    class extends WrappedComponent {
+            render() {
+                const elementsTree = super.render(); //提取div
+                let newProps = {};
+            if (elementsTree && elementsTree.type === 'input') {
+                newProps = {value: 'may the force be with you'};
+            }
+            const props = Object.assign({}, elementsTree.props, newProps); //合并属性
+            const newElementsTree = React.cloneElement(elementsTree, props, elementsTree.props.children); //生成render结果
+            return newElementsTree;
+        }
+    }
+//找回高阶组件丢失的原组件名
+class HOC extends ... {
+    static displayName = `HOC(${getDisplayName(WrappedComponent)})`;
+}
+function getDisplayName(WrappedComponent) {
+    return WrappedComponent.displayName ||
+        WrappedComponent.name ||
+        'Component';
+}
+//函数式编程-能改变自己的高阶组件
+import React, { Component } from 'React';
+function HOCFactoryFactory(...params) {  // 可以做一些改变 params 的事
+    return function HOCFactory(WrappedComponent) {
+        return class HOC extends Component {
+            render() {
+                return <WrappedComponent {...this.props} />;
+            }
+        }
+    }
+}
+HOCFactoryFactory(params)(WrappedComponent); //调用1
+@HOCFatoryFactory(params)  //调用2
+class WrappedComponent extends React.Component{}
+
+//高阶组件-逻辑抽象
+const SearchDecorator = Wrapper => { // 抽象了回调的高阶
+    class WrapperComponent extends Component {
+        handleSearch(keyword) {
+            this.setState({
+                data: this.props.data,
+                keyword,
+            });
+            this.props.onSearch(keyword);
+        }
+        render() {
+            const { data, keyword } = this.state;
+            return (
+                <Wrapper
+                    {...this.props}
+                    data={data}
+                    keyword={keyword}
+                    onSearch={this.handleSearch.bind(this)}
+                />
+            );
+        }
+    }
+    return WrapperComponent;
+};
+const AsyncSelectDecorator = Wrapper => {  // 抽象了生命周期的高阶
+    class WrapperComponent extends Component {
+        componentDidMount() {
+            const { url } = this.props;
+            fetch(url).then(response => response.json()).then(data => {this.setState({data});});
+        }
+        render() {
+            const { data } = this.state;
+            return (
+                <Wrapper
+                    {...this.props}
+                    data={data}
+                />
+            );
+        }
+    }
+    return WrapperComponent;
+}
+//Immutable.js
+import Immutable from 'immutable';
+import Cursor from 'immutable/contrib/cursor';
+let data = Immutable.fromJS({ a: { b: { c: 1 } } });
+let cursor = Cursor.from(data, ['a', 'b'], newData => { // 让 cursor 指向 { c: 1 }
+    console.log(newData);// 当 cursor 或其子 cursor 执行更新时调用
+});
+cursor.get('c'); // 1
+cursor = cursor.update('c', x => x + 1);
+cursor.get('c'); // 2
+//Immutable的应用
+import React, { Component } from 'react';
+import { is } from 'immutable';
+class App extends Component {
+    shouldComponentUpdate(nextProps, nextState) {
+        const thisProps = this.props || {};
+        const thisState = this.state || {};
+        if (Object.keys(thisProps).length !== Object.keys(nextProps).length ||
+            Object.keys(thisState).length !== Object.keys(nextState).length) {
+            return true;
+        }
+        for (const key in nextProps) {
+            if (nextProps.hasOwnProperty(key) &&
+                !is(thisProps[key], nextProps[key])) {
+                return true;
+            }
+        }
+        for (const key in nextState) {
+            if (nextState.hasOwnProperty(key) &&
+                !is(thisState[key], nextState[key])) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
