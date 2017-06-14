@@ -10,6 +10,7 @@
     2. 加类名进场动画 ReactCSSTransitionGroup 
     3. 动画生命周期 ReactTransitionGroup 
     4. 非进场动画 rc-animate
+    5. 缓动函数：react-smooth
   mixin库：
 	1. react-addons-pure-render-mixin
 	2. ramda 用compose组合多个高阶组件
@@ -17,6 +18,8 @@
   高阶组件找回对应组件名：recompose 
   pure-render优化：react-addons-pure-render-mixin / pure-render-decorator
   不可变优化：immutable.js / immutable/contrib/cursor
+  自动加key:react-addons-create-fragment
+  性能分析库：react-addons-perf
   
 无法做的事：
   1. 调用Audio/Video的play方法 和 input的focus方法，只能直接操作DOM.
@@ -152,11 +155,26 @@ CSS:
   2. Pure Render：引入react-addons-pure-render-mixin库，然后组件constructor内定义`this.shouldComponentUpdate = raprm.shouldComponentUpdate.bind(this)`, 自动判断props一致就不更新。
     1. 调用组件会创建新组件：`style={this.props.style||{}}` 代替 style={{color:'red'}} 更新时新对象引用不等于原来。
     2. 事件this绑定：在构造器内，非组件上。
+    3. PureRender适合浅比较，Immutable适合深比较。如果this.state.a的值是个对象，就用Immutable。
   3. Immutable.js：Map就是对象，List就是数组，ArraySet是不重复数组。
     1. 数据很安全，改变的数据新建，没改变的结构引用。
     2. react-redux的connect优化了shouldComponentUpdate，不需要它。
     3. 用于组件，只渲染变化节点的祖先节点，不渲染子节点。
-PureRender适合浅比较，Immutable适合深比较。如果this.state.a的值是个对象，就用Immutable。
+    4. 不用为了不污染原state而新建一个变量了。
+    5. 使用技巧：
+      1. props要转。
+      2. 提交到store的state要转。
+      3. action发送的数据要转。
+      4. action提交给reducer的数据要转。
+      5. reducer处理后的state要转。
+      6. 仅发送给服务器的数据用toJS(),响应的也要转。
+  4. key:
+    1. 适合动态子组件
+    2. key值不能是随机值，可以把key值保存在state。
+    3. 值在兄弟节点唯一，优化diff算法匹配时间。key应该添加在组件上，而非具体html上。
+    4. 自动加key库：react-addons-create-fragment
+  5. 性能分析库：react-addons-perf
+    1. 
 
 script标签的type="text/babel"
 `<`开头就用HTML规则解析。`{`开头就用js规则解析。
@@ -263,7 +281,7 @@ prop_a: function(props, propName, componentName) { //自定义验证
 ```
 
 diff算法：先比较节点类型，不同则删除替换树结构，相同则进行匹配。再比较节点属性。该算法不会匹配不同组件类的子树，如果发现两个组件类DOM结构很相似，可以合并组件类。	
-key:属性，值在兄弟节点唯一，优化diff算法匹配时间。key应该添加在组件上，而非具体html上。
+
 
 
 
@@ -302,6 +320,35 @@ Redirect：从url自动跳转到另一url.
 生成容器组件：input把state变成ui上的props,output把交互变成action。
   const Rongqi=connect(input,output)(Ui)
 Provider组件：组件放在它内部可以拿到state。
+**immutable**
+js转Immutable：fromJs(obj/arr) 按参数返回Map、List
+Immutable转js：List/Map.toJSON()浅转换 toJS()深转换
+  Map转为对象：deep.toObject()
+  List转为数组：deep.toArray()
+转为json:json,stringfy(deep)
+取值: 嵌套用In
+  1. map.get(key) 键通常为字符串
+  2. map.getIn(arr) 参数["a","b"]取的是a的子b的值
+添/改值： 不会修改原Map!
+  1. map.set(k,v) 索引，值
+  2. map.setIn(k,v)
+改值：
+  1. map.update(k,f) 索引，回调
+  2. map.updateIn(k,f)
+删除：deleteIn()
+比较：is(map1, map2) 全等/Object.is对Map无效
+遍历：map1.map((v,k)=>{})
+合并：
+  1. map1.mergeDeep(map2) 深合并，相同属性名会递归搜索内部，永远只覆盖不同值。
+  2. map1.mergeDeepWith(f，map2) f为回调，把2个map的相同键运算后返回
+  3. map1.merge(map2) 浅合并，后者覆盖前者
+创建不变：Seq(obj) seq类型适合遍历
+插入：insert(k,v) 
+清空：clear()
+push：list1.push(3,4,5) 不会修改原List！
+.unshift(0).concat(list2,list3);
+**react-addons-perf**
+
 
 
 

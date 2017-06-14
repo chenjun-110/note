@@ -165,7 +165,7 @@ let cursor = Cursor.from(data, ['a', 'b'], newData => { // 让 cursor 指向 { c
 cursor.get('c'); // 1
 cursor = cursor.update('c', x => x + 1);
 cursor.get('c'); // 2
-//Immutable的应用
+//Immutable的优化shouldComponentUpdate
 import React, { Component } from 'react';
 import { is } from 'immutable';
 class App extends Component {
@@ -190,4 +190,25 @@ class App extends Component {
         }
         return false;
     }
+}
+//Immutable的小demo
+ this.state={data: Map({ count: 0, items: List() })}; //state用Immutable类型
+handleCountClick() {
+    this.setState(({data}) => ({  //setState用update/set
+        data: data.update('count', v => v + 1)
+            .set('otherProp', 'newValue')
+            .update('items', list => list.push(data.get('count'))
+    }));
+}
+render({ //渲染用get
+    <div> Count: {data.get('count')}</div>
+})
+//抽象setState
+handleCountClick() {
+    this.setImmState(d => d.update('count', v => v + 1));
+}
+setImmState(fn) {
+    return this.setState(({data}) => ({
+        data: fn(data)
+    }));
 }
