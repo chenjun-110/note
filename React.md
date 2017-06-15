@@ -8,7 +8,7 @@
   动画库：
     1. 拖拽动画 react-motion
     2. 加类名进场动画 ReactCSSTransitionGroup 
-    3. 动画生命周期 ReactTransitionGroup 
+    3. 动画生命周期库(基础) ReactTransitionGroup 
     4. 非进场动画 rc-animate
     5. 缓动函数：react-smooth
   mixin库：
@@ -174,7 +174,23 @@ CSS:
     3. 值在兄弟节点唯一，优化diff算法匹配时间。key应该添加在组件上，而非具体html上。
     4. 自动加key库：react-addons-create-fragment
   5. 性能分析库：react-addons-perf
-    1. 
+动画：
+  1. 库：React Transition是js动画，React CSS Transition是C3动画。
+  2. 原理：让状态延迟变化。动画如持续500ms,就setState的回调延迟执行setState。 
+  3. 体验：spring > ease > linear
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 script标签的type="text/babel"
 `<`开头就用HTML规则解析。`{`开头就用js规则解析。
@@ -357,6 +373,7 @@ push：list1.push(3,4,5) 不会修改原List！
 问题：
   1. extends继承组件与JSX嵌套有什么区别？
   2. react的<select value={v}>和原生select.value有什么区别？类似的还有<input checked={!true}>
+  3. 无法获取style对象。
 
 ![](http://i.imgur.com/yrrNGZi.png)
 
