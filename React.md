@@ -133,7 +133,7 @@ CSS:
       1. composes继承语法：`.p{composes:base}`拿到.base的类。`.p{composes:$base from './a.css'}`拿到外部css文件的.base类。 非合并类，是2个类名在一个变量中。 和预处理器不兼容。
       
       3. :export语法：`:export{A:a}` 把css的a属性赋值给A变量并输出到js文件的style.A。(css和css变量共享用postcss-loader)
-      4. :global语法：默认局部模式，如需全局样式就这么定义类`:global(.btn{ } .box{ })` 
+      4. :global语法：默认局部模式，如需全局样式就这么定义类`:global(.btn{ } .box{ })` 坑！不加圆括号！游览器会显示括号！
     43. 用法：默认局部`className={style.title}` style为导入名。全局模式：`className="title"`
     44. 技巧：
       1. 类命名：模块名-节点名--状态名。不层叠class，只用单个class。用composes复用类。
@@ -364,16 +364,20 @@ Immutable转js：List/Map.toJSON()浅转换 toJS()深转换
 push：list1.push(3,4,5) 不会修改原List！
 .unshift(0).concat(list2,list3);
 **react-addons-perf**
-
-
-
-
-
-
+**react-addons-css-transition-group**
+类名：前缀+ `-leave -leave-active` `-enter -enter-active` ` -appear -appear-active` 作用在该组件的子组件们
+transitionName: "string"类前缀。 {{object}}自定义类名。
+transitionEnterTimeout/transitionLeaveTimeout:进场类、出场类持续时间 (值为true则不加类)(作用在子组件)
+transitionAppear={true} 动画组件初始化时给子组件加类
+transitionAppearTimeout 初始化类的存在时间
+注意：动画组件本身不能动态生成，子组件可以。它必须添加在已出现的dom上、或者transitionAppear={ture}的组件上。
+**react-addons-transition-group**
+component="ul" 渲染ul组件 component={a} 渲染a变量代表的组件
 问题：
   1. extends继承组件与JSX嵌套有什么区别？
   2. react的<select value={v}>和原生select.value有什么区别？类似的还有<input checked={!true}>
-  3. 无法获取style对象。
+  3. 无法获取style对象：因为webpack的css-modules格式不对。
+  4. 静态属性babel配置？
 
 ![](http://i.imgur.com/yrrNGZi.png)
 

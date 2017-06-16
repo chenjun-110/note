@@ -212,3 +212,33 @@ setImmState(fn) {
         data: fn(data)
     }));
 }
+
+/* react-smooth */
+import Animate from 'react-smooth';
+    render(){
+        const steps = [{
+            style: {
+                opacity: 0,
+            },
+            duration: 400,
+        }, {
+            style: {
+                opacity: 1,
+                transform: 'translate(0, 0)',
+            },
+            duration: 1000,
+        }, {
+            style: {
+                transform: 'translate(100px, 100px)',
+            },
+            duration: 1200,
+        }];
+        return (
+            <Animate steps={steps}>
+                <div className={S.a}>步骤动画</div>
+            </Animate>
+        )}
+
+    <Animate from={{ opacity: 0 }} to={{ opacity: 1 }} easing="ease-in">
+        { ({ opacity }) => <div className={S.a} style={{ opacity }}></div> }
+    </Animate>//动态子组件动画写法
