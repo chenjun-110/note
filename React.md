@@ -16,7 +16,10 @@
 	2. ramda 用compose组合多个高阶组件
   装饰器库：core-decorators
   高阶组件找回对应组件名：recompose 
-  pure-render优化：react-addons-pure-render-mixin / pure-render-decorator
+  pure-render优化：
+    1. react-addons-pure-render-mixin  
+    2. pure-render-decorator   
+    3. react-immutable-render-mixin   用来深比较immutable变化shouldComponentUpdate
   不可变优化：immutable.js / immutable/contrib/cursor
   自动加key:react-addons-create-fragment
   性能分析库：react-addons-perf
@@ -139,6 +142,7 @@ CSS:
       1. 类命名：模块名-节点名--状态名。不层叠class，只用单个class。用composes复用类。
       2. 覆盖样式：因为class名无法预知，所以把覆盖类写进组件属性。`[date-role="btn"]{}` date-role="btn"
       3. react-css-modules库： <div className="a" `styleName="b"`>  export default `库名(组件名，样式对象名)`； 可不写样式对象名。className可看作全局类，styleName可看作局部类。
+      4.  @CSSModules(styles, { allowMultiple: true }) 可写多个类名
 公用方法：
   1. mixin:官方库里不允许同名方法覆盖。可合并生命周期、state、方法。仅适合createClass
   2. @mixin:import { mixin } from 'core-decorators'; @mixin(PureRender, Theme) 允许同名方法。缺点是难维护。
@@ -146,7 +150,8 @@ CSS:
     31. 属性代理：把组件传入函数，返回加工过的组件：控制props、重写refs、把组件的函数抽象到高阶上。
     32. 反向继承：条件渲染、劫持渲染。避免增加state。
     33. 找回原组件名：设置static displayName = `HOC(${getDisplayName(WrappedComponent)})`;
-    34. 往常开发维护时不断增加props应对需求
+    34. 往常开发维护时不断增加props应对需求。
+    35. 适合抽象与组件主体功能无关的。
 性能优化：
   1. 纯函数：
     1. 输入输出确定：内部行为依赖传参Math.random/不改变原数组splice/不随时间变化Date。
