@@ -6,7 +6,7 @@
     2. react-css-modules <div styleName="classa"> 这个库可以避免写style.classa的对象名。
   Ajax库： natty-fetch 兼容IE8、兼容jsonp、使用类似jq。
   动画库：
-    1. 拖拽动画 react-motion
+    1. 拖拽缓动动画 react-motion
     2. 加类名进场动画 ReactCSSTransitionGroup 
     3. 动画生命周期库(基础) ReactTransitionGroup 
     4. 非进场动画 rc-animate
@@ -142,7 +142,7 @@ CSS:
       1. 类命名：模块名-节点名--状态名。不层叠class，只用单个class。用composes复用类。
       2. 覆盖样式：因为class名无法预知，所以把覆盖类写进组件属性。`[date-role="btn"]{}` date-role="btn"
       3. react-css-modules库： <div className="a" `styleName="b"`>  export default `库名(组件名，样式对象名)`； 可不写样式对象名。className可看作全局类，styleName可看作局部类。
-      4.  @CSSModules(styles, { allowMultiple: true }) 可写多个类名
+        1. 用法：@CSSModules(styles, { allowMultiple: true }) 可写多个类名,问题：不会配置transform-decorators-legacy ? 只能`export default CSSModules(TodoList,styles,{allowMultiple: true})`
 公用方法：
   1. mixin:官方库里不允许同名方法覆盖。可合并生命周期、state、方法。仅适合createClass
   2. @mixin:import { mixin } from 'core-decorators'; @mixin(PureRender, Theme) 允许同名方法。缺点是难维护。
@@ -383,9 +383,19 @@ component="ul" 渲染ul组件 component={a} 渲染a变量代表的组件
   2. react的<select value={v}>和原生select.value有什么区别？类似的还有<input checked={!true}>
   3. 无法获取style对象：因为webpack的css-modules格式不对。
   4. 静态属性babel配置？
+**react-motion**
+```
+<Motion defaultStyle={{x: 0}} style={{x: spring(10, {stiffness: 120, damping: 17})}}>
+    {({x})=><div style={{ transform: `translate3d(${x}px, 0, 0)`}}>123</div>}
+</Motion> ```
+
+
+
+
 
 ![](http://i.imgur.com/yrrNGZi.png)
-
+周期参数：
+componentDidUpdate(prevProps)
 
 
 
