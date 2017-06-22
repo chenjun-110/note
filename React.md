@@ -100,6 +100,7 @@ props:多从父组件传入、或默认。
 组件抽象：
   1. 划分合理(界面抽象):如果组件内的界面能拆分组装成别的界面，应该拆分。
   2. 逻辑抽象:把state、事件回调、生命周期函数，都放在高阶组件内定义。向下传进被包裹的组件props。
+  3. 数据组件：获取fetch数据的组件，拿到的数据作props传下去。 业务组件：list.map遍历数据并展示。
 生命周期：
   1. 更新state:shouldComponentUpdate->componentWillUpdate->render->componentDidUpdate。
   2. 更新props:componentWillReceiveProps->同上。
@@ -301,7 +302,12 @@ prop_a: function(props, propName, componentName) { //自定义验证
     }
 ```
 
-diff算法：先比较节点类型，不同则删除替换树结构，相同则进行匹配。再比较节点属性。该算法不会匹配不同组件类的子树，如果发现两个组件类DOM结构很相似，可以合并组件类。	
+diff算法：
+  1. 先比较节点类型，不同则删除替换树结构，相同则进行匹配。再比较节点属性。该算法不会匹配不同组件类的子树，如果发现两个组件类DOM结构很相似，可以合并组件类。
+  2. 禁止进行DOM节点跨层级的操作！	比如跨层移动节点。为保证结构稳定可用css隐藏节点。
+  3. 不同组件会直接替换，相同组件会进行diff运算，如果确定没改动就强制shouldComponentUpdate！
+  4. 同层级DOM节点移动增删时必须加key! 因为diff会因为位置不同判断重渲，相同key只进行移动操作。
+  5. 同层级DOM节点移动不要把【位置索引】最后的节点移动到前面，因为diff是从左边比较后移动到右边。
 
 
 
@@ -387,15 +393,18 @@ component="ul" 渲染ul组件 component={a} 渲染a变量代表的组件
 ```
 <Motion defaultStyle={{x: 0}} style={{x: spring(10, {stiffness: 120, damping: 17})}}>
     {({x})=><div style={{ transform: `translate3d(${x}px, 0, 0)`}}>123</div>}
-</Motion> ```
+</Motion> 
+```
 
 
 
 
-
+![](http://i.imgur.com/UDmGQY6.png)
 ![](http://i.imgur.com/yrrNGZi.png)
+![](http://i.imgur.com/lsMotGH.png)
+由于递归的特性， 父组件的componentWillMount 在其子组件的 componentWillMount 之前调用，而父组件的 componentDidMount在其子组件的 componentDidMount 之后调用。
 周期参数：
 componentDidUpdate(prevProps)
-
+setState({},f()) 回调在组件渲染后执行
 
 

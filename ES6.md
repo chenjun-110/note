@@ -296,7 +296,7 @@ resolve：
 then：
   1. 如果return的是另一Promise，则可链式调用.then监听它。
   2. 尽量不在它内部定义Reject，使用catch。
-  3. 本轮时间循环的末尾执行。
+  3. 本轮事件循环的末尾执行。
 catch:
   1. 等价于then(null,fuc)。它默认返回P对象。
   2. 如果then内抛错，promise内抛错，reject(e)，catch内抛错, 则进入catch。
