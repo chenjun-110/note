@@ -242,3 +242,40 @@ import Animate from 'react-smooth';
     <Animate from={{ opacity: 0 }} to={{ opacity: 1 }} easing="ease-in">
         { ({ opacity }) => <div className={S.a} style={{ opacity }}></div> }
     </Animate>//动态子组件动画写法
+
+/*  容器组件--把fetch请求解耦出来  不用flux的情况*/
+import React, { Component, PropTypes } from 'react';
+    function dissoc(obj, prop) {
+        let result = {};
+        for (let p in obj) {
+            if (p !== prop) {
+                result[p] = obj[p];
+            }
+        }
+        return result;
+    }
+    const Promised = (promiseProp, Wrapped) => class extends Component { //promiseProp：fetch函数。Wrapped：待封装的组件
+        constructor(props) {
+            super(props);
+            this.state = {
+                loading: true,
+                error: null,
+                value: null,
+            };
+        }
+        componentDidMount() {
+            this.props[promiseProp].then(response => response.json())
+                .then(value => this.setState({ loading: false, value }))
+                .catch(error => this.setState({ loading: false, error }));
+        }
+        render() {
+            if (this.state.loading) {
+                return <span>Loading...</span>;
+            } else if (this.state.error !== null) {
+                return <span>Error: {this.state.error.message}</span>;
+            } else {
+                const propsWithoutThePromise = dissoc(this.props, promiseProp);
+                return <Wrapped {...propsWithoutThePromise} {...this.state.value} />;
+            }
+        }
+    };

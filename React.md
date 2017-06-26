@@ -153,6 +153,7 @@ CSS:
     33. 找回原组件名：设置static displayName = `HOC(${getDisplayName(WrappedComponent)})`;
     34. 往常开发维护时不断增加props应对需求。
     35. 适合抽象与组件主体功能无关的。
+  4. 容器组件：类似高阶组件，适合合并功能。
 性能优化：
   1. 纯函数：
     1. 输入输出确定：内部行为依赖传参Math.random/不改变原数组splice/不随时间变化Date。
@@ -395,6 +396,39 @@ component="ul" 渲染ul组件 component={a} 渲染a变量代表的组件
     {({x})=><div style={{ transform: `translate3d(${x}px, 0, 0)`}}>123</div>}
 </Motion> 
 ```
+**Flux架构**
+单向数据流：Action->Dispather->Store->View（React's VM）-> Action
+每次流动重渲染View层的虚拟DOM，PureRender则让重渲变为局更。如果交互要改数据，只能通过dispatcher分发action(交互事件不能直接setState！)。
+FSA规范：action对象如何写。
+store:只读，不设。根据type触发更新事件。
+controller-view：监听到更新事件，把数据并setState。存入state->props传下去。
+actionCreator：由于dispatch分发函数内部的action格式固定，可以封装起来。
+设计store.js:
+  1. 有获取数据的getter方法。
+  2. 有绑定、触发、删除事件的方法。
+  3. 有export出口。
+  4. 有修改数据的register方法，根据action的type改数据并触发事件。
+设计actions.js:
+  1. fetch拉取数据->传入dispatch()
+  2. 思路：提交->fetch->成功则分发success的action,失败则分发error的action -> 下载->fetch->成功。。。失败。。。
+  3. 有export出口。
+设计controller-view：
+  1. 它是React父组件。
+  2. this.state：初始化值用store的getter拿到。子组件依赖它。
+  3. 事件回调：内部的setState()拿值同上。
+  4. 组件渲染后把调用setState的事件函数传入store作为监听事件的回调，卸载后要解除。如果store触发事件，则调用修改状态的回调。
+设计dispatcher.js:
+  1. 内部判断action.type,执行相应回调(比如：往store添加数据)并触发store事件->controller-view改变状态
+  2. 该实例只能有一个。
+点击事件->Action
+controller-view监听 action触发
+优点：
+ 1. 把数据中心化管理。组件渲染只有一个触发来源。
+ 2. flux提供的全局变量可让非父子关系的组件通信，且依赖该数据的都会监听到。
+ 3. 让view层组件真正纯粹。专注展现。
+
+
+
 
 
 

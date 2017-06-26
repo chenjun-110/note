@@ -624,11 +624,42 @@ class Person {
 9. class代替原型
 10. eslint插件检查代码风格。
 
-
-
-
-
-
+**fetch**
+```
+var u = new URLSearchParams(); //参数
+u.append('a', 'b');
+u.append('c', 'd');
+fetch('https://api.flickr.com/services/rest?' + u,{method:"POST",headers:{""：""},body:""}).then().catch()
+```
+设置头:
+```
+var reqHeaders = new Headers();
+reqHeaders.append("","") 
+reqHeaders.set("","")
+//或者
+var reqHeaders = new Headers({"":"", "":"", "":""});
+```
+reqHeaders前缀：
+  1. has("Content-Type"):检索存在
+  2. get():取值
+  3. getAll():取值，数组
+  4. delete():删除值
+`var Req = new Request(url,{}) //用法和fetch一样`
+Req前缀：
+  1. .mode: "same-origin"禁止跨域  "no-cors"允许CDN脚本、图片跨域(Response不可读)  "cors" 跨域(遵守CORS协议)
+  2. credentials:"omit"默认不带，"same-origin"，"include"带。cookie是否能跨域得到
+`new Response("",{})` 1参是body
+Response
+  1. .type: "basic": 正常的同域请求. "cors":跨域请求。 "error": 网络错误。 "opaque":no-cors跨域资
+  2. body:支持很多类型，只能读取一次，bodyUsed值变为true。
+  3. text():读取body 返回promise
+  4. json():相当于`JSON.parse(response.text())` 返回promise
+缺点：暂时不能读取进度条。
+兼容：原生不兼容IE
+  1. 由于 IE8 是 ES3，需要引入 ES5 的 polyfill: es5-shim, es5-sham
+  2. es6-promise fetch-detector fetch-ie8
+  3. 可选：如果你还使用了 jsonp，引入 fetch-jsonp
+  4. 可选：开启 Babel 的 runtime 模式，现在就使用 async/await
 #### es6-API介绍：
 repeat() 复制字符串n次
 padStart() 字符自动补全长度 'ab'->'ababx'
