@@ -23,6 +23,7 @@
   不可变优化：immutable.js / immutable/contrib/cursor
   自动加key:react-addons-create-fragment
   性能分析库：react-addons-perf
+  异步库：redux-sage 用生成器发action
   
 无法做的事：
   1. 调用Audio/Video的play方法 和 input的focus方法，只能直接操作DOM.
@@ -101,6 +102,10 @@ props:多从父组件传入、或默认。
   1. 划分合理(界面抽象):如果组件内的界面能拆分组装成别的界面，应该拆分。
   2. 逻辑抽象:把state、事件回调、生命周期函数，都放在高阶组件内定义。向下传进被包裹的组件props。
   3. 数据组件：获取fetch数据的组件，拿到的数据作props传下去。 业务组件：list.map遍历数据并展示。
+组件结构：
+  1. Layouts-布局组件：页面的基本结构，设置在最外层Route内。
+  2. Views-子路由入口组件：定义数据和action分发入子组件。
+  3. Components-末级渲染组件：数据皆从天来。
 生命周期：
   1. 更新state:shouldComponentUpdate->componentWillUpdate->render->componentDidUpdate。
   2. 更新props:componentWillReceiveProps->同上。
@@ -334,7 +339,46 @@ Redirect：从url自动跳转到另一url.
     const path = `/repos/${userName}/${repo}`
     browserHistory.push(path)
   },
+history.pushState对应{browserHistory}，需服务端配置。
+hashChange对应{hashHistory}，兼容性好但有/#/。
+改变#后的hash值并不会触发页面跳转，而是会在页面中跳转到相应的锚点。
+?_k=0e9k95：这段query是为了提供每一条路由记录持久化数据而生成的唯一标识。可用createHistory去掉特性。
+**React-Router-Redux**：路由信息与store绑定,基于React-router的高阶组件。
+增强store:`const middleware = routerMiddleware(browserHistory);` `const store = createStore(reducers, applyMiddleware(middleware));`
+增强history:`const history = syncHistoryWithStore(browserHistory, store);` 
+切换路由：`store.dispatch(push('/home'));` 切到/home。   replace(location), go(number), goBack(), goForward()
 
+**Flux**
+单向数据流：Action->Dispather->Store->View（React's VM）-> Action
+每次流动重渲染View层的虚拟DOM，PureRender则让重渲变为局更。如果交互要改数据，只能通过dispatcher分发action(交互事件不能直接setState！)。
+FSA规范：action对象如何写。
+store:只读，不设。根据type触发更新事件。
+controller-view：监听到更新事件，把数据并setState。存入state->props传下去。
+actionCreator：由于dispatch分发函数内部的action格式固定，可以封装起来。
+设计store.js:
+  1. 有获取数据的getter方法。
+  2. 有绑定、触发、删除事件的方法。
+  3. 有export出口。
+  4. 有修改数据的register方法，根据action的type改数据并触发事件。
+  5. 部分API： `getInitialState` 设置store初始state  `reduce` 返回新state给store  `export default new CommentStore(AppDispatcher)`分发器实例传入商店实例并导出
+设计actions.js:
+  1. fetch拉取数据->传入dispatch()
+  2. 思路：提交->fetch->成功则分发success的action,失败则分发error的action -> 下载->fetch->成功。。。失败。。。
+  3. 有export出口。
+  4. 部分API:`AppDispatcher.dispatch(action)`
+设计controller-view：
+  1. 它是React父组件。
+  2. this.state：初始化值用store的getter拿到。子组件依赖它。
+  3. 事件回调：内部的setState()拿值同上。
+  4. 组件渲染后把调用setState的事件函数传入store作为监听事件的回调，卸载后要解除。如果store触发事件，则调用修改状态的回调。
+  5. 部分API:`export default Container.create(CommentBox);`组件需要被包裹
+设计dispatcher.js:
+  1. 内部判断action.type,执行相应回调(比如：往store添加数据)并触发store事件->controller-view改变状态
+  2. 该实例只能有一个。
+优点：
+ 1. 把数据中心化管理。组件渲染只有一个触发来源。
+ 2. flux提供的全局变量可让非父子关系的组件通信，且依赖该数据的都会监听到。
+ 3. 让view层组件真正纯粹。专注展现。
 **Redux**:
 数据容器：const store = createStore(reducer);
 获取数据快照：const state = store.getState(); 一快照对应一视图
@@ -344,10 +388,32 @@ Redirect：从url自动跳转到另一url.
 监听快照：store.subscribe(fuc) 快照改变则触发fuc,所以fuc是修改View的函数(render/setState) 解除监听是调用它的返回值。
 解耦reducer:combineReducers({}) 合并多个reducer
 中间件：原理给dispatch添加功能。createStore(reducer,state,applyMiddleware(fuc))
+
+特点：
+  1. 单一数据源：状态都保存在一个对象内。
+  2. 状态是只读的：
+  3. reducer是纯函数：可做撤销功能。
+创建:`store = createStore(reducers,initialState)`
+  1. getState()：获取 store 中当前的状态。
+  2. dispatch(action)：分发一个 action，并返回这个 action
+  3. subscribe(listener)：注册一个监听者
+  4. replaceReducer(nextReducer)：更新当前 store 里的 reducer
+中间件：可以检阅每一个流过的 action，挑选出特定类型的 action 进行相应操作。在dispatch之前先执行中间件。
+  1. 增强createStore方法：`const finalcreateStore = compose(applyMiddleware(d1,d2,d3),DevTools.instrument())(createStore)`
+  2. 创建store:`let newStore = applyMiddleware(mid1, mid2, mid3, ...)(createStore)(reducer, null);`
+  3. 增强dispatch方法:`dispatch = compose(...chain)(store.dispatch);` compose是从右到左依次累加执行中间件
+  4. middleware流程：store.dispatch(action) -> next() -> ... -> next() -> dispatch -> 再循环出去。 如果中途调用了store.dispatch会回到起点。next()方法是进入下一个中间件。
+redux-thunk：`const store = createStore(reducer,applyMiddleware(thunk));`然后把Action Creator的返回值改为函数格式。比如：get=(url,b)=>(dispatch,getState)=>{fetch(url).then(r=>{dispatch({type:'',payload:r})})} 	
+redux-promise:判断 action 或 action.payload 是否为 promise，如果是，就执行 then，返回的结果再发送一次 dispatch。
+自定义中间件：`const Middleware = store => next => action =>{next(action)}`
+轮询：定时发出dispatch().then then回调递归调用自身
+let Reducer = (previousState=init, action) => newState
 **react-redux**
 生成容器组件：input把state变成ui上的props,output把交互变成action。
-  const Rongqi=connect(input,output)(Ui)
-Provider组件：组件放在它内部可以拿到state。
+  const Rongqi=connect(input,output)(Ui)。
+容器组件：<Provider/> 接受一个 store 作为props，它是整个 Redux 应用的顶层组件。connect()任意组件中获取store中数据的功能。
+展示组件： 无法感知Redux。
+
 **immutable**
 js转Immutable：fromJs(obj/arr) 按参数返回Map、List
 Immutable转js：List/Map.toJSON()浅转换 toJS()深转换
@@ -396,65 +462,14 @@ component="ul" 渲染ul组件 component={a} 渲染a变量代表的组件
     {({x})=><div style={{ transform: `translate3d(${x}px, 0, 0)`}}>123</div>}
 </Motion> 
 ```
-**Flux架构**
-单向数据流：Action->Dispather->Store->View（React's VM）-> Action
-每次流动重渲染View层的虚拟DOM，PureRender则让重渲变为局更。如果交互要改数据，只能通过dispatcher分发action(交互事件不能直接setState！)。
-FSA规范：action对象如何写。
-store:只读，不设。根据type触发更新事件。
-controller-view：监听到更新事件，把数据并setState。存入state->props传下去。
-actionCreator：由于dispatch分发函数内部的action格式固定，可以封装起来。
-设计store.js:
-  1. 有获取数据的getter方法。
-  2. 有绑定、触发、删除事件的方法。
-  3. 有export出口。
-  4. 有修改数据的register方法，根据action的type改数据并触发事件。
-  5. 部分API： `getInitialState` 设置store初始state  `reduce` 返回新state给store  `export default new CommentStore(AppDispatcher)`分发器实例传入商店实例并导出
-设计actions.js:
-  1. fetch拉取数据->传入dispatch()
-  2. 思路：提交->fetch->成功则分发success的action,失败则分发error的action -> 下载->fetch->成功。。。失败。。。
-  3. 有export出口。
-  4. 部分API:`AppDispatcher.dispatch(action)`
-设计controller-view：
-  1. 它是React父组件。
-  2. this.state：初始化值用store的getter拿到。子组件依赖它。
-  3. 事件回调：内部的setState()拿值同上。
-  4. 组件渲染后把调用setState的事件函数传入store作为监听事件的回调，卸载后要解除。如果store触发事件，则调用修改状态的回调。
-  5. 部分API:`export default Container.create(CommentBox);`组件需要被包裹
-设计dispatcher.js:
-  1. 内部判断action.type,执行相应回调(比如：往store添加数据)并触发store事件->controller-view改变状态
-  2. 该实例只能有一个。
-优点：
- 1. 把数据中心化管理。组件渲染只有一个触发来源。
- 2. flux提供的全局变量可让非父子关系的组件通信，且依赖该数据的都会监听到。
- 3. 让view层组件真正纯粹。专注展现。
-**Redux**
-特点：
-  1. 单一数据源：状态都保存在一个对象内。
-  2. 状态是只读的：
-  3. reducer是纯函数：可做撤销功能。
-创建:`store = createStore(reducers,initialState)`
-  1. getState()：获取 store 中当前的状态。
-  2. dispatch(action)：分发一个 action，并返回这个 action
-  3. subscribe(listener)：注册一个监听者
-  4. replaceReducer(nextReducer)：更新当前 store 里的 reducer
-中间件：可以检阅每一个流过的 action，挑选出特定类型的 action 进行相应操作。在dispatch之前先执行中间件。
-  1. 增强createStore方法：`const finalcreateStore = compose(applyMiddleware(d1,d2,d3),DevTools.instrument())(createStore)`
-  2. 创建store:`let newStore = applyMiddleware(mid1, mid2, mid3, ...)(createStore)(reducer, null);`
-  3. 增强dispatch方法:`dispatch = compose(...chain)(store.dispatch);` compose是从右到左依次累加执行中间件
-  4. middleware流程：store.dispatch(action) -> next() -> ... -> next() -> dispatch -> 再循环出去。 如果中途调用了store.dispatch会回到起点。next()方法是进入下一个中间件。
-redux-thunk：`const store = createStore(reducer,applyMiddleware(thunk));`然后把Action Creator的返回值改为函数格式。比如：get=(url,b)=>(dispatch,getState)=>{fetch(url).then(r=>{dispatch({type:'',payload:r})})} 	
-
-react-redux:它是绑定平台的库
-<Provider/> 接受一个 store 作为props，它是整个 Redux 应用的顶层组件
-connect() 任意组件中获取store中数据的功能。
-let Reducer = (previousState=init, action) => newState
 
 
 
-
+工程化流程：设计目录->设计routes.js->路由导入app.js
 ![](http://i.imgur.com/UDmGQY6.png)
 ![](http://i.imgur.com/yrrNGZi.png)
 ![](http://i.imgur.com/lsMotGH.png)
+![设计目录](http://i.imgur.com/Y0xvpQP.png)
 由于递归的特性， 父组件的componentWillMount 在其子组件的 componentWillMount 之前调用，而父组件的 componentDidMount在其子组件的 componentDidMount 之后调用。
 周期参数：
 componentDidUpdate(prevProps)

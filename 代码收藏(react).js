@@ -279,3 +279,37 @@ import React, { Component, PropTypes } from 'react';
             }
         }
     };
+/* Redux自定义中间件写法 */
+{    //action格式例子
+    url: '/api/weather.json',
+    params: {
+        city: encodeURI(city),
+    },
+    types: ['GET_WEATHER', 'GET_WEATHER_SUCESS', 'GET_WEATHER_ERROR'],
+}
+const fetchMiddleware = store => next => action => { //中间件例子
+    if (!action.url || !Array.isArray(action.types)) {  //判断action
+        return next(action);
+    }
+    const [LOADING, SUCCESS, ERROR] = action.types;
+    next({ //初始状态
+        type: LOADING,
+        loading: true,
+        ...action,
+    });
+    fetch(action.url, { params: action.params })
+        .then(result => {
+            next({  //异步状态1
+                type: SUCCESS,
+                loading: false,
+                payload: result,
+            });
+        })
+        .catch(err => {
+            next({  //异步状态2
+                type: ERROR,
+                loading: false,
+                error: err,
+            });
+        });
+}
