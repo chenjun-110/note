@@ -279,7 +279,7 @@ import React, { Component, PropTypes } from 'react';
             }
         }
     };
-/* Redux自定义中间件写法 */
+/* Redux自定义中间件 写法 */
 {    //action格式例子
     url: '/api/weather.json',
     params: {
@@ -313,3 +313,17 @@ const fetchMiddleware = store => next => action => { //中间件例子
             });
         });
 }
+/* react-redux 的 connect 写法 */
+const mapStateToProps = (state, ownProps) => { // state 是 store的数据
+    return {
+        user: _.find(state.userList, {id: ownProps.userId})
+    }//user都会传进被包装的组件props
+}
+const mapDispatchToProps = (dispatch, ownProps) => {
+    return {
+        increase: (...args) => dispatch(actions.increase(...args)),
+        decrease: (...args) => dispatch(actions.decrease(...args))
+    } //increase/decrease都会传进被包装的组件props
+}
+
+const Comp = connect(mapStateToProps, mapDispatchToProps)(MyComp);

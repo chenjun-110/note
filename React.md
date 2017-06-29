@@ -408,11 +408,20 @@ redux-promise:判断 action 或 action.payload 是否为 promise，如果是，�
 自定义中间件：`const Middleware = store => next => action =>{next(action)}`
 轮询：定时发出dispatch().then then回调递归调用自身
 let Reducer = (previousState=init, action) => newState
+整合reducer:combineReducers({r1,r2})
+把Action转化成能直接调用的函数：bindActionCreators({a:action.a, b:action.b})
 **react-redux**
 生成容器组件：input把state变成ui上的props,output把交互变成action。
   const Rongqi=connect(input,output)(Ui)。
 容器组件：<Provider/> 接受一个 store 作为props，它是整个 Redux 应用的顶层组件。connect()任意组件中获取store中数据的功能。
 展示组件： 无法感知Redux。
+connect([mapStateToProps], [mapDispatchToProps], [mergeProps], [options])
+用法：`const Comp = connect(...args)(MyComp);`
+  1. mapStateToProps(state, ownProps):返回的对象属性作为 props 绑定到MyComp上。state就是store,ownProps是MyComp的原props。
+  2. mapDispatchToProps(dispatch, ownProps):将action作为 props 绑定到 MyComp 上。这是为了让MyComp感知不到dispatch方法，又能调用它。
+
+**Redux Devtools**
+npm install --save-dev redux-devtools redux-devtools-log-monitor redux-devtools-dock-monitor
 
 **immutable**
 js转Immutable：fromJs(obj/arr) 按参数返回Map、List
