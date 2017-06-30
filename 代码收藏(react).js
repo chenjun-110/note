@@ -325,5 +325,15 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         decrease: (...args) => dispatch(actions.decrease(...args))
     } //increase/decrease都会传进被包装的组件props
 }
-
 const Comp = connect(mapStateToProps, mapDispatchToProps)(MyComp);
+export default connect(state => {
+        return {
+            list: state.home.list,
+        };
+    }, dispatch => {
+        return {
+            listActions: bindActionCreators(listActions, dispatch)
+        },
+            push: bindActionCreators(push, dispatch),
+        };
+    })(Home);

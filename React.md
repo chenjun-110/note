@@ -345,9 +345,10 @@ hashChange对应{hashHistory}，兼容性好但有/#/。
 ?_k=0e9k95：这段query是为了提供每一条路由记录持久化数据而生成的唯一标识。可用createHistory去掉特性。
 **React-Router-Redux**：路由信息与store绑定,基于React-router的高阶组件。
 增强store:`const middleware = routerMiddleware(browserHistory);` `const store = createStore(reducers, applyMiddleware(middleware));`
+增强store2:`const store = createStore(combineReducers({...reducers,routing: routerReducer}))`
 增强history:`const history = syncHistoryWithStore(browserHistory, store);` 
 切换路由：`store.dispatch(push('/home'));` 切到/home。   replace(location), go(number), goBack(), goForward()
-
+监听：history.listen(location => analyticsService.track(location.pathname)) 
 **Flux**
 单向数据流：Action->Dispather->Store->View（React's VM）-> Action
 每次流动重渲染View层的虚拟DOM，PureRender则让重渲变为局更。如果交互要改数据，只能通过dispatcher分发action(交互事件不能直接setState！)。
