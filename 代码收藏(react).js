@@ -326,14 +326,22 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     } //increase/decrease都会传进被包装的组件props
 }
 const Comp = connect(mapStateToProps, mapDispatchToProps)(MyComp);
+
+import { bindActionCreators } from 'redux';
+import { push } from 'react-router-redux';
 export default connect(state => {
         return {
             list: state.home.list,
         };
     }, dispatch => {
         return {
-            listActions: bindActionCreators(listActions, dispatch)
-        },
-            push: bindActionCreators(push, dispatch),
+            listActions: bindActionCreators(listActions, dispatch),
+            push: bindActionCreators(push, dispatch), //push和store绑定，传为props。通过this.props.push()修改路由。
         };
     })(Home);
+
+/* reducer写法 */
+import { routerReducer } from 'react-router-redux';
+const reducer = combineReducers(Object.assign({}, rootReducer, {
+    routing: routerReducer, //合并自己的reducer和路由reducer
+}));

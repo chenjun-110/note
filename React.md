@@ -24,7 +24,11 @@
   自动加key:react-addons-create-fragment
   性能分析库：react-addons-perf
   异步库：redux-sage 用生成器发action
-  
+  调试：Redux DevTools
+  webpack:无用代码移除：UglifyJS  搜索所有文件替换字符：DefinePlugin
+  撤销、重置reducer库：redux-undo
+  表单库：redux-form-utils
+
 无法做的事：
   1. 调用Audio/Video的play方法 和 input的focus方法，只能直接操作DOM.
   2. 事件绑定在根节点之外。document
@@ -190,19 +194,6 @@ CSS:
   1. 库：React Transition是js动画，React CSS Transition是C3动画。
   2. 原理：让状态延迟变化。动画如持续500ms,就setState的回调延迟执行setState。 
   3. 体验：spring > ease > linear
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 script标签的type="text/babel"
 `<`开头就用HTML规则解析。`{`开头就用js规则解析。
@@ -380,7 +371,7 @@ actionCreator：由于dispatch分发函数内部的action格式固定，可以�
  1. 把数据中心化管理。组件渲染只有一个触发来源。
  2. flux提供的全局变量可让非父子关系的组件通信，且依赖该数据的都会监听到。
  3. 让view层组件真正纯粹。专注展现。
-**Redux**:
+### Redux:
 数据容器：const store = createStore(reducer);
 获取数据快照：const state = store.getState(); 一快照对应一视图
 创建消息：function add(t){return {type:'ADD_TODO',payload：t}}   const action=add('message');  一种消息对应一Action。用户通过View影响State。
@@ -408,18 +399,32 @@ redux-thunk：`const store = createStore(reducer,applyMiddleware(thunk));`然后
 redux-promise:判断 action 或 action.payload 是否为 promise，如果是，就执行 then，返回的结果再发送一次 dispatch。
 自定义中间件：`const Middleware = store => next => action =>{next(action)}`
 轮询：定时发出dispatch().then then回调递归调用自身
-let Reducer = (previousState=init, action) => newState
-整合reducer:combineReducers({r1,r2})
+Reducer：
+  1. let Reducer = (previousState=init, action) => newState
+  2. 整合reducer:combineReducers({r1,r2})
+  3. 复用：不同组件不能共用reducer,action-Type必须区分。想复用就把reducer函数封装下，type设为参数。
+  4. 禁止：修改传入的state参数、执行有副作用的操作，比如API请求，路由跳转等、调用非纯函数，比如Math.random()或Date.now()。
 把Action转化成能直接调用的函数：bindActionCreators({a:action.a, b:action.b})
-**react-redux**
+Store:
+  1. connect 方法隐式使用 store.subscribe
+  2. createStore源码：如果2参是函数类型，便增强createStore：return enhancer(createStore)(reducer, initialState)
+  3. 
+#### React-redux
 生成容器组件：input把state变成ui上的props,output把交互变成action。
   const Rongqi=connect(input,output)(Ui)。
-容器组件：<Provider/> 接受一个 store 作为props，它是整个 Redux 应用的顶层组件。connect()任意组件中获取store中数据的功能。
 展示组件： 无法感知Redux。
-connect([mapStateToProps], [mapDispatchToProps], [mergeProps], [options])
-用法：`const Comp = connect(...args)(MyComp);`
-  1. mapStateToProps(state, ownProps):返回的对象属性作为 props 绑定到MyComp上。state就是store,ownProps是MyComp的原props。
-  2. mapDispatchToProps(dispatch, ownProps):将action作为 props 绑定到 MyComp 上。这是为了让MyComp感知不到dispatch方法，又能调用它。
+<Provider/> 
+  1. 接受一个 store 作为props，它是整个 Redux 应用的顶层组件。
+connect()
+  1. 任意组件中获取store中数据的功能。
+  2. connect([mapStateToProps], [mapDispatchToProps], [mergeProps], [options])
+  3. 用法：`const Comp = connect(...args)(MyComp);`
+    1. mapStateToProps(state, ownProps):返回的对象属性作为 props 绑定到MyComp上。state就是store,ownProps是MyComp的原props。
+    2. mapDispatchToProps(dispatch, ownProps):将action作为 props 绑定到 MyComp 上。这是为了让MyComp感知不到dispatch方法，又能调用它。
+    3. mergeProps(stateProps,dispatchProps,ownProps) : stateProps是mapStateToProps返回的props对象。
+    4. {pure:,withRef:} pure:true在shouldComponentUpdate浅比较props。withRef：true可保存dom引用`getWrappedInstance()` 
+  4. 内部实现了许多判断组件是否更新的逻辑。
+
 
 **Redux Devtools**
 npm install --save-dev redux-devtools redux-devtools-log-monitor redux-devtools-dock-monitor
@@ -451,6 +456,10 @@ Immutable转js：List/Map.toJSON()浅转换 toJS()深转换
 清空：clear()
 push：list1.push(3,4,5) 不会修改原List！
 .unshift(0).concat(list2,list3);
+
+原生不变方法：
+  1. [].slice() 克隆数组
+  2. object.assign 克隆对象
 **react-addons-perf**
 **react-addons-css-transition-group**
 类名：前缀+ `-leave -leave-active` `-enter -enter-active` ` -appear -appear-active` 作用在该组件的子组件们

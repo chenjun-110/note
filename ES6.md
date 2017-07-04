@@ -468,7 +468,7 @@ async function test() {
 ```
 let a = "to"；
 class Point { 
-  constructor(x,y){ //构造函数
+  constructor(x,y){ //构造函数,React组件上的属性会进入x参数
     this.x=x
   }
   static b(){} //静态方法，相当于Point.b--实例继承不了b
