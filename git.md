@@ -108,7 +108,7 @@ git push 远程库 --tags   //同步所有标签
 
 
 
-heroku配置
+heroku配置:
 heroku login //输入的是heroku网站的账户密码
 mlab数据库地址 
 mongodb://<dbuser>:<dbpassword>@ds127428.mlab.com:27428/chenjundatabase
