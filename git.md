@@ -32,10 +32,11 @@ $ mkdir learngit 创建learngit目录
 $ cd learngit    进入目录
 $ pwd            显示当前目录
 $ git init       把当前目录变成仓库，生成.git```
+报错解决：
+  1. SSL证书错误：`git config --global http.sslVerify false`
 github
 ```
-$ ssh-keygen -t rsa -C "youremail@example.com" //创建SSH Key
-//id_rsa是私钥,id_rsa.pub是公钥,去官网绑定ssh粘贴公钥。
+$ ssh-keygen -t rsa -C "357201017@qq.com //创建SSH Key。 id_rsa是私钥,id_rsa.pub是公钥,去官网绑定ssh粘贴公钥。
 $ git remote add 自定义远程库名 git@github.com:chenjun-110/仓库名.git //SSH连接
 $ git remote add 自定义远程库名 https://github.com/chenjun-110/仓库名.git //https连接
 $ git clone https://github.com/chenjun-110/仓库名.git 远程克隆到本地
@@ -102,11 +103,6 @@ git push 远程库 --tags   //同步所有标签
 `git config --global alias.st status` 给status起别名st,带空格的多个单词要加引号
 要管理权限用用Gitolite。
 要管理公钥用Gitosis。
-
-
-
-
-
 
 heroku配置:
 heroku login //输入的是heroku网站的账户密码
