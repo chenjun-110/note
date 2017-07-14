@@ -77,6 +77,9 @@ egret.ticker
   8. 滚动事件：TOUCH_BEGIN->TouchCancel 
   9. http事件：egret.Event.COMPLETE egret.IOErrorEvent.IO_ERROR egret.ProgressEvent.PROGRESS
   10. 位图事件：RES.ResourceEvent.GROUP_COMPLETE
+  11. 计时事件：egret.TimerEvent.TIMER计时开始 egret.TimerEvent.TIMER_COMPLETE计时结束
+  12. 帧事件：egret.Event.ENTER_FRAME 
+  13. 音频事件：egret.Event.COMPLETE音频加载完成 egret.IOErrorEvent.IO_ERROR音频加载失败
 自定义事件：
   1. 事件类：`class abc extends egret.Event` constructor(type,bubbles,cancelable){super(type,bubbles,cancelable)}
   2. 注册：`.addEventListener(abc.type, f.a, f)` f是接受事件的类,2参必是返回空值的函数格式，5参可设优先级数字 .removeEventListener参数一致
@@ -104,8 +107,35 @@ http请求：
     2. 截屏：new egret.RenderTexture -> drawToTexture(this，rect) -> 赋值给new egret.Bitmap的texture
   9. 图片重叠时：img.blendMode = egret.BlendMode.NORMAL;覆盖 egret.BlendMode.ADD叠加透明变亮 egret.BlendMode.ERASE重叠区删除
   10. 滤镜：
-    1. 光晕：img.filters = [new egret.GlowFilter(颜色，透明，x模糊,y模糊，强度，次数，方向，挖空)]
-    2. 阴影：new egret.DropShadowFilter
+    1. 光晕：img.`filters` = [new egret.GlowFilter(颜色，透明，x模糊,y模糊，强度，次数，方向，挖空)]
+    2. 阴影：new egret.DropShadowFilter()
+    3. 变色：new egret.ColorMatrixFilter(矩阵数组) 该实例的matrix属性获取矩阵数组
+    4. 模糊：new egret.BlurFilte(x,y)
+时间：
+  1. 计时器：new egret.Timer(间隔，次数) -> 监听计时器事件 -> timer.start()开始计时
+  2. 60频率：egret.startTick(fuc,this) 回调返true则重绘 egret.stopTick(fuc,this)停止
+  3. 获取框架启动时间：egret.getTimer() 依赖系统本地时间不太可靠
+多媒体：
+  1. 音频：
+    1. sound加载：new egret.Sound() -> 监听音频加载事件 -> sound.play()播放
+    2. URLLoader加载：new egret.URLLoader() -> 监听音频加载事件 -> sound=loader.data; sound.play() -> dataFormat=egret.URLLoaderDataFormat.SOUND -> load(new egret.URLRequest("resource/sound/sound.mp3"))
+    3. res加载：var sound = RES.getRes("sound_mp3") -> sound.play()
+    4. api:channel=sound.play(播放位置,播放次数) channel.stop() volume音量 position当前播放位置 sound.length时长
+  2. 视频：
+    1. new egret.Video
+硬件信息：
+  1. egret.Capabilities.isMobile移动系统/language语言/os操作系统/runtimeType项目类型
+  2. 陀螺仪：new egret.DeviceOrientation() -> 监听egret.Event.CHANGE -> orientation.start() | e.alpha/beta/gamma
+  3. 地理位置：
+    1. new egret.Geolocation() -> 监听egret.Event.CHANGE -> gps.start() e.latitude/altitude/longitude/speed
+    2. 监听用户手动拒绝事件： egret.GeolocationEvent.PERMISSION_DENIED
+    3. 失败事件：egret.GeolocationEvent.UNAVAILABLE e.errorMessage/errorType
+调试：
+  1. 开发版：if(DEBUG){} 发行版：if(RELEASE){}  发行后会移除DEBUG代码块
+  2. log: 先开启data-show-log="true" ->  egret.log()
+原生：
+  1. 安卓配置在proj.android/AndroidManifest.xml
+  2. IOS配置在ViewController.mm
 问题：
   cacheAsBitmap = true; 对象转位图，频繁改位置不用重渲
   Sprite和Shape的区别？
