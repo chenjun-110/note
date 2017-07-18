@@ -27,8 +27,12 @@ egret.ticker
   4. TextField	文本类
   5. BitmapText	位图文本类
   6. DisplayObjectContainer	显示对象容器接口
+    1. Stage
+    2. ScrollView
+    3. Sprite
   7. Sprite	矢量绘制的显示容器
   8. Stage 舞台类
+  9. MovieClip MovieClipData MovieClipDataFactory
 容器API：
 `var shape:egret.Shape = new egret.Shape();`
   1. shape.x/y 图片锚点位置(笛卡尔坐标)
@@ -80,6 +84,8 @@ egret.ticker
   11. 计时事件：egret.TimerEvent.TIMER计时开始 egret.TimerEvent.TIMER_COMPLETE计时结束
   12. 帧事件：egret.Event.ENTER_FRAME 
   13. 音频事件：egret.Event.COMPLETE音频加载完成 egret.IOErrorEvent.IO_ERROR音频加载失败
+  14. touchChildren=false;性能高，
+  15. 数组更改事件：eui.CollectionEvent.COLLECTION_CHANGE
 自定义事件：
   1. 事件类：`class abc extends egret.Event` constructor(type,bubbles,cancelable){super(type,bubbles,cancelable)}
   2. 注册：`.addEventListener(abc.type, f.a, f)` f是接受事件的类,2参必是返回空值的函数格式，5参可设优先级数字 .removeEventListener参数一致
@@ -138,19 +144,85 @@ http请求：
   2. IOS配置在ViewController.mm
 问题：
   cacheAsBitmap = true; 对象转位图，频繁改位置不用重渲
+  父级宽度：this.stage.stageWidth
   Sprite和Shape的区别？
 贴图是一张照片，用于替代模型。纹理是重复，阵列，缩放的贴图。材质是视觉层面的反光表现力。
 Typescript:
 语法：
   1. 数字组成的数组：`list: number[]`或`list: Array<number>`
 
+游戏设计：
+  1. 关卡地图：用json里的数组控制游戏地图上的格子。
+  2. 游戏策划：世界观
+  3. MVC:数据、视图、逻辑。
+  4. 一维数组能描述的逻辑比二维好。
+  5. 元素：类型、下标
 
-
-
-
-
-
-
+####EUI:
+自适应流式布局:是层层向上测量，层层向下布局
+逻辑组件+皮肤组件
+动态加载：EXML.load(url,this.load,this) -> new eui.Button() -> button.skinName=url ->this.addChild(button)
+EXML写在js内：EXML字符串置换上面的url -> EXML.parse(text) -> new parse()
+EXML格式：
+  1. <e:Group 表示继承eui.Group类。 
+  2. class="app.my" 表示app模块内的my类
+  3. <e:Image /> 位置在根节点内部，表示在constructor内 new eui.Image() -> this.addChild(image)
+    1. source  图片路径
+    2. scale9Grid  给父级设置九宫格.
+    3. id 声明pubilc变量
+    4. height="100%" 等价 image.percentHeight = 100
+    5. 如果子节点是父节点的默认属性，可不写属性节点(属性内部的还是要写)
+    6. horizontalCenter="0" 水平方向居中 verticalCenter="0"垂直居中
+    7. label 文字
+    8. top 同时约束相对位置和宽高
+  4. 数据绑定：text="{data.label}" 这里绑定的是父级data属性的label值
+  5. skinName 引用其他exml皮肤类，值对应class,相当于把被引用的标签写为它的子节点
+  6. states状态
+    1. 对应各个子节点：source.down 或 includeIn="down"
+    2. excludeFrom表示不存在某个状态时
+    3. js内设置button.currentState = "down"
+    4. js内的this.invalidateState() -> 触发getCurrentState() 后者的return值就是状态值
+  7. 皮肤组件<e:Skin>的同名变量值会赋值给逻辑组件button.skinName的pubilc变量。
+  8. thm.json:skins是默认皮肤，exmls是预加载的文件列表
+    1. 版本号：url加？v=123
+    2. 异步加载主题：new eui.Theme("resource/thm.json", this.stage)
+    3. 更改根目录前缀：EXML.prefixURL 
+  9. 自动测量：不显示设置宽高
+布局：控制EUI的layout属性
+  1. 基本布局：new eui.BasicLayout() 常用于外层Group
+  2. 水平布局：new eui.HorizontalLayout() -> gap间隔、paddingTop距顶、horizontalAlign=egret.HorizontalAlign.CENTER集体水平居中
+  3. 垂直布局：new eui.VerticalLayout() -> 属性同上
+  4. 网格布局：new eui.TileLayout() -> requestedColumnCount=2双列、horizontalGap/verticalGap水平垂直间距、columnAlign/rowAlign可见列行与容器对齐 
+控件：
+  1. 文本：new eui.Label() / <e:Label/> 属性：width height fontFamily textColor size bold italic textAlign verticalAlign lineSpacing text style要配置主题
+  2. 图片：new eui.Image() 属性：source图片路径 scale9Grid width height 
+  3. 按钮：new eui.Button() 属性：skinName皮肤exml label文字 width height enabled禁用 x y (<eui.Label>btn.labelDisplay)转换为文本对象
+  4. 多选框：new eui.CheckBox() 属性：label x y enabled禁用 事件：eui.UIEvent.CHANGE选中时e.target.selected为true
+  5. 单选框：new eui.RadioButton() / new eui.RadioButtonGroup() 属性：label value数据 groupName group值为单选组实例 事件：同上，e.target.selectedValue取value值
+  6. 开关：new eui.ToggleSwitch()
+  7. 标签页：new eui.ToggleButton() 属性：selected选中
+  8. 滑条：new eui.HSlider() / new eui.VSlider() 属性：width x y minimum maximum value默认值
+  9. 进度条：new eui.ProgressBar() 属性：value当前进度值 minimum maximum width height direction=eui.Direction.BTT垂直条 
+  10. 输入框： new eui.EditableText() 要搭配背景图 属性：displayAsPassword密码 left左距 textColor text width height e.target.text
+容器：
+  1. 简单容器：eui.Group 适用不带皮肤的，类似Sprite,内部组件要放在 protected createChildren(){super.createChildren()} 中
+    1. removeChildren删除内部所有显示对象
+    2. scrollEnabled = true 超出容器部分隐藏
+  2. 层叠容器:new eui.ViewStack() 只能显示一个子项。属性：selectedIndex默认项。 内部组件放置同上
+  3. 面板容器：基于Group但eui.Panel()放在createChildren内
+    1. 必须有3个id：moveArea/titleDisplay/closeButton
+  4. 滚动容器：new eui.Scroller() -> 把Group实例赋值给viewport属性 内部组件放置同上 属性：Scroller.viewport.scrollV/scrollH纵横向滚动位置 Scroller.height滚动区域高度 Scroller.viewport.contentHeight滚动内容高度 stopAnimation()停止滚动动画 scroller.verticalScrollBar.autoVisibility/visible是否显示滚动条
+数据：
+  1. 数据容器：new eui.ArrayCollection([]) -> new eui.DataGroup() -> dataProvider=arc ->itemRenderer=类
+    1. 大数据优化：useVirtualLayout = true;
+  2. 数组集合：eui.ArrayCollection 可监听数组更改事件eui.CollectionEvent.COLLECTION_CHANGE e.kind操作类型、e.target.length
+    1. addItem()相当于push addItemAt(,index)添加到指定索引
+    2. getItemAt(index)获取值 getItemIndex()获取索引 length获取数组长度
+    3. replaceItemAt(,index)替换数据
+    4. removeItemAt(index)删除某个 removeAll()全删
+  3. 列表：new eui.List() -> dataProvider=arc -> itemRendererSkinName=exml列表样式({data}可取到数组各项) -> 
+    1. 属性：selectedIndex默认项 allowMultipleSelection可多选
+    2. 事件：eui.ItemTapEvent.ITEM_TAP点击列表项 list.selectedIndices/selectedItems选中项 requireSelection至少有一个选中
 
 
 
