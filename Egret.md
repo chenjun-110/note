@@ -86,6 +86,7 @@ egret.ticker
   13. 音频事件：egret.Event.COMPLETE音频加载完成 egret.IOErrorEvent.IO_ERROR音频加载失败
   14. touchChildren=false;性能高，
   15. 数组更改事件：eui.CollectionEvent.COLLECTION_CHANGE
+  16. 加载skinName事件：eui.UIEvent.COMPLETE 在createChildren之后触发
 自定义事件：
   1. 事件类：`class abc extends egret.Event` constructor(type,bubbles,cancelable){super(type,bubbles,cancelable)}
   2. 注册：`.addEventListener(abc.type, f.a, f)` f是接受事件的类,2参必是返回空值的函数格式，5参可设优先级数字 .removeEventListener参数一致
@@ -146,6 +147,12 @@ http请求：
   cacheAsBitmap = true; 对象转位图，频繁改位置不用重渲
   父级宽度：this.stage.stageWidth
   Sprite和Shape的区别？
+   this.stage.addEventListener(egret.Event.ACTIVATE,this.onActive,this)
+  egret.registerImplementation("eui.IAssetAdapter",assetAdapter); eui.IThemeAdapte
+  Socket
+
+
+
 贴图是一张照片，用于替代模型。纹理是重复，阵列，缩放的贴图。材质是视觉层面的反光表现力。
 Typescript:
 语法：
@@ -157,7 +164,13 @@ Typescript:
   3. MVC:数据、视图、逻辑。
   4. 一维数组能描述的逻辑比二维好。
   5. 元素：类型、下标
-
+####RES:
+顺序：加载资源配置loadConfig -> 加载资源组loadGroup -> 加载资源getRes
+自定义解析类代替默认解析类：registerAnalyzer
+清除已加载资源的缓存：RES.destroyRes()
+预加载：loadGroup() 所有资源会载入缓存，之前要监听3个资源组事件，e.groupName正在加载的组名
+获取：RES.getRes RES.getResByUrl(适合三方网络资源/本地，不需要加载配置) RES.getResAsync(只能得到已缓存的)
+合并/创建资源组：RES.createGroup
 ####EUI:
 自适应流式布局:是层层向上测量，层层向下布局
 逻辑组件+皮肤组件
@@ -223,8 +236,13 @@ EXML格式：
   3. 列表：new eui.List() -> dataProvider=arc -> itemRendererSkinName=exml列表样式({data}可取到数组各项) -> 
     1. 属性：selectedIndex默认项 allowMultipleSelection可多选
     2. 事件：eui.ItemTapEvent.ITEM_TAP点击列表项 list.selectedIndices/selectedItems选中项 requireSelection至少有一个选中
-
-
+####Tween
+egret.Tween.get( shp, { loop:true} ).to( {x:10}, 500, egret.Ease.backInOut)
+.call() 动画结束后都回调
+.wait 延迟时间
+####Soket
+创建：new egret.WebSocket()
+读取字符串：readUTF()
 
 命令行：egret前缀 当前文件夹则不需要name
   1. 新建项目： `create name --type game/empty/gui/eui`
