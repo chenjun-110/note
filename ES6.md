@@ -268,7 +268,8 @@ handler：
 	7. defineProperty:拦截了Object.defineProperty，return false阻止添加修改属性。
 	8. ownKeys 拦截遍历属性，忽略不存在/Symbol属性/否定enumerable,return []要遍历的属性列在[]内。[]里必须返回不可配置不可拓展的属性。
 	9. Proxy.revocable 可取消代理实例，适合带权限的访问代理。
-	10. getOwnPropertyDescriptor 拦截描述符、getPrototypeOf 拦截原型、isExtensible 拦截拓展、preventExtensions 拦截扩展、setPrototypeOf 拦截原型。。。
+	10. getOwnPropertyDescriptor 拦截描述符、getProto
+	11.  拦截原型、isExtensible 拦截拓展、preventExtensions 拦截扩展、setPrototypeOf 拦截原型。。。
 **Reflect**
 目的：封装了语言内部方法。比如：Reflect.defineProperty将代替Object.defineProperty
 Proxy对象和Object的方法，Reflect对象都有相同的默认行为，因此Proxy内部可以调用Reflect没修改过的相同API。

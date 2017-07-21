@@ -37,13 +37,13 @@ egret.ticker
 `var shape:egret.Shape = new egret.Shape();`
   1. shape.x/y 图片锚点位置(笛卡尔坐标)
   2. scaleX/Y缩放 alpha透明度 rotation旋转角度 skewX/Y横纵向斜切 visible是否可见 width/height anchorOffsetX/Y改锚点自己的坐标
-  3. 遮罩：mask=new egret.Rectangle(,,,) 仅显示对象的遮罩区 .mask=obj 显示对象obj的轮廓就是遮罩区(obj要在列表，要填充) maks=null删除遮罩
-  4. 碰撞检测：`shp.hitTestPoint(x,y,true)`判断某点，返回true是发生了碰撞。 带3参是精确碰撞(消耗性能)，不带是非精确。
+  3. 遮罩：mask=new egret.Rectangle(,,,) 仅显示对象的遮罩区 .mask=obj 显示对象obj的轮廓就是遮罩区(obj要在列表，要填充) maks=null和$maskedObject=null删除遮罩
+  4. 碰撞检测：`shp.hitTestPoint(x,y,true)`判断某点，返回true是发生了碰撞。 带3参是精确碰撞(消耗性能)，不带是非精确。适用于判断点击区域范围是否为目标范围
 `var container: egret.DisplayObjectContainer = new egret.DisplayObjectContainer();`
   1. container.globalToLocal(0,0): 全局坐标(0,0)转容器内坐标.值输出到返回值的x、y属性。 localToGlobal是本地转舞台。
-  2. addChild:  对象放在显示列表的顶层。同一对象多次添加只绘制一次(跟在哪个容器无关)。深度默认从0开始，每次+1。先把显示对象容器实例addChild到this -> 再把Shape实例addChild到container
+  2. addChild:  对象放在显示列表的顶层。同一对象多次添加只绘制一次(跟在哪个容器无关)。深度默认从0开始，每次+1。先把显示对象容器实例addChild到this -> 再把Shape实例addChild到container 注意：addChild进去的对象用contains会返回true
   3. 容器对象.removeChild( 显示对象 ): 对象移出显示列表
-  4. numChildren：子对象个数
+  4. 插到最前列：this.setChildIndex(obj, this.numChildren - 1)
   5. 增删改对象：`addChildAt`(显示对象, 深度值)： 插入到指定z-index。 `removeChildAt`(深度值)：移出指定深度对象 `removeChildren`():移出所有子对象 交换对象深度：`swapChildren`(对象, 对象)/`swapChildrenAt`(深度值, 深度值) `setChildIndex`(显示对象, 新深度值)：修改对象深度
   6. 容器获取子对象：推荐`getChildAt`(深度值)。 `getChildByName`(name属性) 
   3. this.stage: 获取对象的容器？
@@ -72,8 +72,7 @@ egret.ticker
 事件：`circle.touchEnabled = true; circle.addEventListener(egret.TouchEvent.TOUCH_TAP,fuc,this);`
   1. 手指按到屏幕：egret.TouchEvent.TOUCH_BEGIN
   2. 手指离开屏幕：egret.TouchEvent.TOUCH_END
-  3. 手指坐标：e.stageX/Y 
-  4. 手指按到的当前对象：e.currentTarget
+  3. 顺序：先监听TOUCH_BEGIN -> 在回调里监听TOUCH_MOVE TOUCH_END -> switch(e.type)
   4. 触发手指移动事件：`this.stage.addEventListener(egret.TouchEvent.TOUCH_MOVE,fuc,this);`
   5. 移除事件：this.stage.removeEventListener
   6. 点击事件：egret.TouchEvent.TOUCH_TAP
@@ -87,6 +86,10 @@ egret.ticker
   14. touchChildren=false;性能高，
   15. 数组更改事件：eui.CollectionEvent.COLLECTION_CHANGE
   16. 加载skinName事件：eui.UIEvent.COMPLETE 在createChildren之后触发
+  17. event:
+    1. 点击坐标：e.localX/localY
+    2. 手指坐标：e.stageX/Y 
+    3. 手指按到的当前对象：e.currentTarget
 自定义事件：
   1. 事件类：`class abc extends egret.Event` constructor(type,bubbles,cancelable){super(type,bubbles,cancelable)}
   2. 注册：`.addEventListener(abc.type, f.a, f)` f是接受事件的类,2参必是返回空值的函数格式，5参可设优先级数字 .removeEventListener参数一致
@@ -124,7 +127,8 @@ http请求：
   3. 获取框架启动时间：egret.getTimer() 依赖系统本地时间不太可靠
 多媒体：
   1. 音频：
-    1. sound加载：new egret.Sound() -> 监听音频加载事件 -> sound.play()播放
+    1. sound加载：new egret.Sound() -> 监听音频加载
+    2.  -> sound.play()播放
     2. URLLoader加载：new egret.URLLoader() -> 监听音频加载事件 -> sound=loader.data; sound.play() -> dataFormat=egret.URLLoaderDataFormat.SOUND -> load(new egret.URLRequest("resource/sound/sound.mp3"))
     3. res加载：var sound = RES.getRes("sound_mp3") -> sound.play()
     4. api:channel=sound.play(播放位置,播放次数) channel.stop() volume音量 position当前播放位置 sound.length时长
@@ -144,6 +148,7 @@ http请求：
   1. 安卓配置在proj.android/AndroidManifest.xml
   2. IOS配置在ViewController.mm
 问题：
+ 随机色：(Math.floor(Math.random() * 0xff)<<16）+(Math.floor(Math.random() * 0xff )<<8）+Math.floor(Math.random() * 0xff）
   cacheAsBitmap = true; 对象转位图，频繁改位置不用重渲
   父级宽度：this.stage.stageWidth
   Sprite和Shape的区别？
@@ -256,4 +261,8 @@ egret.Tween.get( shp, { loop:true} ).to( {x:10}, 500, egret.Ease.backInOut)
   9. 升级后检测api替换：`apitest name`
   9. 编译引擎：`make`
   10. 命令手册：`help [command]`
-
+####Game
+MovieClip:
+  1. 先把json和png写入res.json的resources
+  2. 创建：new egret.MovieClipDataFactory(json,png) -> new egret.MovieClip( mcFactory.generateMovieClipData( name ) )
+  3. 播放：this.addChild() -> .gotoAndPlay(labelsname,1)
