@@ -38,7 +38,7 @@ egret.ticker
   1. shape.x/y 图片锚点位置(笛卡尔坐标)
   2. scaleX/Y缩放 alpha透明度 rotation旋转角度 skewX/Y横纵向斜切 visible是否可见 width/height anchorOffsetX/Y改锚点自己的坐标
   3. 遮罩：mask=new egret.Rectangle(,,,) 仅显示对象的遮罩区 .mask=obj 显示对象obj的轮廓就是遮罩区(obj要在列表，要填充) maks=null和$maskedObject=null删除遮罩
-  4. 碰撞检测：`shp.hitTestPoint(x,y,true)`判断某点，返回true是发生了碰撞。 带3参是精确碰撞(消耗性能)，不带是非精确。适用于判断点击区域范围是否为目标范围
+  4. 碰撞检测：`shp.hitTestPoint(x,y,true)`判断某点，返回true是发生了碰撞。 带3参是精确碰撞(消耗性能)，不带是非精确。适用于判断点击区域范围是否为目标范围。 pixelHitTest位图透明碰撞
 `var container: egret.DisplayObjectContainer = new egret.DisplayObjectContainer();`
   1. container.globalToLocal(0,0): 全局坐标(0,0)转容器内坐标.值输出到返回值的x、y属性。 localToGlobal是本地转舞台。
   2. addChild:  对象放在显示列表的顶层。同一对象多次添加只绘制一次(跟在哪个容器无关)。深度默认从0开始，每次+1。先把显示对象容器实例addChild到this -> 再把Shape实例addChild到container 注意：addChild进去的对象用contains会返回true
@@ -47,6 +47,7 @@ egret.ticker
   5. 增删改对象：`addChildAt`(显示对象, 深度值)： 插入到指定z-index。 `removeChildAt`(深度值)：移出指定深度对象 `removeChildren`():移出所有子对象 交换对象深度：`swapChildren`(对象, 对象)/`swapChildrenAt`(深度值, 深度值) `setChildIndex`(显示对象, 新深度值)：修改对象深度
   6. 容器获取子对象：推荐`getChildAt`(深度值)。 `getChildByName`(name属性) 
   3. this.stage: 获取对象的容器？
+  
 矢量画图API:
  shape/Sprite实例：`spr.graphics`前缀
   1. 基础过程： beginFill() -> drawReact/drawCircle() -> endFill() 
@@ -81,7 +82,7 @@ egret.ticker
   9. http事件：egret.Event.COMPLETE egret.IOErrorEvent.IO_ERROR egret.ProgressEvent.PROGRESS
   10. 位图事件：RES.ResourceEvent.GROUP_COMPLETE
   11. 计时事件：egret.TimerEvent.TIMER计时开始 egret.TimerEvent.TIMER_COMPLETE计时结束
-  12. 帧事件：egret.Event.ENTER_FRAME 
+  12. 帧事件：egret.Event.ENTER_FRAME 帧率：this.stage.frameRate
   13. 音频事件：egret.Event.COMPLETE音频加载完成 egret.IOErrorEvent.IO_ERROR音频加载失败
   14. touchChildren=false;性能高，
   15. 数组更改事件：eui.CollectionEvent.COLLECTION_CHANGE
@@ -90,6 +91,9 @@ egret.ticker
     1. 点击坐标：e.localX/localY
     2. 手指坐标：e.stageX/Y 
     3. 手指按到的当前对象：e.currentTarget
+    4. 多点触摸标识：e.touchPointID
+  18. 事件搭配：
+    1. egret.Event.COMPLETE -> new egret.Sound/Video() sound.load()
 自定义事件：
   1. 事件类：`class abc extends egret.Event` constructor(type,bubbles,cancelable){super(type,bubbles,cancelable)}
   2. 注册：`.addEventListener(abc.type, f.a, f)` f是接受事件的类,2参必是返回空值的函数格式，5参可设优先级数字 .removeEventListener参数一致
@@ -114,13 +118,14 @@ http请求：
   7. 纹理集：用Texture Merger工具制作纹理集json -> 改配置文件type:'sheet'，keys和name值为json名 -> new egret.Bitmap(RES.getRes("jsonname.name1"))
   8. 截图：
     1. 截图转存本地：texture=RES.getRes() texture.saveToFile(截图格式,截图名,new egret.Rectangle(2,2,1,1)) 截图格式：'image/png'/ 'image/jpeg'
-    2. 截屏：new egret.RenderTexture -> drawToTexture(this，rect) -> 赋值给new egret.Bitmap的texture
+    2. 截屏显示对象：new egret.RenderTexture -> drawToTexture(displayobj，rect) -> 赋值给new egret.Bitmap的texture
   9. 图片重叠时：img.blendMode = egret.BlendMode.NORMAL;覆盖 egret.BlendMode.ADD叠加透明变亮 egret.BlendMode.ERASE重叠区删除
   10. 滤镜：
     1. 光晕：img.`filters` = [new egret.GlowFilter(颜色，透明，x模糊,y模糊，强度，次数，方向，挖空)]
     2. 阴影：new egret.DropShadowFilter()
     3. 变色：new egret.ColorMatrixFilter(矩阵数组) 该实例的matrix属性获取矩阵数组
     4. 模糊：new egret.BlurFilte(x,y)
+  11. 位图字体：RES.getResByUrl获取fnt文件 -> 回调参数赋值给BItmapText.font -> 修改text属性
 时间：
   1. 计时器：new egret.Timer(间隔，次数) -> 监听计时器事件 -> timer.start()开始计时
   2. 60频率：egret.startTick(fuc,this) 回调返true则重绘 egret.stopTick(fuc,this)停止
@@ -144,6 +149,7 @@ http请求：
 调试：
   1. 开发版：if(DEBUG){} 发行版：if(RELEASE){}  发行后会移除DEBUG代码块
   2. log: 先开启data-show-log="true" ->  egret.log()
+  3. 自动保存：egret startserver -a / egret startserver -prom 3001 -a另起端口
 原生：
   1. 安卓配置在proj.android/AndroidManifest.xml
   2. IOS配置在ViewController.mm
@@ -159,9 +165,40 @@ http请求：
 
 
 贴图是一张照片，用于替代模型。纹理是重复，阵列，缩放的贴图。材质是视觉层面的反光表现力。
-Typescript:
+####Typescript:
 语法：
-  1. 数字组成的数组：`list: number[]`或`list: Array<number>`
+  1. 基本 :any  :Object :string :boolean :number支持浮点数/2、8、10、16进制数 
+  2.数组：
+    1. 数字`:number[]`或`:Array<number>`
+    2. 只读的数组 ：ReadonlyArray<number>
+  3. 元组 :[string,number] 前2位按顺序为该类型，后添加值也得是该类型之一。
+  4. 枚举类型 enum Name {a, b=100, c,} let kk:Name=Name.a;  值必须为数字。默认值从0开始，累加1。手动赋值的值后面累加1。适用于给数字命名。 
+  5. 设了某种类型，其它类型的原生方法会被屏蔽。
+  6. 函数 
+    1. ():void 规定返回值类型，无返回值则为void，有则看情况。
+    2. ():never throw或return error 或while语句。 never类型不能被其它类型赋值 
+    3. (obj:{a:string}) 检查传参的a属性 等价于(obj:jiekou) interface jiekou{a:string}
+  7. 类型断言：提前知道类型。 (a as string).length / (<string>a).length 等价于a.length,前者支持JSX
+  8. 接口：interface jiekou{a:string; b?:number; readonly c:number; (d:string):boolean; [index: number]: string; f(e:Date);} 
+    1. 带问号的可有可无
+    2. readonly 只能被赋值一次，适合属性
+    3. ():boolean 函数类型，参数名可不与接口参数一致
+    4. [index:number]:string 用数字索引取的值必须是字符串
+    5. f(d:Date) 继承类必须重写它
+  9. 类：
+    1. pubilc 默认
+    2. private 用this.xx访问
+    3. protected 子类在内部可用this.xx访问父类的xx，子类的实例不能直接访问。
+    4. readonly 只读
+    5. abstract 抽象类或抽象方法
+  10. 模块：
+    1. 声明 declare module "url" {export }  
+    2. 导入 import * as URL from "url"
+ 
+问题：
+type C = { a: string, b?: number }
+function f({ a, b }: C): void {
+}
 
 游戏设计：
   1. 关卡地图：用json里的数组控制游戏地图上的格子。
@@ -231,8 +268,9 @@ EXML格式：
     1. 必须有3个id：moveArea/titleDisplay/closeButton
   4. 滚动容器：new eui.Scroller() -> 把Group实例赋值给viewport属性 内部组件放置同上 属性：Scroller.viewport.scrollV/scrollH纵横向滚动位置 Scroller.height滚动区域高度 Scroller.viewport.contentHeight滚动内容高度 stopAnimation()停止滚动动画 scroller.verticalScrollBar.autoVisibility/visible是否显示滚动条
 数据：
-  1. 数据容器：new eui.ArrayCollection([]) -> new eui.DataGroup() -> dataProvider=arc ->itemRenderer=类
+  1. 数据容器：new eui.ArrayCollection([]) -> new eui.DataGroup() -> dataProvider=arc ->itemRenderer=类(这个类有数据！)
     1. 大数据优化：useVirtualLayout = true;
+    2. itemRenderer类：数组改变则触发dataChanged()显示几条就循环调用几次,this.data是数组里显示的1条数据，继承在原型上无需定义。
   2. 数组集合：eui.ArrayCollection 可监听数组更改事件eui.CollectionEvent.COLLECTION_CHANGE e.kind操作类型、e.target.length
     1. addItem()相当于push addItemAt(,index)添加到指定索引
     2. getItemAt(index)获取值 getItemIndex()获取索引 length获取数组长度
@@ -242,12 +280,15 @@ EXML格式：
     1. 属性：selectedIndex默认项 allowMultipleSelection可多选
     2. 事件：eui.ItemTapEvent.ITEM_TAP点击列表项 list.selectedIndices/selectedItems选中项 requireSelection至少有一个选中
 ####Tween
-egret.Tween.get( shp, { loop:true} ).to( {x:10}, 500, egret.Ease.backInOut)
+egret.Tween.get( shp, { loop:true,onChange:fuc} ).to( {x:10}, 500, egret.Ease.backInOut)
 .call() 动画结束后都回调
-.wait 延迟时间
+.wait().to() 延迟时间
+onChange: 执行次数由时间决定。
 ####Soket
 创建：new egret.WebSocket()
-读取字符串：readUTF()
+读取数据：readUTF()
+发送数据：writeUTF()
+事件：egret.Event.CONNECT连接成功 egret.ProgressEvent.SOCKET_DATA收数据 egret.Event.CLOSE连接关闭 egret.IOErrorEvent.IO_ERROR连接错误
 
 命令行：egret前缀 当前文件夹则不需要name
   1. 新建项目： `create name --type game/empty/gui/eui`
@@ -266,3 +307,20 @@ MovieClip:
   1. 先把json和png写入res.json的resources
   2. 创建：new egret.MovieClipDataFactory(json,png) -> new egret.MovieClip( mcFactory.generateMovieClipData( name ) )
   3. 播放：this.addChild() -> .gotoAndPlay(labelsname,1)
+####PureMVC
+比传统的3个单例类多了1个Façade单例类。它负责通信其它3个。Proxy、Mediator、Command解决了每个模块都有自己的MVC。
+class AppFacade extends puremvc.Facade
+通知与事件的区别：通知不用冒泡，没有父子级关系。
+直接调用：facade.retrieveMediator 通知调用：Notification
+Mediator通过listNotificationInterests注册、Command通过facade.registerCommand()注册
+sendNotification与registerCommand()、registerMediator()在Observer内被关联
+Command：
+  1. MacroCommand多命令：addSubCommand  /SimpleCommand单命令
+  2. Command里面registerproxy
+  3. execute貌似是回调？
+踩坑：
+  1. 定时器：不用TIMER_COMPLETE事件，直接
+  2. 调用timer.stop();
+  2. dispatchEventWith触发任意字符串。dispatchEvent不行。
+  3. dispatchEventWith发送的参数，event.data接收。
+  4. window.location.href跳转地址必须带协议
