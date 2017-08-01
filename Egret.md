@@ -93,7 +93,7 @@ egret.ticker
     3. 手指按到的当前对象：e.currentTarget
     4. 多点触摸标识：e.touchPointID
   18. 事件搭配：
-    1. egret.Event.COMPLETE -> new egret.Sound/Video() sound.load()
+    1. egret.Event.COMPLETE -> new egret.Sound/Video() sound.load() -> new egret.HttpRequest();
 自定义事件：
   1. 事件类：`class abc extends egret.Event` constructor(type,bubbles,cancelable){super(type,bubbles,cancelable)}
   2. 注册：`.addEventListener(abc.type, f.a, f)` f是接受事件的类,2参必是返回空值的函数格式，5参可设优先级数字 .removeEventListener参数一致
@@ -313,14 +313,42 @@ class AppFacade extends puremvc.Facade
 通知与事件的区别：通知不用冒泡，没有父子级关系。
 直接调用：facade.retrieveMediator 通知调用：Notification
 Mediator通过listNotificationInterests注册、Command通过facade.registerCommand()注册
-sendNotification与registerCommand()、registerMediator()在Observer内被关联
+
 Command：
-  1. MacroCommand多命令：addSubCommand  /SimpleCommand单命令
-  2. Command里面registerproxy
-  3. execute貌似是回调？
+  1. MacroCommand多命令：initializeMacroCommand()里面调用添加命令类`this.addSubCommand(cmd-n)` execute()会循环数组调用命令类的excute，但不用重写定义它
+  2. SimpleCommand单命令：注册命令`(new acommand()).register()`/注册代理`this.facade.registerProxy(new HallProxy())`/注册视图`this.facade.registerMediator(new mediator(notification.getBody()))` 只有一个execute方法接收一个nofitication实例作为参数
+  3. Command里面registerproxy
+  4. 
+Mediator：
+  1. 注册时会调用listNotifications()返回通知数组，用来接收消息。
+  2. 接收通知时调用handleNotification()。它内部可做简单逻辑。通知名notification.getName(),通知体notification.getBody()
+  3. super(name,view)初始化new时要传本类的名字和对应的UI.
+  4. 不常用：onRegister/onRemove在facade上注册销毁。getMediatorName返回名字 set/getViewComponent设置UI
+  5. 在facade上registerMediator时，底层调用Mediator的onRegister(),它的底层又调用View的registerMediator()
+Proxy:
+  1. super(name,data) 初始化必须的，data可以不传在内部定义私有变量
+  2. 不常用：set/gatData操作data,getProxyName，onRegister/onRemove同上
+  3. 只能发消息，不能接收。
+sendNotification:
+  1. 顺序：sendNotification -> Command接收、在execute内执行、switch(notification.getName())各种回调 -> 回调内调用proxy拿数据 -> proxy回调内调用mediator更新界面 
+  2. sendNotification与registerCommand()、registerMediator()在Observer内被关联
+  3. 底层调用了View.notifyObservers()并new了一个通知类，它的底层调用了Observer.notifyObserver()
+Controller类中notificationName和Command类是数组的key-value，它是被registerCommand()实现，底层又是view.registerObserver()
+Notifier类：是MacroCommand类、SimpleCommand类、Mediator类和Proxy类的基类，它通过sendNotification()方法用来发送消息。
+Facade：
+  1. 按需调用super.initializeController/
+  2. this.registerCommand(str,mainCommand)
+
+
+
+
+
+
+
 踩坑：
   1. 定时器：不用TIMER_COMPLETE事件，直接
   2. 调用timer.stop();
   2. dispatchEventWith触发任意字符串。dispatchEvent不行。
   3. dispatchEventWith发送的参数，event.data接收。
   4. window.location.href跳转地址必须带协议
+  5. 调用组件父级容器的validateNow()方法解决异步刷新闪屏
