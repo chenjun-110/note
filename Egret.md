@@ -94,6 +94,9 @@ egret.ticker
     4. 多点触摸标识：e.touchPointID
   18. 事件搭配：
     1. egret.Event.COMPLETE -> new egret.Sound/Video() sound.load() -> new egret.HttpRequest();
+  19. 事件代理：
+    1. 单选：RadioButton.group监听egret.Event.CHANGE
+    2. 
 自定义事件：
   1. 事件类：`class abc extends egret.Event` constructor(type,bubbles,cancelable){super(type,bubbles,cancelable)}
   2. 注册：`.addEventListener(abc.type, f.a, f)` f是接受事件的类,2参必是返回空值的函数格式，5参可设优先级数字 .removeEventListener参数一致
@@ -231,7 +234,7 @@ EXML格式：
     7. label 文字
     8. top 同时约束相对位置和宽高
   4. 数据绑定：text="{data.label}" 这里绑定的是父级data属性的label值
-  5. skinName 引用其他exml皮肤类，值对应class,相当于把被引用的标签写为它的子节点
+  5. skinName 引用其他exml皮肤类，值对应class,相当于把被引用的标签写为它的子节点。父级exml声明的属性会传到skinName子级作`"{}"`变量。
   6. states状态
     1. 对应各个子节点：source.down 或 includeIn="down"
     2. excludeFrom表示不存在某个状态时
@@ -316,9 +319,8 @@ Mediator通过listNotificationInterests注册、Command通过facade.registerComm
 
 Command：
   1. MacroCommand多命令：initializeMacroCommand()里面调用添加命令类`this.addSubCommand(cmd-n)` execute()会循环数组调用命令类的excute，但不用重写定义它
-  2. SimpleCommand单命令：注册命令`(new acommand()).register()`/注册代理`this.facade.registerProxy(new HallProxy())`/注册视图`this.facade.registerMediator(new mediator(notification.getBody()))` 只有一个execute方法接收一个nofitication实例作为参数
-  3. Command里面registerproxy
-  4. 
+  2. SimpleCommand单命令：注册命令`(new acommand()).registerCommand()`/注册代理`this.facade.registerProxy(new HallProxy())`/注册视图`this.facade.registerMediator(new mediator(notification.getBody()))` 只有一个execute方法接收一个nofitication实例作为参数
+  3. Command里面注册
 Mediator：
   1. 注册时会调用listNotifications()返回通知数组，用来接收消息。
   2. 接收通知时调用handleNotification()。它内部可做简单逻辑。通知名notification.getName(),通知体notification.getBody()
@@ -338,6 +340,10 @@ Notifier类：是MacroCommand类、SimpleCommand类、Mediator类和Proxy类的�
 Facade：
   1. 按需调用super.initializeController/
   2. this.registerCommand(str,mainCommand)
+  3. send会触发注册的new类并执行execute
+实用点：
+  1. 获取代理引用：this.facade.retrieveProxy(bull.CardProxy.NAME)
+  2. Mediator通信：listNotificationInterests数组手写入字符，handleNotification判断字符执行回调。
 
 
 
