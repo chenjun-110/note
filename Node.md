@@ -9,6 +9,7 @@ url路由模块：
   1. 获取pathname: url.parse(request.url).pathname;
   2. 获取参数： url.parse(request.url).query;
   3. 打印所有属性值：在启动服务器时response.end(util.inspect(url.parse(req.url, true)))
+  4. 相对路径转绝对：url.resolve(url,href)
 querystring模块：
   1. 获取参数的值： querystring.parse(pathname)[key]
 全局变量：
@@ -57,7 +58,17 @@ mysql:
   2. connection.connect() 连接
   3. connection.query('',(err,data,fields)=>) 
   4. connection.end()
-
+三方库：
+  1. utility格式库可以转md5加密
+  2. 爬虫：superagent对三方网站发起请求，cheerio以jq的方式处理数据
+  3. eventproxy:简化异步并发多个请求
+  4. async:能设置并发连接数的异步请求
 
 
 node -e "console.log('hello world')" 执行字符串
+npm:
+  1. 包只下载一次：在已下载目录npm link express把包移到全局，在需要使用的地方npm link express获取快捷入口。
+  2. 更新全局包：npm update express -g
+
+命令行：
+  1. touch a.js 新建文件
