@@ -1,5 +1,5 @@
 http模块：
-  1. 启动服务器：http.createServer((req,res)=>).listen(8888)
+  1. 启动服务器：http.createServer((req,res)=>).listen(8888) 监听请求事件
     1. 响应: writeHead() write() end()
 	2. 请求： nodejs默认不理会post体
 	  1. 接收数据段事件：req.on('data',(d) => v+=d)
@@ -22,11 +22,12 @@ querystring模块：
     2. 常用事件：exit退出 beforeExit清空事件循环 uncaughtException异常 Signal信号
     3. 常用退出码：1~12 128
     4. 属性：16个 
-util函数库：
+util模块：
   1. inherits(a,b) a继承b的原型
+   
   2. inspect() 对象转字符串,调试有用
   3. isArray() isRegExp isDate isError
-fs：大多是异步方法
+fs模块：大多是异步方法
   1. 读取 readFile('txt',(err,data)=>)
   2. 打开 open()
   3. 获取文件类型 stat(path,(err,stats)=>)
@@ -36,24 +37,29 @@ fs：大多是异步方法
   7. 截取 ftruncate()
   8. 删除 unlink()
   9. 创建目录 mkdir() 读取目录 readdir() 删除目录 rmdir()
-net:
+net模块:
   1. 启动TCP服务器 net.createServer((o)=>).listen
   2. 模拟客户端socket连接 net.connect({port:},()=>) 
 其它模块：os系统操作 path文件路径 dns解析域名 domain捕获错误
 搭建简单能访问页面的顺序：http.createServer->fs.readFile-> res.write(data.toString()) -> res.end()
 事件循环：
-  1. 顺序：timer i/o错误回调 idle/prepare内部 poll check close
+  1. 顺序：timer i/o错误回调 idle/prepare内部 poll(I/O) check close
   2. poll阶段如果setTimeout时间到，且poll空闲就循环下去，在timer执行setTimeout回调。
   3. poll阶段会阻塞等待异步i/o完成，插入回调到poll队列。
   4. setImmediate在check执行。
   5. 在异步io回调内，setImmediate先于setTimeout执行。
-  6. process.nextTick()在循环阶段切换时执行，推荐用setImmediate代替。前者递归会阻塞其它程序的回调。
+  6. process.nextTick()在循环阶段切换时执行/(书上说是在idle执行，推荐用setImmediate代替。前者递归会阻塞其它程序的回调。)
+    1. 把递归写法换成process.nextTick(f()),可不防止阻塞。
+    2. 把同步回调转为异步回调
+    3. process.nextTick嵌套递归会一直运行？多个process.nextTick语句总是一次执行完。
+    4. 可取代setTimeout(,0)
+    5. 优先级顺序：process.nextTick > setTimeout/setInterval > setImmediate 后2个是check观察者
 
-child_process：
+child_process模块：
   1. exec('node a.js',(err,stdout,stderr)=>)子进程执行命令,子进程输出传到参数
   2. spawn('node', ['a.js', i])
   3. fork("a.js", [i])
-mysql:
+mysql模块:
   1. createConnection({}) 
   2. connection.connect() 连接
   3. connection.query('',(err,data,fields)=>) 
@@ -69,6 +75,37 @@ node -e "console.log('hello world')" 执行字符串
 npm:
   1. 包只下载一次：在已下载目录npm link express把包移到全局，在需要使用的地方npm link express获取快捷入口。
   2. 更新全局包：npm update express -g
+  3. 目录：bin存放二进制，lib存放js，doc存放文档，test存放测试
 
 命令行：
   1. touch a.js 新建文件
+  2. 快捷键：ctrl+C 终止 ctrl+D 退出 Tab自动补全
+  3. 比如fs
+  4. _变量为最近输出值
+
+repl模块:
+  1. repl.start({ prompt: '> ',useColors:true });
+
+####深入浅出node.js
+libuv:跨系统的中间层
+Apache是一线程一请求。Nginx是事件驱动。
+单线程的缺点：无法利用多核CPU,报错会崩溃，大计算占CPU影响其它异步。child_process可解决。
+  1. 如果只有纯计算，没有IO？ 可用C++扩展用多线程并行计算。
+  2. 只有Js是单线程的，底层异步IO是多线程的，win下是IOCP方案,*nix是自定义线程池。
+  3. IO：包括磁盘文件、硬件、套接字等
+js做位运算(转码)要先把double型转为int型，占CPU，需要借助C++模块。
+模块：
+   1. 核心模块运行时编译为二进制，加载快。
+   2. 带后缀名更快.
+   3. require：对.json底层调用fs读取,JSON.parse解析。对.js会用vm.runInThisContext包装成函数。对.node会调用process.dlopen。
+   4. process.binding用来加载核心模块的内建C++部分
+fs.open底层获得文件描述符，进行IO的前提。
+事件：
+  1. Node对事件限制10个监听者，emitter.setMaxListeners(0)可解除。
+  2. EventEmitter的error如果被监听，则监听者执行，否则作为异常抛出，可能崩溃。
+  3. util.inherits(f,events.EventEmitter)继承事件类
+  4. once():数据库有巨大访问时，用状态变量保证每次一条。同名重复查询用once监听一个,在某个查询回调触发emit()把数据传给监听者，这样所有重复查询都能在同一时刻收到数据了。
+异步代码规范：异步函数的回调1参为error，内部也要判断error是否存在。
+异步异常：
+  1. try-catch只能捕捉本次循环。
+  2. 回调内部异常，小心回调前面的部分重复执行。
