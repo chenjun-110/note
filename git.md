@@ -113,7 +113,8 @@ mongodb://<dbuser>:<dbpassword>@ds127428.mlab.com:27428/chenjundatabase
 实战坑：
   1. .gitignore无效：要删除提交区追踪 `git rm -r --cached .` `git add .` git commit -m
 
-
+报错：
+  1. You have not concluded your merge (MERGE_HEAD exists). Please, commit your changes before you can merge. `git merge --abort`  `git reset --merge`
 
 
 

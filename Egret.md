@@ -7,11 +7,11 @@
   6. egretProperties.json 项目配置
     1. path：是库的版本，没写则升级，写了则不升级。`"${EGRET_DEFAULT}"`引擎路径，`"${EGRET_APP_DATA}/4.0.3"`引擎历史版本路径。
   7. index.html 入口
-    1. game_files：由`build -e`所构不能动
+    1. game_files：由`build -e`构建生成
     2. modules_files对应：libs/modules、项目配置中的mudules
     3. div:旋转模式、适配模式、帧频、游戏宽高、、多指数、显示fps/脏矩形区域/fpslog/过滤log/ps面板样式.
     4. script:egret.runEgret({}) 渲染模式、音频类型、抗锯齿、缩放画布
-运行：构建egret build->调试egret startserver
+运行：构建egret build->调试egret startserver -a
 生命周期egret.lifecycle
   1. onPause：进入后台
   2. onResume：进入前台
@@ -135,8 +135,7 @@ http请求：
   3. 获取框架启动时间：egret.getTimer() 依赖系统本地时间不太可靠
 多媒体：
   1. 音频：
-    1. sound加载：new egret.Sound() -> 监听音频加载
-    2.  -> sound.play()播放
+    1. sound加载：new egret.Sound() -> 监听音频加载 -> sound.play()播放
     2. URLLoader加载：new egret.URLLoader() -> 监听音频加载事件 -> sound=loader.data; sound.play() -> dataFormat=egret.URLLoaderDataFormat.SOUND -> load(new egret.URLRequest("resource/sound/sound.mp3"))
     3. res加载：var sound = RES.getRes("sound_mp3") -> sound.play()
     4. api:channel=sound.play(播放位置,播放次数) channel.stop() volume音量 position当前播放位置 sound.length时长
