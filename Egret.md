@@ -358,3 +358,4 @@ Facade：
   4. window.location.href跳转地址必须带协议
   5. 调用组件父级容器的validateNow()方法解决异步刷新闪屏
   6. 获取主场景引用：egret.MainContext.instance.stage
+  7. Itemrender内存调用栈爆炸：是因为ArrayCollection传参不是数组！

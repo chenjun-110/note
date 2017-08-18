@@ -127,7 +127,7 @@ fs.open底层获得文件描述符，进行IO的前提。
     2. exports:模块会常驻老生代，防止内存泄漏。如果不可避免要增加内存，必须设计可清空的接口。
     3. 队列：比如是数据库记录日志，记录队列激增，会导致写入函数堆积，进而内存爆炸。解决：浅层用文件写入达到消费速度大于写入速度，深层设置队列满员的报警机制、队列调用设超时模式和拒绝模式。
 Buffer:
-  1. API: new Buffer/buf.write 字符转BUF buf.toString BUF转字符 
+  1. API: new Buffer/buf.write 字符转BUF buf.toString('base64') BUF转字符 
   2. fs.createReadStream('a.txt',{highWaterMark:10}) 每次读10个字节
     1. data事件默认传出的是buffer对象。如果读取流每次读取的buffer长度不等于编码正确显示所需长度，就会有乱码。
     2. setEncoding()：让data事件传出的是字符串。可解决utf8、base64、ucs-2/utf-16LE的乱码
@@ -146,7 +146,38 @@ Buffer:
     1. 基于TCP：封装了net模块
     2. setHeader可多次设置，writeHead则把报头写入连接
     3. res.end：先调用write发送，必须调用否则长连接等待。TCP连接肯能用于下一次请求响应。
-    4. 事件：connection在TCP连接时，request在解析出请求头时，close在所有连接断开时(server.close()仅停止接受新连接)，checkContinue在客户端上传头带`EXpect:100-continue`大数据时触发(如果没监听它自动响应100Continue头，客户端再发起请求触发request事件)，connect在收到connect请求时，upgrade在请求升级协议时，
+    4. 服务端事件：connection在TCP连接时，request在解析出请求头时，close在所有连接断开时(server.close()仅停止接受新连接)，checkContinue在客户端上传头带`EXpect:100-continue`大数据时触发(如果没监听它自动响应100Continue头，客户端再发起请求触发request事件)，connect在收到connect请求时，upgrade在请求升级协议时，
+    5. 模拟客户端：http.request
+      1. options:host域名 hostname名称 port服务器端口 localAddress本地网卡 socketPath:Domain套接字路径 auth:Basic认证 agent代理对象设置
+      2. http.globalAgent:HTTP代理对象、重用TCP连接、同一服务器连接池最多并发5个连接。
+      3. agent:false解除连接限制。agent=new http.Agent({maxSocket:10})连接限制10个。agent.sockets当前连接数，agent.requests等待连接数
+      4. 客户端事件：response、socket连接`分配`给请求对象时、connect发起connect请求后收到`200`时、upgrade发起upgrade请求后收到`101 Switching Protocols`时，continue发起Expect头收到`100`Continue时
+  5. WebSocket:
+    1. 握手由HTTP完成，传输由TCP完成。
+    2. 请求头：Upgrade:websocket、Connection:Upgrade升级协议，Sec-WebSocket-Key：值是随机base64码、会在服务端的固定码拼接通过sha1算法计算转码返回
+    3. 接收数据：在upgrade回调内监听socket.on('data')。socket.write则是发数据。注意：这里收发的数据格式是(数据帧buffer+数据体buffer),要做解析。
+安全：
+  1. crypto 加解密、tls 基于TSL/SSL的TCP(在传输层加解密)、https 
+  2. TSL：
+    1. 底层用openssl生成，公钥加密发出数据，私钥解密收到数据，安全连接时互换公钥。
+    2. 中间人攻击：中间人拿到服务器公钥并把自己的公钥发给客户端。
+    3. 数字证书CA：用来判断是否为目标服务器的公钥。客户端创建私钥：openssl genrsa -out client.key 1024 -> 生成csr:openssl req -new -key client.key -out client.csr -> 生成证书：openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial -in client.csr -out client.crt
+    4. 检测证书正常：openssl s_client -connect 127.0.0.1:8000
+    5. createServer和connect都需要读取server.key/server.crt/ca.crt
+  crypto：
+    1. createHash('sha1').update(key+固定码).digest('base64') 固定码："258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+
+业务逻辑：
+  1. 请求方法的判断：switch(req.method)
+    1. RESTful:GET表示查看资源、POST更新资源、PUT新建资源、DELETE删除资源
+  2. URL路径解析:url.parese(req.url).pathname
+    1. 访问静态文件：拿pathname和本地路径拼接->读取文件->错返404，对返200。
+    2. 路径区分逻辑：`"/controller/action/a/b/c".split('/') -> obj[controller][action].apply(null,[req,res].concat(args))`controller是控制器，action是行为函数，后面是参数。
+  3. URL查询解析。
+  4. Cookie解析
+  5. Basic认证
+  6. 表单数据解析。
+  7. 文件上传处理。
 
 
 Linux命令行：
