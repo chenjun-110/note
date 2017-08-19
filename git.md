@@ -39,9 +39,10 @@ github
 $ ssh-keygen -t rsa -C "357201017@qq.com //创建SSH Key。 id_rsa是私钥,id_rsa.pub是公钥,去官网绑定ssh粘贴公钥。
 $ git remote add 自定义远程库名 git@github.com:chenjun-110/仓库名.git //SSH连接
 $ git remote add 自定义远程库名 https://github.com/chenjun-110/仓库名.git //https连接
+git remote rm origin 删除远程库
+git remote -v 查看远程库
 $ git clone https://github.com/chenjun-110/仓库名.git 远程克隆到本地
 git pull      取得远程最新分支(有冲突要取得远程分支手动解决再同步)
-git remote -v 查看远程库
 git add *     添加文件进stage暂存区
 $ git commit -m "wrote a readme file" 提交到master分支 -m后面说明文字 可多次add仅一次提交
 $ git push -u 远程库名 分支名 //同步上传,以后可以省略-u
