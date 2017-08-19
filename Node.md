@@ -55,7 +55,7 @@ net模块:
     5. 优先级顺序：process.nextTick > setTimeout/setInterval > setImmediate 后2个是check观察者
 
 child_process模块：
-  1. exec('node a.js',(err,stdout,stderr)=>)子进程执行命令,子进程输出传到参数
+  1. `exec('node a.js',{cwd:'./note'},(err,stdout,stderr)=>)`子进程执行命令,子进程输出传到参数。`exec`只针对js文件当前目录，跳`cd`了必须设置`cwd`！
   2. spawn('node', ['a.js', i])
   3. fork("a.js", [i])
 mysql模块:
@@ -82,6 +82,7 @@ npm:
   2. 快捷键：ctrl+C 终止 ctrl+D 退出 Tab自动补全
   3. 比如fs
   4. _变量为最近输出值
+  5. `du -sh`总大小 `du -ah`显示大小的`ls` 
 
 repl模块:
   1. repl.start({ prompt: '> ',useColors:true });
@@ -185,3 +186,4 @@ Linux命令行：
   2. 查看文件: cat
   3. 保存并退出vi: ESC -> :wq
   4. 查询程序安装路径：where node
+1111

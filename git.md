@@ -110,6 +110,35 @@ mlab数据库地址
 mongodb://<dbuser>:<dbpassword>@ds127428.mlab.com:27428/chenjundatabase
 `heroku config:set PROD_MONGODB=mongodb://chenjun:c3276230@ds127428.mlab.com:27428/chenjundatabase`
 
+####hexo
+新建仓库名格式：chenjun-110.github.io 前缀需为我的用户名,网址也是这个
+配置SSH：把公钥上传到github
+安装：
+ 1. 命令行：npm install hexo-cli -g 
+ 2. 初始化：`hexo init blog` -> `npm install` -> `hexo server`
+ 3. 在本地仓库下载主题：`git clone https://github.com/iissnan/hexo-theme-next themes/next` -> 改yml配置的:`theme: next`
+ 4. git工具：npm install hexo-deployer-git --save
+ 5. 改yml:
+```deploy:
+  type: git
+  repo: <repository url>
+  branch: [branch]
+  message: [message]```
+运行：
+  1. 生成：hexo g
+  2. 预览：hexo s 默认http://localhost:4000/
+  3. 部署：hexo d
+目录：
+  1. public:生成后
+  2. source:解析文件。忽略`_`
+  3. scaffolds:每个md文件开头需要加上字段
+
+
+
+
+
+
+
 实战坑：
   1. .gitignore无效：要删除提交区追踪 `git rm -r --cached .` `git add .` git commit -m
 
