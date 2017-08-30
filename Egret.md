@@ -268,7 +268,7 @@ EXML格式：
   2. 层叠容器:new eui.ViewStack() 只能显示一个子项。属性：selectedIndex默认项。 内部组件放置同上
   3. 面板容器：基于Group但eui.Panel()放在createChildren内
     1. 必须有3个id：moveArea/titleDisplay/closeButton
-  4. 滚动容器：new eui.Scroller() -> 把Group实例赋值给viewport属性 内部组件放置同上 属性：Scroller.viewport.scrollV/scrollH纵横向滚动位置 Scroller.height滚动区域高度 Scroller.viewport.contentHeight滚动内容高度 stopAnimation()停止滚动动画 scroller.verticalScrollBar.autoVisibility/visible是否显示滚动条
+  4. 滚动容器：new eui.Scroller() -> 把Group实例赋值给viewport属性 内部组件放置同上 属性：Scroller.viewport.scrollV/scrollH纵横向滚动位置 Scroller.height滚动区域高度 Scroller.viewport.contentHeight滚动内容高度 stopAnimation()停止滚动动画 scroller.verticalScrollBar.autoVisibility/visible是否显示滚动条 滚动回弹时间0.5s
 数据：
   1. 数据容器：new eui.ArrayCollection([]) -> new eui.DataGroup() -> dataProvider=arc ->itemRenderer=类(这个类有数据！)
     1. 大数据优化：useVirtualLayout = true;
@@ -359,3 +359,5 @@ Facade：
   5. 调用组件父级容器的validateNow()方法解决异步刷新闪屏
   6. 获取主场景引用：egret.MainContext.instance.stage
   7. Itemrender内存调用栈爆炸：是因为ArrayCollection传参不是数组！
+  8. 强制横屏：this.stage.orientation = egret.OrientationMode.LANDSCAPE;
+  9. 蓝屏后网页白板：index.html损坏！

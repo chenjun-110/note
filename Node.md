@@ -175,7 +175,15 @@ Buffer:
     1. 访问静态文件：拿pathname和本地路径拼接->读取文件->错返404，对返200。
     2. 路径区分逻辑：`"/controller/action/a/b/c".split('/') -> obj[controller][action].apply(null,[req,res].concat(args))`controller是控制器，action是行为函数，后面是参数。
   3. URL查询解析。
-  4. Cookie解析
+    1. 参数解析为对象：`querystring.parse(url.parse(URL).query)` 或 `url.parse(URL,true).query` 中间件的做法是把该对象又赋值给`req.query`做某些处理
+  4. 
+    1. Cookie解析
+      1. 在`req.headers`内部，一般都把cookie字符串解析为对象赋值给`req.cookies`供内部使用:例如`if(!req.cookies.init)`
+      2. `res.setHeader('Set-Cookie',[])`字段意思：`HttpOnly`document.cookie不可见、`Secure`仅HTTPS有效、`path`和访问路径对应才可见、`Expires/Max-Age`过期
+      3. 缺点：报头过大、前后端都可篡改、上级path的cookie对子路径可见(静态文件不需要cookie：更换域名、下载线程翻倍但域名转IP要DNS查询、除非做DNS缓存)
+    2. Session
+      1. 把session的键存在cookie的值，如果它被篡改就取不到session的值了。
+      2. 超时一般设为20分钟，删除重生成session，再又把键用cookie传至客户端。
   5. Basic认证
   6. 表单数据解析。
   7. 文件上传处理。
