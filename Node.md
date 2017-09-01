@@ -184,6 +184,11 @@ Buffer:
     2. Session
       1. 把session的键存在cookie的值，如果它被篡改就取不到session的值了。
       2. 超时一般设为20分钟，删除重生成session，再又把键用cookie传至客户端。
+    3. 缓存：
+      1. 时间戳法：`req.headers['if-modified-since']`和服务器最后修改时间相等，返304使用缓存。不相等则`res.setHeader('Last-Modified',time)` 返200
+      2. 哈希法：Etag比时间戳好，比较的是hash值是否变动。`req['if-none-match']===hash`返304， 反之`res.setHeader('ETag',hash)`返200
+      3. 过期法：不用发请求,倒计时计算比Expires好。`res.setHeader("Cache-Control",time)`
+      4. 清除缓存：游览器根据URL缓存，所以改URL的参数即可。
   5. Basic认证
   6. 表单数据解析。
   7. 文件上传处理。

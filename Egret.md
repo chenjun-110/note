@@ -169,38 +169,87 @@ http请求：
 贴图是一张照片，用于替代模型。纹理是重复，阵列，缩放的贴图。材质是视觉层面的反光表现力。
 ####Typescript:
 语法：
-  1. 基本 :any  :Object :string :boolean :number支持浮点数/2、8、10、16进制数 
-  2.数组：
-    1. 数字`:number[]`或`:Array<number>`
+  1. 基本 :any  :Object :string :boolean :number :symbol支持浮点数/2、8、10、16进制数 :Error :Date :RegExp :HTMLElement ：Document ：Event ：NodeList 
+    1. `：any`声明但未赋值的变量默认类型，可做任意操作。
+    2. `:undefined`和`:null`值只能为自己,且是所有类型的子类型。
+    3. 类型推论：声明且赋值自动加类型。2.1中根据最后一次赋值，联合类型会变化哦！
+    4. 联合类型：`:string | number`注意如果传值没定义类型，则只能访问共有属性！ 
+    5. 类型断言： `(a as string).length` / `(<string>a).length` 等价于a.length,前者支持JSX
+    6. 
+  2. `type` 用于综合类型
+    1. type EventNames = 'click' | 'scroll' | 'mousemove'; 必须为这三个字符串之一。
+    2. type A = typeA|typeB 为type综合类型之一
+  3. 数组：
+    1. 数字`:number[]`或`:Array<number>` `:any[]`
     2. 只读的数组 ：ReadonlyArray<number>
-  3. 元组 :[string,number] 前2位按顺序为该类型，后添加值也得是该类型之一。
+    3. 元组 :[string,number] 前2位按顺序为该类型，后添加值也得是该类型之一。赋值时必须一次按类型赋值，不能分段赋值
   4. 枚举类型 enum Name {a, b=100, c,} let kk:Name=Name.a;  值必须为数字。默认值从0开始，累加1。手动赋值的值后面累加1。适用于给数字命名。 
   5. 设了某种类型，其它类型的原生方法会被屏蔽。
   6. 函数 
-    1. ():void 规定返回值类型，无返回值则为void，有则看情况。
+    1. ():void 规定返回值类型,必须为`null`和`undefined`。
     2. ():never throw或return error 或while语句。 never类型不能被其它类型赋值 
     3. (obj:{a:string}) 检查传参的a属性 等价于(obj:jiekou) interface jiekou{a:string}
-  7. 类型断言：提前知道类型。 (a as string).length / (<string>a).length 等价于a.length,前者支持JSX
+    4. 可选参数：`p?:string`放在最后
+    5. 剩余参数：`(A , ...B:any[])`
+    6. 
+  7. .d.ts:
+    1. 声明：`declare var jQuery: (string) => any;`
+    2. 调用:`/// <reference path="./jQuery.d.ts" />`文件开头
+    3. TypeScript 核心库的定义中不包含 Node.js 部分。`npm install @types/node --save-dev`
   8. 接口：interface jiekou{a:string; b?:number; readonly c:number; (d:string):boolean; [index: number]: string; f(e:Date);} 
-    1. 带问号的可有可无
-    2. readonly 只能被赋值一次，适合属性
+    1. 可选属性：`?` 
+    2. 只读属性：`readonly a:number` 调用时只能被赋值一次，适合属性
     3. ():boolean 函数类型，参数名可不与接口参数一致
     4. [index:number]:string 用数字索引取的值必须是字符串
     5. f(d:Date) 继承类必须重写它
+    6. 首字母大写
+    7. 总结：必选属性不多不少，可选属性可以少,任意属性可以多。 
+    8. 任意属性：`[propName: string]: any;` 其它属性类型必须为任意类型的子类型。
+    9. 数组的接口定义：`[index:number]:number`
+    10. 接口用`:`在左边是约束定义时的格式，用`<>`在右边是约束后面的赋值格式。
+    11. 同名接口会合并。
   9. 类：
     1. pubilc 默认
     2. private 用this.xx访问
     3. protected 子类在内部可用this.xx访问父类的xx，子类的实例不能直接访问。
     4. readonly 只读
-    5. abstract 抽象类或抽象方法
+    6. super 调用父类的constructor
+    7. get name() {} set name(value) {} 影响点操作符
+    8. 实例属性： name="a" 等价于 constructor内的this.name="a"
+    9. abstract 抽象类或抽象方法，父类对子类的约束，子类必须实现抽象方法！
+    9. implements和interface 接口定义的类似公用方法，但没有方法体。接口可继承接口。接口对任何类的约束，该类必须实现接口方法！
   10. 模块：
     1. 声明 declare module "url" {export }  
     2. 导入 import * as URL from "url"
- 
+  11. 泛型： 用来约束未知类型
+    1. `fuc<T,U>(len: U, value: T): Array<T>` 表示返回值是数组，数组成员类型为value类型。
+    2. 因为泛型不知道具体类型，访问属性会报错，所以泛型可继承接口`<T extends a>`,在接口内定义要访问的属性。
+    
+tsconfig.json：
+  1. noEmitOnError：报错不编译成js
 问题：
 type C = { a: string, b?: number }
 function f({ a, b }: C): void {
 }
+
+技巧：
+  1. interface：调用超过定义的字段会报错。后端修改字段->修改接口字段->根据报错改对应调用代码！(实际上就是根据报错查哪里要修改) 【定义的不可多也不可少】
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 游戏设计：
   1. 关卡地图：用json里的数组控制游戏地图上的格子。
@@ -361,3 +410,4 @@ Facade：
   7. Itemrender内存调用栈爆炸：是因为ArrayCollection传参不是数组！
   8. 强制横屏：this.stage.orientation = egret.OrientationMode.LANDSCAPE;
   9. 蓝屏后网页白板：index.html损坏！
+  10. Itemrender数据错误：滚动的时候没被新数据覆盖的老数据区域没清，需要手动隐藏。
