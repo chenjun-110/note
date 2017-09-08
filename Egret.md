@@ -411,3 +411,4 @@ Facade：
   8. 强制横屏：this.stage.orientation = egret.OrientationMode.LANDSCAPE;
   9. 蓝屏后网页白板：index.html损坏！
   10. Itemrender数据错误：滚动的时候没被新数据覆盖的老数据区域没清，需要手动隐藏。
+  11. 子级点击区域不能超过父级Group

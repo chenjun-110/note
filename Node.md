@@ -69,6 +69,7 @@ mysql模块:
   3. eventproxy:简化异步并发多个请求
   4. async:能设置并发连接数的异步请求
   5. iconv-lite:让Buffer支持GBK编码
+  6. formidable:流式解析文件上传
 
 
 node -e "console.log('hello world')" 执行字符串
@@ -173,7 +174,7 @@ Buffer:
     1. RESTful:GET表示查看资源、POST更新资源、PUT新建资源、DELETE删除资源
   2. URL路径解析:url.parese(req.url).pathname
     1. 访问静态文件：拿pathname和本地路径拼接->读取文件->错返404，对返200。
-    2. 路径区分逻辑：`"/controller/action/a/b/c".split('/') -> obj[controller][action].apply(null,[req,res].concat(args))`controller是控制器，action是行为函数，后面是参数。
+    2. 路由自然映射逻辑：`"/controller/action/a/b/c".split('/') -> obj[controller][action].apply(null,[req,res].concat(args))`controller是控制器，action是行为函数，后面是参数。
   3. URL查询解析。
     1. 参数解析为对象：`querystring.parse(url.parse(URL).query)` 或 `url.parse(URL,true).query` 中间件的做法是把该对象又赋值给`req.query`做某些处理
   4. 
@@ -184,14 +185,31 @@ Buffer:
     2. Session
       1. 把session的键存在cookie的值，如果它被篡改就取不到session的值了。
       2. 超时一般设为20分钟，删除重生成session，再又把键用cookie传至客户端。
+      3. token:首次登陆创建随机token`token=req.session.t || (req.session.t=Random(x))` if(token===req.body.t)
     3. 缓存：
       1. 时间戳法：`req.headers['if-modified-since']`和服务器最后修改时间相等，返304使用缓存。不相等则`res.setHeader('Last-Modified',time)` 返200
       2. 哈希法：Etag比时间戳好，比较的是hash值是否变动。`req['if-none-match']===hash`返304， 反之`res.setHeader('ETag',hash)`返200
       3. 过期法：不用发请求,倒计时计算比Expires好。`res.setHeader("Cache-Control",time)`
       4. 清除缓存：游览器根据URL缓存，所以改URL的参数即可。
   5. Basic认证
-  6. 表单数据解析。
+    1. 请求头插入base64的值：`Authorization:Basic 值`
+    2. `new Buffer(name+':'+password).toString('base64')`
+    3. 如果是初次访问，`res.setHeader('WWW-Authenticate','Basic realm="Secure Area"') res.writeHead(401)`响应头告诉游览器需要什么认证和加密方式。
+    4. 缺点：密码几乎暴露，需要加入服务器传随机数。
+  6. 表单数据解析:
+    1. 识别请求头是否为表单请求：`req.headers['content-type']==='application/x-www-form-urlencoded'`
+    2. 提交的是JSON或XML、content-type：application/json或xml
+    3. 提交的是file文件:`content-type：multipart/form-data;boundary=`等同于<from />的enctype属性 数据体的每段开头都是`--boundary值` 总结尾`--boundary值--` Content-Length：数据体长度
   7. 文件上传处理。
+    1. 识别请求头是否带post体：`'transfer-encoding' in req.headers || 'content-length' in req.headers` -> data事件拼接buffer
+  8. 数据上传安全：
+    1. 内存爆炸：并发上传大数据。方案：1.限制上传大小返`400`，单次返`413`。 2.node只保留文件路径，将数据流流式导入硬盘。
+    2. CSRF：用token代替session
+页面渲染：
+  1. MIME: 
+    1. res.writeHead(200,{'Content-Type':''}) `text/html`和`text/plain`区别是后者为纯文本会显示html标签字符 
+    2. 客户端识别为下载：`Content-Disposition：attachment;filename='a.txt'` 值为`inline`是即时查看。默认存储文件名。 
+    3. 跳转页面：`res.setHeader('Location',url)`返302
 
 
 Linux命令行：
@@ -199,4 +217,6 @@ Linux命令行：
   2. 查看文件: cat
   3. 保存并退出vi: ESC -> :wq
   4. 查询程序安装路径：where node
-1111222
+
+正则表达式：
+`[^>]` 不是尖括号的任何字符，也就是到尖括号停止。`[^>]*`则是匹配大量非尖括号到>停止。 `[^>]*>`最后手动加个>
