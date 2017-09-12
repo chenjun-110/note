@@ -49,8 +49,8 @@ $ git push -u 远程库名 分支名 //同步上传,以后可以省略-u
 
 git checkout -b 分支名 远程库名/分支名 //创建远程分支的同名分支
 git branch --set-upstream 分支名 远程库名/分支名 //链接本地分支和远程同名分支 
-git checkout -- readme.txt    撤销工作区(未添加)的修改
-git reset HEAD readme.txt 撤销暂存区的修改```
+git checkout -- .    撤销工作区的修改
+git reset HEAD . 撤销暂存区的修改```
 commit只会提交暂存区内的文件，自行修改的不提交。修改后必须add.
 ```
 git status          查看仓库状态
