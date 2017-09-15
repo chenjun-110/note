@@ -70,6 +70,7 @@ mysql模块:
   4. async:能设置并发连接数的异步请求
   5. iconv-lite:让Buffer支持GBK编码
   6. formidable:流式解析文件上传
+  7. blanket:测试覆盖率 mocha
 
 
 node -e "console.log('hello world')" 执行字符串
@@ -91,7 +92,8 @@ repl模块:
 ###深入浅出node.js
 libuv:跨系统的中间层
 Apache是一线程一请求。Nginx是事件驱动。
-单线程的缺点：无法利用多核CPU,报错会崩溃，大计算占CPU影响其它异步。child_process可解决。
+多线程的缺点：线程切换有开销，每个线程占内存。
+单线程的缺点：无法利用多核CPU,报错会崩溃，大计算占CPU影响其它异步。child_process可开启多进程。
   1. 如果只有纯计算，没有IO？ 可用C++扩展用多线程并行计算。
   2. 只有Js是单线程的，底层异步IO是多线程的，win下是IOCP方案,*nix是自定义线程池。
   3. IO：包括磁盘文件、硬件、套接字等
@@ -103,7 +105,7 @@ js做位运算(转码)要先把double型转为int型，占CPU，需要借助C++�
    4. process.binding用来加载核心模块的内建C++部分
 fs.open底层获得文件描述符，进行IO的前提。
 事件：
-  1. Node对事件限制10个监听者，emitter.setMaxListeners(0)可解除。
+  1. Node对事件限制10个监听者，emitter.setMaxers(0)可解除。
   2. EventEmitter的error如果被监听，则监听者执行，否则作为异常抛出，可能崩溃。
   3. util.inherits(f,events.EventEmitter)继承事件类
   4. once():数据库有巨大访问时，用状态变量保证每次一条。同名重复查询用once监听一个,在某个查询回调触发emit()把数据传给监听者，这样所有重复查询都能在同一时刻收到数据了。
@@ -210,15 +212,110 @@ Buffer:
     1. res.writeHead(200,{'Content-Type':''}) `text/html`和`text/plain`区别是后者为纯文本会显示html标签字符 
     2. 客户端识别为下载：`Content-Disposition：attachment;filename='a.txt'` 值为`inline`是即时查看。默认存储文件名。 
     3. 跳转页面：`res.setHeader('Location',url)`返302
+进程：
+  1. Master-Worker模式：主进程不处理业务，fork()复制进程(启动30ms/10MB内存)来做，利用多核。
+  2. 前端js和UI共用线程互相阻塞，webWorker可解决。
+  3. 只有Node进程有IPC通道才能互相通信，主进程负责接收请求用send('',服务器变量)发给子进程message。子进程底层会创建服务器对象并监听文件描述符，但文件描述符同一时间只能被子进程接。
+  4. 信号事件：`kill -l` 可被进程监听 'SIGTERM'是终止信号。
+  5. 分布式好处：发生错误自动切换。
+  6. 判断主进程：'NODE_UNIQUE_ID' in process.env
+child_process API:
+  spawn('cmd.exe', ['/c', 'my.bat']);   等价  exec('my.bat',()=>)
+  spawn('"my script.cmd"', ['a', 'b'], { shell: true }); 等价 exec('"my script.cmd" a b',()=>)
+  spawn('node',['a.js']) exec('node a.js',()=>) execFile('a.js',()=>) fork('./a.js')
+  execFile()不会其衍生shell、js文件首行必须是`#!/usr/bin/env node` fork只用于Node
+  发送杀死进程信号：kill() process.kill(pid,)
+测试：
+  1. API: ok()值为真 equal()值相等 deepEqual()对象的值相等 strictEqual()值全等 
+  2. assert异常会停止，如果需要继续并生成报告需要框架
+  3. 单元测试：用于检测代码行为符合预期。 只关心输入。 把mock数据拿来运行。
+  4. 基准测试：比较两个函数执行所花时间
 
 
-Linux命令行：
-  1. 打开文件:vi a.txt
-  2. 查看文件: cat
-  3. 保存并退出vi: ESC -> :wq
-  4. 查询程序安装路径：where node
-  5. 创建a目录:mkdir a
-  6. 显示当前目录: pwd
+
+
+
+
+函数转promise函数:util.promisify(fuc)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ###正则表达式基础： 无法梳理嵌套结构
 字符组：
@@ -265,3 +362,4 @@ JSapi:
 //.exec():返匹配数组的第一项
 .search(//):返匹配的偏移
 .replace(//,""或(a,b)=>{}) a是匹配值，b是捕获组，匹配多个时回调执行多次。替换字符串时有许多变量可用！函数参数也有！
+

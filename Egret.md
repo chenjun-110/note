@@ -151,7 +151,7 @@ http请求：
 调试：
   1. 开发版：if(DEBUG){} 发行版：if(RELEASE){}  发行后会移除DEBUG代码块
   2. log: 先开启data-show-log="true" ->  egret.log()
-  3. 自动保存：egret startserver -a / egret startserver -prom 3001 -a另起端口
+  3. 自动保存：egret startserver -a / egret startserver -port 3001 -a另起端口 -a是自动编译
 原生：
   1. 安卓配置在proj.android/AndroidManifest.xml
   2. IOS配置在ViewController.mm
@@ -412,3 +412,4 @@ Facade：
   9. 蓝屏后网页白板：index.html损坏！
   10. Itemrender数据错误：滚动的时候没被新数据覆盖的老数据区域没清，需要手动隐藏。
   11. 子级点击区域不能超过父级Group
+  12. 老手机不支持new url()
