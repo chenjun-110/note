@@ -413,3 +413,4 @@ Facade：
   10. Itemrender数据错误：滚动的时候没被新数据覆盖的老数据区域没清，需要手动隐藏。
   11. 子级点击区域不能超过父级Group
   12. 老手机不支持new url()
+  13. IOS的资源有缓存。在index.html里加window.sourceVer = "1.1";

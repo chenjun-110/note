@@ -482,8 +482,6 @@ component="ul" 渲染ul组件 component={a} 渲染a变量代表的组件
 </Motion> 
 ```
 
-
-
 工程化流程：设计目录->设计routes.js->路由导入app.js
 ![](http://i.imgur.com/UDmGQY6.png)
 ![](http://i.imgur.com/yrrNGZi.png)
@@ -495,3 +493,48 @@ componentDidUpdate(prevProps)
 setState({},f()) 回调在组件渲染后执行
 
 
+
+
+
+
+
+
+###React-Native
+安装：
+1. npm install -g react-native-cli
+2. Java Development Kit [JDK] 1.8
+3. Android Studio2.0
+
+签名打包：仅用于 `react-native init xxx`
+1. windows在jdk的bin目录生成密钥：`keytool -genkey -v -keystore my-release-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000` 粘贴到android/app
+2. 编辑gradle.properties
+```MYAPP_RELEASE_STORE_FILE=my-release-key.keystore
+MYAPP_RELEASE_KEY_ALIAS=my-key-alias
+MYAPP_RELEASE_STORE_PASSWORD=*****
+MYAPP_RELEASE_KEY_PASSWORD=*****```
+3. 编辑android/app/build.gradle
+4. 发布：`cd android && ./gradlew assembleRelease`
+
+手机调试：`adb logcat *:S ReactNative:V ReactNativeJS:V`  `react-native run-android`
+
+报错：
+1.  Expected a component class,got[object Object] 组件首字母要大写
+2.  require引入本地资源，需要重启调试才奏效。
+
+props :
+ 1. <Image source={ {uri:('http://a.jpg'||Base64)} || require('./a.jpg') } style={{width: 193}} /> 兼容性：IOS9/10只支持https
+ 2. props值的变化，是组件复用的关键。
+state :  this.setState(preState => { return{ showText: !prevState.showText} }); this.state传进preState参数
+style : 
+ 1. 属性名首字母小写驼峰 
+ 2. 数组，后面可覆盖前面并继承
+ 3. Flex：父级必须有height或flex。alignItems: 'stretch'的子元素不能固定次轴尺寸。与css的区别：flexDirection的默认值是column而不是row，而flex也只能指定一个数字值。
+组件：
+1. 每个组件都有一大堆props
+2. <View /> : 支持Flexbox布局、样式、触摸、无障碍、任意嵌套。
+3. <Text /> : 嵌套的Text会继承上面的文字样式。文字必须在该组件内！
+4. <Image />: GIF和WEBP需要编辑build.gradle。
+5. <TextInput onChangeText={(text) => this.setState({text})} value={this.state.text} /> : 键盘字符全部传入text参数
+6. <ScrollView> : 所有元素都被渲染，长列表不适合。
+7. <FlatList data renderItem /> : 只渲染可见区。 renderItem函数负责渲染组件
+8. <SectionList sections renderItem renderSectionHeader /> : titile和data交替渲染
