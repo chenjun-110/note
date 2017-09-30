@@ -501,9 +501,10 @@ setState({},f()) 回调在组件渲染后执行
 
 ###React-Native
 安装：
-1. npm install -g react-native-cli
+1. npm install -g react-native-cli 
 2. Java Development Kit [JDK] 1.8
 3. Android Studio2.0
+4. yarn add react-navigation
 
 签名打包：仅用于 `react-native init xxx`
 1. windows在jdk的bin目录生成密钥：`keytool -genkey -v -keystore my-release-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000` 粘贴到android/app
@@ -515,26 +516,52 @@ MYAPP_RELEASE_KEY_PASSWORD=*****```
 3. 编辑android/app/build.gradle
 4. 发布：`cd android && ./gradlew assembleRelease`
 
-手机调试：`adb logcat *:S ReactNative:V ReactNativeJS:V`  `react-native run-android`
+手机调试：`adb logcat *:S ReactNative:V ReactNativeJS:V`  `react-native run-android` 检测手机连接：`adb devices`
 
 报错：
 1.  Expected a component class,got[object Object] 组件首字母要大写
 2.  require引入本地资源，需要重启调试才奏效。
+3.  找不到'escape-string-regexp'模块： 进react-native目录npm install
+4.  TransformError : yarn remove babel-preset-react-native ， yarn add babel-preset-react-native@2.1.0
+5.  onPress找不到navigate ： 在render内：const {navigate} = this.props.navigation;
 
-props :
+
+Props :
  1. <Image source={ {uri:('http://a.jpg'||Base64)} || require('./a.jpg') } style={{width: 193}} /> 兼容性：IOS9/10只支持https
  2. props值的变化，是组件复用的关键。
-state :  this.setState(preState => { return{ showText: !prevState.showText} }); this.state传进preState参数
-style : 
+State :  this.setState(preState => { return{ showText: !prevState.showText} }); this.state传进preState参数
+Style : 
  1. 属性名首字母小写驼峰 
  2. 数组，后面可覆盖前面并继承
- 3. Flex：父级必须有height或flex。alignItems: 'stretch'的子元素不能固定次轴尺寸。与css的区别：flexDirection的默认值是column而不是row，而flex也只能指定一个数字值。
+ 3. FlexBox：父级必须有height或flex。alignItems: 'stretch'的子元素不能固定次轴尺寸。与css的区别：flexDirection的默认值是column而不是row，而flex也只能指定一个数字值。
 组件：
 1. 每个组件都有一大堆props
 2. <View /> : 支持Flexbox布局、样式、触摸、无障碍、任意嵌套。
 3. <Text /> : 嵌套的Text会继承上面的文字样式。文字必须在该组件内！
 4. <Image />: GIF和WEBP需要编辑build.gradle。
+5. <ImageBackground> ： 背景图
 5. <TextInput onChangeText={(text) => this.setState({text})} value={this.state.text} /> : 键盘字符全部传入text参数
-6. <ScrollView> : 所有元素都被渲染，长列表不适合。
+6. <ScrollView> : 所有元素都被渲染，长列表不适合。pagingEnabled整屏滑动。min/maximumZoomScale双指缩放
 7. <FlatList data renderItem /> : 只渲染可见区。 renderItem函数负责渲染组件
 8. <SectionList sections renderItem renderSectionHeader /> : titile和data交替渲染
+9. 点击组件：
+  1. <TouchableHighlight> 变黑
+  2. <TouchableNativeFeedback> 水滴(安卓)
+  3. <TouchableOpacity> 字变透明
+  4. <TouchableWithoutFeedback> 无变化
+网络：WebSocket('ws://') XMLHttpRequest() fetch()
+图片：
+1. 精度后缀：check@2x.png、check@3x.png
+2. flex缩放图片：需要{ width: undefined, height: undefined }。
+3. 网络图片、混合app的图片、非图片静态资源、要设置尺寸。
+
+react-navigation：
+1.  切换页面回调：navigate('Main', { })  引入：const {navigate} = this.props.navigetion； 
+2.  定义路由 ： const App = StackNavigator({Main: { screen: HomeClass },Second: {screen:ChatClass}});
+3.  引用参数：1.render内：`this.props.navigation.state.params` 2.navigationOptions内：( {navigation} ) => ({title: navigation.state.params.user,});
+4.  TabNavigator：左右滑动Tab
+5.  嵌套路由：把xxxNavigator的Class替换成yyyNavigator
+
+动画：
+1. interpolate线性插值：inputRange:[]映射到outputRange:[],支持数字、字符串、函数
+2. InteractionManager.runAfterInteractions(()=>{}) : 确保同步任务之前交互和动画已执行完毕了
