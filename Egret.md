@@ -414,3 +414,4 @@ Facade：
   11. 子级点击区域不能超过父级Group
   12. 老手机不支持new url()
   13. IOS的资源有缓存。在index.html里加window.sourceVer = "1.1";
+  14. 动态组件：collection.addItem()不卡
