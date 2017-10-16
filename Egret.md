@@ -229,14 +229,14 @@ tsconfig.json：
   1. noEmitOnError：报错不编译成js
 问题：
 type C = { a: string, b?: number }
-function f({ a, b }: C): void {
+  function f({ a, b }: C): void {
 }
 
 技巧：
   1. interface：调用超过定义的字段会报错。后端修改字段->修改接口字段->根据报错改对应调用代码！(实际上就是根据报错查哪里要修改) 【定义的不可多也不可少】
 
-
-
+踩坑：
+  1. 监听事件时，this参数不一定是本类。
 
 
 
@@ -407,11 +407,34 @@ Facade：
   4. window.location.href跳转地址必须带协议
   5. 调用组件父级容器的validateNow()方法解决异步刷新闪屏
   6. 获取主场景引用：egret.MainContext.instance.stage
-  7. Itemrender内存调用栈爆炸：是因为ArrayCollection传参不是数组！
+  7. 
   8. 强制横屏：this.stage.orientation = egret.OrientationMode.LANDSCAPE;
   9. 蓝屏后网页白板：index.html损坏！
-  10. Itemrender数据错误：滚动的时候没被新数据覆盖的老数据区域没清，需要手动隐藏。
+  10. 
   11. 子级点击区域不能超过父级Group
   12. 老手机不支持new url()
   13. IOS的资源有缓存。在index.html里加window.sourceVer = "1.1";
-  14. 动态组件：collection.addItem()不卡
+  14. 动态组件：
+    1. collection.addItem()不卡。 replaceAll()不会重置滚动位置
+    2. Itemrender内存调用栈爆炸：是因为ArrayCollection传参不是数组！
+    3. Itemrender数据错误：滚动的时候没被新数据覆盖的老数据区域没清，需要手动隐藏。
+    4. 隐藏滚动条：scrollPolicyH="ScrollPolicy.OFF"
+
+常用组件写法例子：
+  垂直动态数据滚动条：
+```
+  <e:Scroller id="Scroller" xmlns:e="http://ns.egret.com/eui" x="20.6" anchorOffsetX="0" width="1073.82"
+                scrollPolicyH="ScrollPolicy.OFF" anchorOffsetY="0" height="614.42" y="118.67">
+        <e:Skin>
+            <e:HScrollBar id="horizontalScrollBar" width="100%" bottom="0" autoVisibility="false" visible="false" />
+            <e:VScrollBar id="verticalScrollBar" height="100%" right="0" autoVisibility="false" visible="false" />
+        </e:Skin>
+        <e:List id="list" width="1073.82" height="614.42" x="-0.75" y="18.18" anchorOffsetX="0">
+            <e:itemRendererSkinName >
+                <e:Skin states="up,down,disabled" width="180" height="80">
+                        <e:Label text="{data.name}"   />
+	 			</e:Skin>
+            </e:itemRendererSkinName>
+        </e:List>
+    </e:Scroller>
+```
