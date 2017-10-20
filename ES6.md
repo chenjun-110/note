@@ -1065,3 +1065,6 @@ async function logInOrder(urls) {
 
 
 函数表达式：运行速度：`+function(){;}()`>`1 && function(){;}()`>`(function(){;}())` IE9速度都一样。
+
+深拷贝：
+ `const new = JSON.parse(JSON.stringify(old));`

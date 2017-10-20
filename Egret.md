@@ -410,7 +410,7 @@ Facade：
   7. 
   8. 强制横屏：this.stage.orientation = egret.OrientationMode.LANDSCAPE;
   9. 蓝屏后网页白板：index.html损坏！
-  10. 
+  10. addListener()这个API会被调用2次！
   11. 子级点击区域不能超过父级Group
   12. 老手机不支持new url()
   13. IOS的资源有缓存。在index.html里加window.sourceVer = "1.1";
@@ -419,22 +419,45 @@ Facade：
     2. Itemrender内存调用栈爆炸：是因为ArrayCollection传参不是数组！
     3. Itemrender数据错误：滚动的时候没被新数据覆盖的老数据区域没清，需要手动隐藏。
     4. 隐藏滚动条：scrollPolicyH="ScrollPolicy.OFF"
+    5. 原理：拿List组件来说，如果数据源只有一条数据，显示区域可以同时显示十条，则开始时只创建一个项目渲染器，添加一条数据，再创建一个新的项目渲染器。当数据量超过显示区域的最大值10时，就不再创建新的itemRenderer，而是回收利用现有资源。
+    6. 事件：eui.ItemTapEvent.ITEM_TAP -> e.itemRenderer。点list项找到itemRenderer再找到按钮属性，用once挂事件，不能批量绑定按钮事件因为只能找到数据，找不到显示对象(itemRenderer有限)。
 
 常用组件写法例子：
   垂直动态数据滚动条：
 ```
-  <e:Scroller id="Scroller" xmlns:e="http://ns.egret.com/eui" x="20.6" anchorOffsetX="0" width="1073.82"
-                scrollPolicyH="ScrollPolicy.OFF" anchorOffsetY="0" height="614.42" y="118.67">
-        <e:Skin>
-            <e:HScrollBar id="horizontalScrollBar" width="100%" bottom="0" autoVisibility="false" visible="false" />
-            <e:VScrollBar id="verticalScrollBar" height="100%" right="0" autoVisibility="false" visible="false" />
-        </e:Skin>
-        <e:List id="list" width="1073.82" height="614.42" x="-0.75" y="18.18" anchorOffsetX="0">
-            <e:itemRendererSkinName >
-                <e:Skin states="up,down,disabled" width="180" height="80">
-                        <e:Label text="{data.name}"   />
-	 			</e:Skin>
-            </e:itemRendererSkinName>
-        </e:List>
-    </e:Scroller>
+<e:Scroller id="Scroller" xmlns:e="http://ns.egret.com/eui" scrollPolicyH="ScrollPolicy.OFF">
+    <e:Skin>
+        <e:HScrollBar id="horizontalScrollBar" width="100%" bottom="0" autoVisibility="false" visible="false" />
+        <e:VScrollBar id="verticalScrollBar" height="100%" right="0" autoVisibility="false" visible="false" />
+    </e:Skin>
+    <e:List id="list">
+        <e:itemRendererSkinName >
+            <e:Skin states="up,down">
+                    <e:Label id="kicking" text="{data.name}" /> 
+					//id属性会被挂到itemRender对象上！
+ 			</e:Skin>
+        </e:itemRendererSkinName>
+    </e:List>
+</e:Scroller>
+
+this.list.addEventListener(eui.ItemTapEvent.ITEM_TAP,(e)=>{
+	//console.log(this.list_wait.selectedItem,this.list_wait.selectedIndex,this.list_wait.selectedIndices,e,e.target,e.itemRenderer)
+	e.itemRenderer.check.once(egret.TouchEvent.TOUCH_TAP, this.C_SEND_APPLY,this);
+	e.itemRenderer.ignore.once(egret.TouchEvent.TOUCH_TAP, this.C_SEND_IGNORE,this);
+},this)
+```
+中心缩放：
+```
+this.anchorOffsetX = this.width / 2; //要预设绝对锚点 再设坐标
+this.x = this.width / 2;
+this.anchorOffsetY = this.height / 2;
+this.y = this.height / 2;
+egret.Tween.get(this, {})
+	.to({
+		scaleX:0,
+		scaleY:0,
+		anchorOffsetY : this.height/2,
+		anchorOffsetX : this.width/2
+	}, 1000,egret.Ease.bounceIn) 
+	.call(this.goback, this, ["param1", {key: "key", value: 3}]);
 ```

@@ -1,5 +1,6 @@
 <鸟哥的私房菜>笔记
 ####计算机概论
+
 CPU：控制单元-协调各组件，算数单元-计算与判断，多核就是多个算数单元。
 CPU从内存读取数据-〉计算-〉把数据写回内存-〉输出到屏幕
 二级缓存：把数据存在CPU内，不需要通过北桥访问内存。
@@ -42,6 +43,33 @@ Boot loader:系统控制MBR的程序，开机管理：载入核心 启动分区�
   7. 磁盘类型：ide支持4个设备，scsi支持16个，可热插拔硬盘。
   8. root账号权限最高。
   9. 
+LVM：能将一个分区槽格式化为多个文件系统。RAID则能把多个分区槽格式化为一个文件系统。
+Linux文件系统：
+  1. 概念：一个可被挂载的数据。查看文件系统`blkid` 查看分区`parted /dev/sda print`
+  2. 碎片整理：传统FAT系统只能一个个读取，存储离散过大会低效率，要经常整理。
+  3. Ext2系统:数据放在block区块，权限属性在inode区块。 系统从inode索引到block的各个部分.`ls -ild`左侧数字代表inode，可判断相同文件名是否是相同文件。
+  4. 格式化：block的大小影响最大单文件容量和最大文件系统容量。1k-16G-2T 2k-256G-8T。因为1个block只能放置1个文件所以不宜过大。过小又会导致大文件的读写性能。Linux的block只支持4K `mkfs.xfs`
+  5. 日志式文件系统：写入时先记录日志，写完后再更新日志。可根据日志快速修复。
+  6. 挂载：文件系统和目录树结合。空目录。单人维护模式根目录会被挂载为只读，要重新挂载`mount -o remount,rw,auto /`。设备挂载到目录用，目录也能挂载到目录，类似快捷方式。
+  7. VFS:管理文件系统的程序。xfs系统可用外部SSD做文件系统活动日志登录区。
+  8. Hard Link：2个文件指向相同block，删掉任意一个都没事`ln`，相当于实时备份，但可互相修改。 Symbolic Link:指向另一文件`ln -s`，源文件不能删。
+  9. 分区：MBR分区表用fdisk,GPT用gdisk。
+  10. 文件系统救援：`fsck.ext4`、`xfs_repair`要先卸载再修复。
+####压缩
+1 byte = 8 bits
+最小存储单元为1byte，压缩是抽象描述了一些数据。
+所有扩展名：.tar .gz .tgz .Z .bz2 .xz .tar.gz 。 
+单文件：
+ `gzip`可解压：.Z .zip .gz `-v` 压缩并显示压缩比 `-d` 解压 
+ 查看压缩内容：`zcat/zmore/zless`读取 `zgrep -n "a" b.gz`搜关键字
+ `bzip2/bzcat`比gzip小，慢1倍。`xz/xcat`更小，慢10倍。
+目录打包：
+  压缩 `tar -jcv -f a.tar.bz2 ./a`
+  查询 `tar -jtv -f a.tar.bz2`
+  解压
+
+
+
 
 ####用户
 用户组：同一group的user共享文件，有相同权限。
@@ -56,7 +84,7 @@ rws的SUID：4权限的二进制，执行时会以root权限执行。在群组�
 `histroy` 命令行历史输入
 `which` 搜索命令
 `whereis` 搜索文件 find 全局搜索文件 `locate` 数据库搜索，`updatedb`手动更新数据库
-`find ./ -newer ./a` 搜索在新建a后的新建文件 find ./ -mtime -4 4天内修改的文件 -group某组的文件，-user某用户创建的文件 -name “*a*”搜索关键词 -size +1M大于1兆的文件 find a -exec ls {} \;搜到的结果用其它命令处理
+`find -name “*a*”`搜索关键词 ` ./ -newer ./a` 搜索在新建a后的新建文件 find ./ -mtime -4 4天内修改的文件 -group某组的文件，-user某用户创建的文件  -size +1M大于1兆的文件 find a -exec ls {} \;搜到的结果用其它命令处理
 
 ####常用命令：
 区分大小
@@ -65,6 +93,7 @@ rws的SUID：4权限的二进制，执行时会以root权限执行。在群组�
   /usr/share/doc 软件说明文档
   切换文本模式和xwin  Alt+Ctrl+F1-7 
   翻页 shift+Pgup
+  内存占用 `free -m`
 关机:reboot 重启 halt 关机 shoutdown sync内存数据强制刷入硬盘 
 文件权限：
   ls -al 一般文件(-) 目录文件(d)
@@ -78,3 +107,8 @@ rws的SUID：4权限的二进制，执行时会以root权限执行。在群组�
   修改用户名 `usermod -l 新名 原名`
   获权 sudo
   切换用户 su 
+
+
+上传服务器:
+  取得权限：ssh root@127.77.40.67
+  上传：scp ./nmw.tar.bz2 root@127.77.40.67:/data/www/dev/game-front-dev/
