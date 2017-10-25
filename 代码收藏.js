@@ -382,3 +382,9 @@ if (str.indexOf('firefox')!=-1) {//火狐浏览器
         };
     }
 };
+
+function timeToDate(nS) { //时间戳转换为日期 2017/10/23 16:33:33
+    let date = new Date(parseInt(nS) * 1000).toLocaleString().split(" ")[0];
+    let time = new Date(parseInt(nS) * 1000).toString().split(" ")[4];
+    return date + '\n ' + time;
+}

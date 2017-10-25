@@ -56,6 +56,7 @@ egret.ticker
   4. 圆：drawCircle(x,y,r) xy相对于shape对象锚点
   5. 线：起点moveTo(x,y) 节/终点：lineTo(x,y)、curveTo(x1,y1,x2,y2) 1是控制点，2是终点
   6. 圆弧：drawArc(x,y,r,ang1,ang2,true) 围绕圆心画弧线(可填充成扇形/拱形)，长度绘制从起弧->终弧(0是x轴最右处)，顺逆时针。
+  7. 圆角：drawRoundRect()
 文本API:
   1. `new egret.TextField()`
   2. text文字 size/default_size字号 textColor/default_textColor字色  width/height不设则根据字 bold/italic=true加粗斜体
@@ -128,7 +129,8 @@ http请求：
     2. 阴影：new egret.DropShadowFilter()
     3. 变色：new egret.ColorMatrixFilter(矩阵数组) 该实例的matrix属性获取矩阵数组
     4. 模糊：new egret.BlurFilte(x,y)
-  11. 位图字体：RES.getResByUrl获取fnt文件 -> 回调参数赋值给BItmapText.font -> 修改text属性
+  11. 位图字体：RES.getResByUrl获取fnt文件 -> 回调参数赋值给BItmapText.font -> 修改text属性 `<e:BitmapLabel text="1" font="1_fnt" />`
+  12. 
 时间：
   1. 计时器：new egret.Timer(间隔，次数) -> 监听计时器事件 -> timer.start()开始计时
   2. 60频率：egret.startTick(fuc,this) 回调返true则重绘 egret.stopTick(fuc,this)停止
@@ -224,7 +226,9 @@ http请求：
   11. 泛型： 用来约束未知类型
     1. `fuc<T,U>(len: U, value: T): Array<T>` 表示返回值是数组，数组成员类型为value类型。
     2. 因为泛型不知道具体类型，访问属性会报错，所以泛型可继承接口`<T extends a>`,在接口内定义要访问的属性。
-    
+  12. 反射：运行时探知未知类的属性和方法，运行时能使用任意类！
+    1. `abstract class`内的private调用`protected abstract`方法可调用子类的同名`protected`方法。
+    2. 父类的protected可调用protected间接调用子类同名protected方法。
 tsconfig.json：
   1. noEmitOnError：报错不编译成js
 问题：
@@ -299,6 +303,7 @@ EXML格式：
   2. 水平布局：new eui.HorizontalLayout() -> gap间隔、paddingTop距顶、horizontalAlign=egret.HorizontalAlign.CENTER集体水平居中
   3. 垂直布局：new eui.VerticalLayout() -> 属性同上
   4. 网格布局：new eui.TileLayout() -> requestedColumnCount=2双列、horizontalGap/verticalGap水平垂直间距、columnAlign/rowAlign可见列行与容器对齐 
+  5. 
 控件：
   1. 文本：new eui.Label() / <e:Label/> 属性：width height fontFamily textColor size bold italic textAlign verticalAlign lineSpacing text style要配置主题
   2. 图片：new eui.Image() 属性：source图片路径 scale9Grid width height 
@@ -407,7 +412,7 @@ Facade：
   4. window.location.href跳转地址必须带协议
   5. 调用组件父级容器的validateNow()方法解决异步刷新闪屏
   6. 获取主场景引用：egret.MainContext.instance.stage
-  7. 
+  7. 图片居中：位图字体不能设宽度！分类属性勾选详细约束上中项0！
   8. 强制横屏：this.stage.orientation = egret.OrientationMode.LANDSCAPE;
   9. 蓝屏后网页白板：index.html损坏！
   10. addListener()这个API会被调用2次！
@@ -421,6 +426,7 @@ Facade：
     4. 隐藏滚动条：scrollPolicyH="ScrollPolicy.OFF"
     5. 原理：拿List组件来说，如果数据源只有一条数据，显示区域可以同时显示十条，则开始时只创建一个项目渲染器，添加一条数据，再创建一个新的项目渲染器。当数据量超过显示区域的最大值10时，就不再创建新的itemRenderer，而是回收利用现有资源。
     6. 事件：eui.ItemTapEvent.ITEM_TAP -> e.itemRenderer。点list项找到itemRenderer再找到按钮属性，用once挂事件，不能批量绑定按钮事件因为只能找到数据，找不到显示对象(itemRenderer有限)。
+  15. 手机扫描egret本地服务器要在同一网关，查看本地网络的IPv4地址。
 
 常用组件写法例子：
   垂直动态数据滚动条：
@@ -460,4 +466,18 @@ egret.Tween.get(this, {})
 		anchorOffsetX : this.width/2
 	}, 1000,egret.Ease.bounceIn) 
 	.call(this.goback, this, ["param1", {key: "key", value: 3}]);
+```
+头像：远程拉下来的数据转成Gpu纹理
+```
+RES.getResByUrl(avatar, function (event: any) {
+	var img: egret.Texture = <egret.Texture>event;
+	this.headmask.texture = img; //headmask是个image
+}, this, RES.ResourceItem.TYPE_IMAGE);
+
+private headmask(){ //绘制圆角并设置头像遮罩
+	var shp:egret.Shape = new egret.Shape(); 
+	shp.graphics.beginFill( 0xff0000 ); shp.graphics.drawRoundRect(11.6,10.27,115,115,50,50); shp.graphics.endFill(); 
+	this.addChild( shp ); 
+	this.head.mask = shp;//this.head
+}
 ```
