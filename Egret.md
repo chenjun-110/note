@@ -165,7 +165,10 @@ http请求：
    this.stage.addEventListener(egret.Event.ACTIVATE,this.onActive,this)
   egret.registerImplementation("eui.IAssetAdapter",assetAdapter); eui.IThemeAdapte
   Socket
-
+动画：
+  1. Wing编辑器: 新建组 - 新建动画 - 右键设置最少2个关键帧 - 右键设置补间动画 - 把组名id调用 a.play(0) a.stop() a.pause() - 动画完成事件` this.a.addEventListener('complete', this.onTweenGroupComplete, this);`
+  2. 帧事件：ENTER_FRAME是帧频，startTick是60帧。egret.Ticker.getInstance().register(v,this) / unregister 把
+  3. 
 
 
 贴图是一张照片，用于替代模型。纹理是重复，阵列，缩放的贴图。材质是视觉层面的反光表现力。
@@ -427,6 +430,10 @@ Facade：
     5. 原理：拿List组件来说，如果数据源只有一条数据，显示区域可以同时显示十条，则开始时只创建一个项目渲染器，添加一条数据，再创建一个新的项目渲染器。当数据量超过显示区域的最大值10时，就不再创建新的itemRenderer，而是回收利用现有资源。
     6. 事件：eui.ItemTapEvent.ITEM_TAP -> e.itemRenderer。点list项找到itemRenderer再找到按钮属性，用once挂事件，不能批量绑定按钮事件因为只能找到数据，找不到显示对象(itemRenderer有限)。
   15. 手机扫描egret本地服务器要在同一网关，查看本地网络的IPv4地址。
+  16. 引入三方库：文件夹放在项目外同级位置。首先要有文件夹包含3个文件p2.d.ts p2.js p2.min.js -> egretProperties.json用name:'p2',"path":绝对路径引入文件夹。-> 项目内用egret build -e编译      Cannot find name 'p2'是官网的.d.ts不能用！ 
+  17. 获取Group组子元素：`this.group.getElementAt(1)`
+  18. 大量Image动画性能比大量Button高
+  19. 调用其它类方法时不奏效：因为拿到的不是这个实例，检查下该类是被new出来的还是get单例出来的！
 
 常用组件写法例子：
   垂直动态数据滚动条：
