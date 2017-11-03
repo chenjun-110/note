@@ -1,3 +1,54 @@
+常用命令:
+create database abc;(创建数据库)
+show databases;(就可看到所有已经存在的数据库，以及刚刚创建的数据库abc)
+use abc;(进入abc数据库下面)
+show tables;(产看abc数据库下面的所有表,空的)
+source G:\test.sql（导入数据库表）
+show tables;(查看abc数据库下面的所有表,就可以看到表了)
+desc pollution;(查看表结构设计)
+select * from pollution;
+exit(或者ctrl + c)退出mysql
+
+
+
+基础：
+区分大小写：库名 表名 表别名 变量。 不区分：列名 列别名
+
+安装：
+  my-default.ini:
+```
+[mysqld]
+skip-grant-tables
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES 
+bind-address = 0.0.0.0
+port = 3306
+basedir=E:/mysql-5.6.38
+datadir=E:/mysql-5.6.38/data
+max_connections=200
+```
+  net start/stop mysql
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##视频教程
 目录结构
 bin可执行文件 data数据文件 docs文档 include包含的头文件  lib库文件 share错误消息和字符集
 登陆：mysql -uroot -p -P3306 -h127.0.0.1
