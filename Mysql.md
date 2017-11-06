@@ -26,6 +26,7 @@ basedir=E:/mysql-5.6.38
 datadir=E:/mysql-5.6.38/data
 max_connections=200
 ```
+  mysqld -nt -install/-remove
   net start/stop mysql
 
 
