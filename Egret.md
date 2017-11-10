@@ -97,7 +97,7 @@ egret.ticker
     1. egret.Event.COMPLETE -> new egret.Sound/Video() sound.load() -> new egret.HttpRequest();
   19. 事件代理：
     1. 单选：RadioButton.group监听egret.Event.CHANGE
-    2. 
+  20. 事件传参：this.reset.addEventListener(egret.TouchEvent.TOUCH_TAP,this.fuc.`bind(this,"reset")` ,this) //回调第一个参数是传参，第二个参数是event对象。
 自定义事件：
   1. 事件类：`class abc extends egret.Event` constructor(type,bubbles,cancelable){super(type,bubbles,cancelable)}
   2. 注册：`.addEventListener(abc.type, f.a, f)` f是接受事件的类,2参必是返回空值的函数格式，5参可设优先级数字 .removeEventListener参数一致
@@ -415,7 +415,7 @@ Facade：
   4. window.location.href跳转地址必须带协议
   5. 调用组件父级容器的validateNow()方法解决异步刷新闪屏
   6. 获取主场景引用：egret.MainContext.instance.stage
-  7. 图片居中：位图字体不能设宽度！分类属性勾选详细约束上中项0！
+  7. 文本颜色：textColor十六进制 #FFCD70 应写成 0XFFCD70
   8. 强制横屏：this.stage.orientation = egret.OrientationMode.LANDSCAPE;
   9. 蓝屏后网页白板：index.html损坏！
   10. addListener()这个API会被调用2次！
@@ -434,6 +434,9 @@ Facade：
   17. 获取Group组子元素：`this.group.getElementAt(1)`
   18. 大量Image动画性能比大量Button高
   19. 调用其它类方法时不奏效：因为拿到的不是这个实例，检查下该类是被new出来的还是get单例出来的！
+  20. Wing编辑器踩坑：
+    1. 图片居中：位图字体不能设宽度！分类属性勾选详细约束上中项0！
+    2. 锚点：点击图片按shift键拖动蓝点！ 复合组件双击进入子界面分别设置锚点！
 
 常用组件写法例子：
   垂直动态数据滚动条：
