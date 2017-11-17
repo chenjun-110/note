@@ -246,7 +246,31 @@ type C = { a: string, b?: number }
   1. 监听事件时，this参数不一定是本类。
 
 
-
+```
+class haha{
+    private _ins;
+    get ins(){
+        this._ins = 3;
+        return this._ins;
+    }
+    async a(){
+        const h = await new Promise((a,b)=>{
+            setTimeout(()=>{console.log("a()");a(20)},2000)
+        })
+        const l = await new Promise((a,b)=>{
+            setTimeout(()=>{console.log("b()");a((h+100))},2000)
+        })
+        console.log("all",h,l);
+        return h+l;
+    }
+    sleep(timeountMS) {
+        for(let i of [1,2]){}
+        return new Promise((resolve) => {
+                setTimeout(resolve, timeountMS);
+            });
+    } 
+}
+```
 
 
 
