@@ -429,37 +429,6 @@ connect()
 **Redux Devtools**
 npm install --save-dev redux-devtools redux-devtools-log-monitor redux-devtools-dock-monitor
 
-**immutable**
-js转Immutable：fromJs(obj/arr) 按参数返回Map、List
-Immutable转js：List/Map.toJSON()浅转换 toJS()深转换
-  Map转为对象：deep.toObject()
-  List转为数组：deep.toArray()
-转为json:json,stringfy(deep)
-取值: 嵌套用In
-  1. map.get(key) 键通常为字符串
-  2. map.getIn(arr) 参数["a","b"]取的是a的子b的值
-添/改值： 不会修改原Map!
-  1. map.set(k,v) 索引，值
-  2. map.setIn(k,v)
-改值：
-  1. map.update(k,f) 索引，回调
-  2. map.updateIn(k,f)
-删除：deleteIn()
-比较：is(map1, map2) 全等/Object.is对Map无效
-遍历：map1.map((v,k)=>{})
-合并：
-  1. map1.mergeDeep(map2) 深合并，相同属性名会递归搜索内部，永远只覆盖不同值。
-  2. map1.mergeDeepWith(f，map2) f为回调，把2个map的相同键运算后返回
-  3. map1.merge(map2) 浅合并，后者覆盖前者
-创建不变：Seq(obj) seq类型适合遍历
-插入：insert(k,v) 
-清空：clear()
-push：list1.push(3,4,5) 不会修改原List！
-.unshift(0).concat(list2,list3);
-
-原生不变方法：
-  1. [].slice() 克隆数组
-  2. object.assign 克隆对象
 **react-addons-perf**
 **react-addons-css-transition-group**
 类名：前缀+ `-leave -leave-active` `-enter -enter-active` ` -appear -appear-active` 作用在该组件的子组件们

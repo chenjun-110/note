@@ -232,6 +232,7 @@ sum(1, 100000)
 5. 对象转map:`for(k of Object.keys(obj)){ map.set(k,obj[k])}`
 6. map转JSON:1.先把map转对象->`JSON.stringify(obj)`2.转不了对象就转数组->`JSON.stringify([...map])`
 7. JSON转map:1.对象型json：先转对象`JSON.parse(js)`->再转map。2.数组型json:`new Map(JSON.parse(js))`
+8. Map和Object区别：无原型，key可为任意类型，有size长度。Map是一种更完善的Hash结构,适合衔接二者的关系，没原型仍然无法替代对象，专注于数据。
 ```
 const map1 = new Map(
   [...map0].filter(([k, v]) => k < 3) );
@@ -518,7 +519,63 @@ class ColorPoint extends Point {
   8. extends：可继承原生类Boolean()Number()String()Array()Date()Function()RegExp()Error()Object()。ES5不行。
   9. static:不会被实例继承。static关键字就是直接在构造函数上添加的属性。编写class时，static不能用于属性，仅方法。静态属性只能外部赋值。ES7可解决。
   10. new.target:返回new调用的当前构造函数。
-技巧：
+
+
+#### immutable 数据不可变
+原生不变方法：
+  1. [].slice() 克隆数组
+  2. object.assign 克隆对象
+  3. 深拷贝：`const new = JSON.parse(JSON.stringify(old));`
+
+js转Im：`fromJs(obj/arr)` 按参数返回Map、List
+Im转js：List/Map.toJSON()浅转换 `toJS()`深转换 toArray/toObject()
+  Map转为对象：deep.toObject()
+  List转为数组：deep.toArray()
+转为json:json,stringfy(deep)
+取值: 嵌套用In
+  1. map.get(key) 键通常为字符串
+  2. map.getIn(arr) 参数["a","b"]取的是a的子b的值
+添/改值： 不会修改原Map!
+  1. map.set(k,v) 设置一层
+  2. map.setIn([k],v) 设置嵌套
+改值：
+  1. map.update(k,f) 索引，回调
+  2. map.updateIn(k,f)
+删除：deleteIn()
+比较：is(map1, map2) 全等,比较hashcode   Object.is对Map无效
+遍历：map1.map((v,k)=>{})
+合并：
+  1. map1.mergeDeep(map2) 深合并，相同属性名会递归搜索内部，永远只覆盖不同值。
+  2. map1.mergeDeepWith(f，map2) f为回调，把2个map的相同键运算后返回
+  3. map1.merge(map2) 浅合并，后者覆盖前者
+创建不变：Seq(obj) seq类型适合遍历
+插入：insert(k,v) 
+清空：clear()
+push：list1.push(3,4,5) 不会修改原List！
+.unshift(0).concat(list2,list3);
+
+数据结构：
+  Stack:
+    1. 创建：Stack.of(a,b,...c) 栈顶：peek() 索引取值：get() 键/值存在：has/includes()
+    2. 空栈：clear() 克隆栈：unshift() 删除首项的克隆栈：pop() 增加值/增加栈：push/pushAll() 项对项合并：zip()
+  Seq:
+    1. 创建：Seq().map(fuc) 索引取值：get()
+    2. 迭代器：entries()
+交集：Set.intersect([])
+游标：方便访问层级很深的数据。cursor
+```
+let data = Immutable.fromJS({ a: { b: { c: 1 } } }); // 让 cursor 指向 { c: 1 }
+let cursor = Cursor.from(data, ['a', 'b'], newData => {
+  // 当 cursor 或其子 cursor 执行 update 时调用
+  console.log(newData);
+});
+cursor.get('c'); // 1
+cursor = cursor.update('c', x => x + 1);
+cursor.get('c'); // 2
+Seq({a:1,b:2,c:3}).map((x)=>x*x).toObject();   //{a:1,b:4,:9}
+```
+
+#### 技巧：
 1. 私有方法：
 ```
 const bar = Symbol('bar');
@@ -1065,6 +1122,14 @@ async function logInOrder(urls) {
 
 
 函数表达式：运行速度：`+function(){;}()`>`1 && function(){;}()`>`(function(){;}())` IE9速度都一样。
+判断数据类型：
+```
+function getType(obj) {
+     var type = Object.prototype.toString.call(obj).match(/^\[object (.*)\]$/)[1].toLowerCase();
+     if(type === 'string' && typeof obj === 'object') return 'object'; // Let "new String('')" return 'object'
+     if (obj === null) return 'null'; // PhantomJS has type "DOMWindow" for null
+     if (obj === undefined) return 'undefined'; // PhantomJS has type "DOMWindow" for undefined
+     return type;
+   }
+```
 
-深拷贝：
- `const new = JSON.parse(JSON.stringify(old));`

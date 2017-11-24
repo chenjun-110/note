@@ -515,3 +515,33 @@ private headmask(){ //绘制圆角并设置头像遮罩
 	this.head.mask = shp;//this.head
 }
 ```
+自适应
+```
+this.addEventListener(egret.Event.RESIZE,this.onResize,this);
+onResize(){
+	let stageWidth = egret.MainContext.instance.stage.stageWidth;
+	let stageHeight = egret.MainContext.instance.stage.stageHeight;
+	let widthPercentage = stageWidth / 1920;
+	let hightPercentage = stageHeight / 1080;
+	this.scaleX = widthPercentage;
+	this.scaleY = hightPercentage;
+	console.log("大小",stageWidth,stageHeight)
+}
+```
+自定义item：
+```
+this.List.itemRenderer = ite_bottom;
+class ite_bottom extends eui.ItemRenderer{
+	constructor(){
+		super();
+		this.skinName = `<?xml version="1.0" encoding="utf-8"?>
+			<e:Skin class="ite_bottom_c" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing">
+				<e:Group></e:Group>
+			</e:Skin>
+		`;
+	}
+	dataChanged(){
+		console.log('项切换数据会调用它')
+	}
+	
+```

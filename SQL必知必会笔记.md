@@ -5,6 +5,7 @@
   特点：每行必有主键值、不可修改、不可复用、唯一。
 
 注释：`#注释一行` `/* */`
+#### 查询
 检索单列：`select 列名 from 表名；`  检索多列：`select 列名,列名 from 表名；`
 检索单列的去重值：`select distinct 列名 from 表名；`
 检索单列前5行：`select 列名 from 表名 limit 5；`  `limit 5 offset 5`limit行数，offset是偏移，第1行的offset是0。`limit 3,4`3是偏移4是行数。
@@ -20,6 +21,7 @@
   求值顺序：`where (列a = 值 or 列a = 值) and 列b >= 10` 如果没有分组括号，会先取and符大于10再求or。圆括号 > and > or
   逻辑操作符：`and`都成立，`or`都成立或只成立一个，`where 列名 in ('a','b')`值等于a/b/ab，和or一样比or性能高。`where not 列=值 `否定条件
   相同列名需指定表名：WHERE Orders.cust_id = Customers.cust_id
+  组合查询：`union`关键字联结多条select语句，结果是多个查询的并集。查询列必须相同。`union all`不会去除重复行
 通配符：
   like基本用法: `where 列 like '值%'` fish%:fish起头的值 %fish%:关键字是fish %：除了null以外所有 f%h:f起头h结尾(如果不行试试 f%h% 因为匹配需要完整值，不能只匹配一部分) 
   其它通配符：`%`任意次 `_`一次
@@ -48,3 +50,10 @@
   外联结：
   性能：联结的表数越多越消耗。针对复杂查询多做实验比较联结表和子查询的效率，自联结比子查询快。首个过滤条件过滤的越多越好。
 
+
+#### 插入
+插入全行：
+  1. `insert into 表名(列a,...列名) values(值a,...值)` 推荐，列a对应值a
+  2. `insert into 表名 values(值a,...值)` 每列值都要写并按默认列顺序，不适合调整表结构
+插入部分行：`insert into 表名(列a) values(值a)` 其余列值为默认值，前提是允许为空值。
+查询再插入：`insert into 表a(列a) select * from 表b`
