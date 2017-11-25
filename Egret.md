@@ -292,9 +292,10 @@ class haha{
 顺序：加载资源配置loadConfig -> 加载资源组loadGroup -> 加载资源getRes
 自定义解析类代替默认解析类：registerAnalyzer
 清除已加载资源的缓存：RES.destroyRes()
-预加载：loadGroup() 所有资源会载入缓存，之前要监听3个资源组事件，e.groupName正在加载的组名
+预加载：loadGroup() 所有资源会载入缓存，之前要监听3个资源组事件，e.groupName正在加载的组名	
 获取：RES.getRes RES.getResByUrl(适合三方网络资源/本地，不需要加载配置) RES.getResAsync(只能得到已缓存的)
 合并/创建资源组：RES.createGroup
+CDN:`RES.web.Html5VersionController.prototype.getVirtualUrl = function (url) {return url = Configure.CDN_HOST + "/" + url + '?v=' + Configure.resVersion;}`
 ####EUI:
 自适应流式布局:是层层向上测量，层层向下布局
 逻辑组件+皮肤组件

@@ -55,5 +55,5 @@
 插入全行：
   1. `insert into 表名(列a,...列名) values(值a,...值)` 推荐，列a对应值a
   2. `insert into 表名 values(值a,...值)` 每列值都要写并按默认列顺序，不适合调整表结构
-插入部分行：`insert into 表名(列a) values(值a)` 其余列值为默认值，前提是允许为空值。
-查询再插入：`insert into 表a(列a) select * from 表b`
+插入部分行：`insert into 表名(列a) values(值a)` 未输入的列值插入默认值，前提是允许为空值。
+查询再插入：`insert into 表a(列a) select 列a from 表b`
