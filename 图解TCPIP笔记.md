@@ -75,4 +75,45 @@ MTU：数据链路层最大传输单元，不包含FCS。IP最大支持65535Byte
 Path MTU:发送时在发送路径找到最小MTU值并缓存10分钟，期间发送数据经过路由器无需二次分片。ICMP负责不断向主机通知更小的MTU值。
 IPv6:128bit,32位8组16进制冒号连接。最多连续2个冒号
   环回地址 ::/128 唯一本地地址 FC00::/7 链路本地单播地址 FE80::/10 多播地址 FF00::/8
-  分片：只能在发送主机上分片，最小MTU为1280，
+  分片：只能在发送方主机上分片，路由不分，最小MTU为1280。
+IP4首部：
+  长:每行32bit，最少5行20Byte
+  构成(单位bit)：
+  	版本号4 首部长4 TOS服务8 IP包总字节16。 
+  	分片标识16 分片信息3 分片内的分段偏移13。 
+  	可被转发次数的生存时间8 协议8 防丢失的首部校验和16。 
+  	源IP32 目标IP32。可选项320。加0用于调整为32整数倍的填充。
+IP6首部：
+  构成：
+  	版本4，通信量类8，索引流标号20。数据长度16，协议8，转发次限制8，源IP128，目标IP128。扩展首部任意长。
+#### IP辅助协议
+仅凭IP无法通信。
+DNS：域名-IP的数据库 域名查IP`nslookup baidu.com`
+  域名服务器：每个域名字段都是一个服务器。从根服务器向下连接，并拥有下层域名服务器的IP。
+  DNS解析器：能查询DNS的软件。
+  DNS查询顺序：主机1 -> A域名服务器 -> 根域	名服务器 -> 响应B域名服务器IP给A -> A请求B得到主机2的IP响应给主机1 -> 主机1请求主机2
+ARP： IP-下个路由MAC IPv4专属
+  链路内：源主机广播带IP的ARP -> 目标主机响应带MAC的ARP -> MAC-IP缓存至ARP表内防止多次发送ARP请求。
+RARP：给无IP有MAC的嵌入式设备分配IP。
+代理ARP：让路由有可转发ARP请求的能力
+ICMP：用于IP包被废弃明文回传废弃原因。可有可无。
+  消息内容：
+  	Destination Unreachable Message:数据不可达，还细分13种消息
+  	Redirect Message: 重定向，次优路由路径转向最优。次优路由器会发ICMP把新路径加入到主机的路由控制表内。
+  	Time Exceeded Message:因超时丢弃IP包 利用超时检测经过路由器个数`tracert baidu.com`
+  	Echo Request Message:回送请求 Echo Reply:回送响应。 `ping`是这个原理。
+  	Source Quench Message:原点抑制 网络拥堵，让发送方打开IP传输间隔。
+  	Router Solicitaion/Advertisement:探索相邻路由器/返回路由器信息
+  	Address Mask Request/Reply:请求子网掩码 
+ICMPv6:必须有。
+  Neighbor Discovery功能：ARP ICMP重定向 自动设置IP
+  错误消息：0~127
+  信息消息：128~255
+DHCP：
+  顺序：客户端广播DHCP发现包 -> DHCP服务器返回DHCP提供包。 DHCP服务器发送ICMP回送请求包且无响应（防止IP已有） -> DHCP客户端发送ARP且无响应。
+  DHCP中继代理：中间路由集体请求服务器 由一个DHCP服务器统一分配IP
+NAT:
+  NAT：私有IP发送到NAT，IP首部的发送方IP转为NAT的公网IP。 
+  NAPT：如果多个私有IP发送同一个目标，转换表源IP用不同端口号区分。
+  NAT-PT/NAPT-PT:把IPv6的首部转为IPv4的首部。
+  缺点：NAT外部无法对内连接，NAT异常会导致TCP连接断开。
