@@ -3,6 +3,7 @@
 主键列：一列/一组列 
   作用:标识每行
   特点：每行必有主键值、不可修改、不可复用、唯一。
+外键：a表的外键是b表的主键
 
 注释：`#注释一行` `/* */`
 #### 查询
@@ -57,3 +58,29 @@
   2. `insert into 表名 values(值a,...值)` 每列值都要写并按默认列顺序，不适合调整表结构
 插入部分行：`insert into 表名(列a) values(值a)` 未输入的列值插入默认值，前提是允许为空值。
 查询再插入：`insert into 表a(列a) select 列a from 表b`
+复制并插入表：`create table 新表 as select * from 旧表` 可以复制部分列
+
+#### 更新 删除
+更新行：`update 表名 set 列a=新值,列b=新值 where id = 2;` 通常更新需要权限，更新有风险，条件要设准！
+删除行：`delete from 表名 where 列=值`
+清空表：`truncate table 表`行列全删
+原则：必须用where定位目标行。必须有主键且用where指定它。操作前先select测试。
+
+#### 操纵表
+创建表：`create table 表(列a 类型 null,列b 类型 not null)` not null是插入行是必须有值。主键必须是not null
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
