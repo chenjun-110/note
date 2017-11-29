@@ -3,8 +3,18 @@
 主键列：一列/一组列 
   作用:标识每行
   特点：每行必有主键值、不可修改、不可复用、唯一。
-外键：a表的外键是b表的主键
+  初设主键`create table 表(列 CHAR(10) NOT NULL PRIMARY KEY)`
+  添加主键：`alter table 表 ADD CONSTRAINT PRIMARY KEY (列);`
 
+外键：a表的外键是b表的主键，被引用的从表行不能删除，需先删除主表引用行。
+  初设外键：`create table 表a (列 CHAR(10) NOT NULL REFERENCES 表b(列));`
+  添加外键：`alter table 表a ADD CONSTRAINT FOREIGN KEY (列) REFERENCES 表b(列)`
+
+唯一约束：可以有多个，唯一。
+  初设唯一：`create table 表(列 int NOT NULL,CONSTRAINT 约束名 UNIQUE (列))`
+  添加唯一：`alter table 表 add unique key `约束名` (列)`
+检查约束：插入更新时必须符合条件才成功。mysql不支持。需要借助enum和触发器。
+索引：`create index 索引名 on 表名(列名)`
 注释：`#注释一行` `/* */`
 #### 查询
 检索单列：`select 列名 from 表名；`  检索多列：`select 列名,列名 from 表名；`
@@ -67,7 +77,76 @@
 原则：必须用where定位目标行。必须有主键且用where指定它。操作前先select测试。
 
 #### 操纵表
-创建表：`create table 表(列a 类型 null,列b 类型 not null)` not null是插入行是必须有值。主键必须是not null
+创建表：
+  `create table 表(列a 类型 null,列b 类型 not null default 值)` not null是插入行是必须有值。主键必须是not null
+  默认日期：`default current_timestamp`数据类型必须是`datetime`，now()也是。
+查看表结构：`desc 表`
+增加列：`alter table 表 add 列 类型`
+删除列：`alter table 表 drop column 列`
+删除表：`drop table 表`
+重命名表：`rename table 表 to 新表名`
+自增量：`alter table 表a change 原列名 新列名 int not null auto_increment primary key;`修改列信息
+
+#### 视图
+封装复杂的联表查询为一个虚拟表，用普通select操作。视图能封装视图。简化调用。
+视图设计不合理会影响性能，可简化处理复杂数据。
+创建视图：`create view 虚拟名 as 联表查询` 联表查询结果会导入虚拟表。
+
+#### 存储过程
+封装多条SQL语句，批处理。步骤越多越可能出错。限制对基础数据访问。编译后性能高。支持热更新。有返回值。
+编写：主键自动生成不暴露在参数。
+创建：
+```
+DELIMITER ;;
+create procedure 存储过程名(参数 out 类型)
+begin
+	select * from test;
+end;;
+DELIMITER ;
+```
+使用：`call 存储名()`
+不适合移植其它数据库，不适合写大量业务逻辑。
+
+#### 事物
+一种机制：防止一组sql中途报错，导致不完整数据的生成。可撤销插入、更新、删除。
+关键字：事务（transaction） 回退（rollback） 提交（commit） 保留点（savepoint）
+```
+start transaction
+  //删除a
+  //删除b
+  //删除c
+savepoint 保留点名; 
+rollback； //有异常就回退全部
+rollback to 保留点； //有异常只回退到保留点
+commit transaction //无异常就提交
+```
+
+#### 游标
+游标面向单条记录，
+创建：`declare 游标名 cursor for 查询句`
+```
+create procedure hahaa()
+begin
+	declare a varchar(64);  //声明定义接收游标数据的变量
+	declare b varchar(64);
+	declare c varchar(64);
+
+	declare 游标名 cursor for select id,mark,name from chenjun;
+
+	declare done int default false;  //绑定游标的结束标志
+	declare continue HANDLER for not found set done = true;
+	
+	open 游标名;
+	readss:loop
+		fetch next from 游标名 into a,b,c;  //每fetch into一次游标就移动一次。
+		if done then
+			leave readss; //离开循环
+		end if;
+		insert into chenjun(id,name,mark) values(a,b,c);
+	end loop;
+	close 游标名;
+end;
+```
 
 
 
@@ -75,12 +154,4 @@
 
 
 
-
-
-
-
-
-
-
-
-
+本书对事物 存储过程 讲的都不详细，各数据库都有自己的写法。

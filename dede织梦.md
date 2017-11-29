@@ -34,7 +34,7 @@
 内容页取对应的图片：`{dede:field.litpic/}`
 跳到列表页链接标签：`{dede:channel type="top" row='1'}<a href="[field:typeurl/]">Blog</a>{/dede:channel}` type决定栏目祖父级别
 
-
+、、
 
 
 

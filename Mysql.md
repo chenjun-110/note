@@ -6,8 +6,7 @@ show tables;(产看abc数据库下面的所有表,空的)
 source G:\test.sql（导入数据库表）
 show tables;(查看abc数据库下面的所有表,就可以看到表了)
 desc pollution;(查看表结构设计)
-select * from pollution;
-exit(或者ctrl + c)退出mysql
+exit(或者ctrl+c \q)退出mysql
 
 
 
@@ -29,9 +28,29 @@ max_connections=200
   mysqld -nt -install/-remove
   net start/stop mysql
 
+mysql授权:  mysql库的user表记录了mysql用户信息
+```
+mysql -uroot -p
+
+grant create ROUTINE,alter ROUTINE,EXECUTE on 数据库名.* to 用户名@localhost identified by '密码';  //给用户添加存储过程的创建执行权限。localhost是本机，%是远程
+```
 
 
+#### 语法
+一个分号都不能少。
+windows系统中写存储过程时，如果需要使用declare声明变量
 
+循环：
+```
+declare i int;
+set i = 1;
+循环名：loop
+	set i = i+1;
+	if i>30 then	   //条件
+		leave 循环名;  //类似return?
+	end if;
+end loop;
+```
 
 
 
