@@ -120,7 +120,11 @@ rollback； //有异常就回退全部
 rollback to 保留点； //有异常只回退到保留点
 commit transaction //无异常就提交
 ```
-
+```
+begin;
+//插入
+rollback; 或 commit;
+```
 #### 游标
 游标面向单条记录，
 创建：`declare 游标名 cursor for 查询句`
