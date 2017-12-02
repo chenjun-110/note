@@ -230,3 +230,114 @@ html5:
 <base target="_blank" />                             #base能定义所有链接
 <meta http-equiv="Refresh" content="5;url= " />      #5秒后刷新进入url
 <a href="mailto:xxx@yyy">
+
+
+
+导航框架：
+一、先定义：1.html，2.html，3.html
+二：定义4.html
+<html>
+<p>  <a href="1.html" target="show">A</a>     </p>
+<p>  <a href="2.html" target="show">B</a>     </p>
+<p>  <a href="3.html" target="show">C</a>     </p>
+</html>
+三：再定义5.html(导航框架)
+<html>
+<frameset cols="30%,70%">
+<frame src="4.html" />               #5通过4调用123
+<frame src="5.html" name="show"/>    #name指定超链接
+</html>
+
+
+
+提交表单：
+<html>
+
+<body>
+
+<form name="input" action="/html/html_form_action.asp" method="get">
+I have a bike:
+<input type="checkbox" name="vehicle" value="Bike" checked="checked" />
+<br />
+I have a car: 
+<input type="checkbox" name="vehicle" value="Car" />
+<br />
+I have an airplane: 
+<input type="checkbox" name="vehicle" value="Airplane" />
+<br /><br />
+<input type="submit" value="Submit" />
+</form> 
+
+<p>如果您点击 "Submit" 按钮，您将把输入传送到名为 html_form_action.asp 的新页面。</p>
+
+</body>
+</html>
+
+
+
+
+图像映射：
+<html>
+<body>
+
+<p>请点击图像上的星球，把它们放大。</p>
+
+<img
+src="/i/eg_planets.jpg"
+border="0" usemap="#planetmap"
+alt="Planets" />
+
+<map name="planetmap" >                          #usemap通过map调用area
+
+<area
+shape="circle"
+coords="180,139,14"
+href ="/example/html/venus.html"
+target ="_blank"
+alt="Venus" />
+
+<area
+shape="circle"
+coords="129,161,10"
+href ="/example/html/mercur.html"
+target ="_blank"
+alt="Mercury" />
+
+<area
+shape="rect"
+coords="0,0,110,260"
+href ="/example/html/sun.html"
+target ="_blank"
+alt="Sun" />
+
+</map>
+
+<p><b>注释：</b>img 元素中的 "usemap" 属性引用 map 元素中的 "id" 或 "name" 属性（根据浏览器），所以我们同时向 map 元素添加了 "id" 和 "name" 属性。</p>
+
+</body>
+</html>
+
+  ismap:当用户在 ismap 图像上单击了某处时，浏览器会自动把鼠标的 x、y 位置（相对于图像的左上角）发送到服务器端。特殊的服务器端软件（在本例中是 demo_form.asp 程序）可以根据这些坐标来做出响应。
+
+
+
+
+XHTML:
+小写标签和属性（必加引号）。
+不鼓励使用 name 属性，应该使用 id 取而代之。
+"/" 符号前添加一个额外的空格。
+语言属性格式：`<div lang="no" xml:lang="no">Heia Norge!</div>`
+强制类型声明：STRICT（严格类型） TRANSITIONAL（过渡类型）:包含不赞成使用的元素。FRAMESET（框架类型）：此外还包含框架。
+```
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">```
+点击验证XHTML网址(http://validator.w3.org/check?uri=http%3A%2F%2Fwww.w3school.com.cn%2Fxhtml%2Findex.asp)
+ html、head、title 和 body 元素必须存在。
+id 值必须以字母或者下划线开始；

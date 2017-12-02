@@ -23,6 +23,31 @@ IE兼容渲染语义元素CSS：head脚本加载HTML5 Shiv
 <!--[if lt IE 9]>
 <script src="html5shiv.js"></script>
 <![endif]--> ```
+#### meta
+`<meta http-equiv="X-UA-Compatible" content="IE=Edge">`
+X-UA-Compatible它告诉IE8采用何种IE版本去渲染网页。IE=edge告诉IE使用最新的引擎渲染网页，IE=EmulateIE7 使用IE7渲染，chrome=1则可以激活Chrome Frame。
+name:
+  1、Keywords(关键字)
+`＜meta name ="keywords" content="服务器,VPS主机,厦门云主机租用,服务器租用托管，厦门服务器租用托管"＞`
+  2、description(网站内容描述)
+`＜meta name ="description" content="厦门凌众科技是十年老牌IDC提供商(lingzhong.net.cn)"＞`
+  3、author(作者)
+  4、robots(机器人向导)参数
+   > all：文件将被检索，且页面上的链接可以被查询； 
+   none：文件将不被检索，且页面上的链接不可以被查询；(和 "noindex, no follow" 起相同作用) 
+   index：文件将被检索；（让robot/spider登录） 
+   follow：页面上的链接可以被查询； 
+   noindex：文件将不被检索，但页面上的链接可以被查询；(不让robot/spider登录) 
+   nofollow：文件将不被检索，页面上的链接可以被查询。(不让robot/spider顺着此页的连接往下探找) 
+  5、Copyright (版权) 6、Generator (编辑器) 7、revisit-after (重访) 
+
+`<meta content="always" name="referrer">`
+always:不改变http header中的referrer的值。
+never:删除 http head中的referer.
+origin:只发送 origin 部分；
+default: referer置为空
+`<meta name="theme-color" content="#000">`
+网址栏状态栏设置颜色
 #### canvas
 `context=canvas.getContext('2d') `返回2d环境
 `gradient=context.createLinearGradient(x,y,x1,y1);`创建线型渐变对象(xy/x1y1左右坐标)
