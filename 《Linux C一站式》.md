@@ -18,5 +18,12 @@ aptitude install libqt4-dbus=4.4.3-1
 C程序从main函数的第一条语句开始执行
 
 #### 语法
-printf()
-字符串转义：`\t`水平制表符和按下Tab键的效果相同，用于在终端下定位表格的下一列。 windows的行分隔`\r\n`,Linux的行分隔`\n`
+printf("",值) %c、%d、%f分别表示字符型、整型和浮点型
+字符串转义：
+  `\t`水平制表符和按下Tab键的效果相同，用于在终端下定位表格的下一列。 windows的行分隔`\r\n`,Linux的行分隔`\n`
+  %%表示%
+变量：
+  声明 char字符 int整型 float浮点 double  long double 类型表明多大的存储 char占1字节
+  定义会分配存储空间。
+表达式：*/的优先级高于+- 从左到右计算 多等号先算右等
+式类型转换:minute/60.0 左边的minute也转成double型
