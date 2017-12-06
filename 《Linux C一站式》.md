@@ -4,7 +4,8 @@
 打开警告： gcc -Wall main.c
 链接数学库： gcc main.c -lm 链接libm.so库。   gcc默认-lc链接libc.so库
 C99标准编译： -std=c99
-断点调试：gcc -g main.c -> gdb main.out -> start -> l列出源代码 -> `b 行数`加断点/`break 行数 if a!=0`条件断点 -> c自动执行并在断点处停止 -> n下一步 step/finish进入退出函数 bt调用栈 `p 变量`和`i locals`打印值 `set var 变量=值`或`p 变量=值`中途修改变量值 `delete/disable/enable breakpoints 编号`删除禁用断点 run从头开始连续执行  回车重复上个指令 
+断点调试：gcc -g main.c -> gdb main.out -> start -> l列出源代码 -> `b 行数`加断点/`break 行数 if a!=0`条件断点 -> c自动执行并在断点处停止 -> 
+ n下一步 step/finish进入退出函数 bt调用栈 `p 变量`和`i locals`打印值 `set var 变量=值`或`p 变量=值`中途修改变量值 `delete/disable/enable breakpoints 编号`删除禁用断点 run从头开始连续执行 `x/7b 变量`查看存储器内容 `watch 变量 -> c` 回车重复上个指令 
 #### Linux
 安装路径：/usr/bin/gcc-4.8
 vim改源文件：/etc/apt/sources.list 阿里云源16.04的可用 源和安装版本必须相同
@@ -34,7 +35,7 @@ C程序从main函数的第一条语句开始执行
 
 局部变量通过函数传参代替用全局变量
 块级作用域：任何地方遇到{}包裹的块，局部变量都不会污染外部。
-
+数字转字符：`int sum = '5'-'0';`  '0'是48，"0"是数组！ js的减会转数字，C的减是减码值。
 #### 语法
 ```
 
@@ -75,3 +76,25 @@ void print_time(int hour, int minute)
   特点：不能互相赋值，不能做参数和返回值。
   值先加再赋值到数组 {++arr[a[i]];} 
 常量：预处理期间，`#define ONE 1`
+
+#### 算法
+插入排序：
+```
+int a[5] = { 10, 5, 2, 4, 7 };
+void insertion_sort(void)
+{
+        int i, j, key;
+        for (j = 1; j < 5; ++j) {
+                printf("%d, %d, %d, %d, %d\n",a[0], a[1], a[2], a[3], a[4]);
+                key = a[j];
+                i = j - 1;
+                while (i >= 0 && a[i] > key) {
+                        a[i+1] = a[i];
+                        --i;
+                }
+                a[i+1] = key;
+        }
+        printf("%d, %d, %d, %d, %d\n",a[0], a[1], a[2], a[3], a[4]);
+}
+```
+归并排序：1234 5876，这里5876不可能存在，在递归中必然是排好序的。 先分半排序再合并。合并过程是新建个第三方数组，比较2个数组的第一项，小的push进去,如果有一边数组搞完了，另一边可以直接全部push进去，因为这些在递归底层是排好序的！
