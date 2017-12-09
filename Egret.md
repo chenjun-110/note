@@ -549,3 +549,12 @@ class ite_bottom extends eui.ItemRenderer{
 	}
 	
 ```
+翻牌动画
+```
+var sx = card.scaleX, sy = card.scaleY;
+card.runAction([
+    {to:{scaleX: 0}, duration: 0.4},
+    {func: (card)=>{card.setFrame(1)}}, //换图
+    {to:{scaleX: sx}, duration: 0.4}
+]);
+```
