@@ -97,7 +97,7 @@ egret.ticker
     1. egret.Event.COMPLETE -> new egret.Sound/Video() sound.load() -> new egret.HttpRequest();
   19. 事件代理：
     1. 单选：RadioButton.group监听egret.Event.CHANGE
-  20. 事件传参：this.reset.addEventListener(egret.TouchEvent.TOUCH_TAP,this.fuc.`bind(this,"reset")` ,this) //回调第一个参数是传参，第二个参数是event对象。
+  20. 事件传参：this.reset.addEventListener(egret.TouchEvent.TOUCH_TAP,this.fuc.`bind(this,"reset")` ,this) //回调第一个参数是传参，第二个参数是event对象。 不管用就`bind(null,[this,'reset'])`如果事件在回调内绑定好像拿不到回调内的局部变量？
 自定义事件：
   1. 事件类：`class abc extends egret.Event` constructor(type,bubbles,cancelable){super(type,bubbles,cancelable)}
   2. 注册：`.addEventListener(abc.type, f.a, f)` f是接受事件的类,2参必是返回空值的函数格式，5参可设优先级数字 .removeEventListener参数一致
@@ -557,4 +557,16 @@ card.runAction([
     {func: (card)=>{card.setFrame(1)}}, //换图
     {to:{scaleX: sx}, duration: 0.4}
 ]);
+```
+滑动条
+```
+//新建一个a.exml
+	<?xml version="1.0" encoding="utf-8"?>
+	<e:Skin class="a" minWidth="378" minHeight="8" xmlns:e="http://ns.egret.com/eui">
+	    <e:Image id="" width="100%"  verticalCenter="0" source="setting_yinliangtiao_png" horizontalCenter="0"/>
+	    <e:Image id=""  verticalCenter="0" source="setting_tiao_png"  x="0"/>
+	    <e:Image id="" verticalCenter="1" source="setting_tuodong_png" x="610" />
+	</e:Skin>
+//HSlider.skinName="a"
+不能获取它的子节点，但可以用id获取。
 ```
