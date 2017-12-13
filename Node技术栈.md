@@ -39,7 +39,7 @@ koa2-cors 跨域
 ioredis
 nodemon 修改文件自动重启服务
 uuid 随机uid
-Sequelize ORM框架
+
 ```
 app.use(bodyparser({
   enableTypes:['json', 'form', 'text']
@@ -61,3 +61,51 @@ console.error = function () {
     process.stderr.write(msg);
 };
 ```
+
+#### Sequelize ORM框架
+sequelize.define 定义表结构
+```
+const A = sequelize.define('表名', {
+    date:{ 
+        type: Sequelize.DATE, 
+        defaultValue: Sequelize.NOW, //设置默认时间
+        allowNull: false, // NOT NULL 
+        unique: true, //唯一
+        primaryKey: true, //主键
+        autoIncrement: true, //自增列
+    },
+    bar_id: { //外键列 A.hasOne(B);B.belongsTo(A); AB会获的get/set/add方法
+        type: Sequelize.INTEGER,
+        references: {
+          model: Bar,// 模型名
+          key: 'id'//列名
+        }
+      }
+});
+//数据类型
+type: Sequelize.CHAR(10) .BOOLEAN .DATE .STRING .INTEGER
+
+```
+```
+A.update(data,{'fields':[列]}) 只更新data的某个key
+A.findAll({
+	'attributes':[列，[列b，列b别名]], //只查某列
+	'where':{
+		'列': [列值]， // 默认AND条件
+		'id': {
+			'$eq':1 // id=1 
+		},
+		'$and':[{'id':2}], // 显示AND条件
+		'order':[[列,'DESC'],[列]], //排序
+		'limit':10 //显示10条
+		'offset':10 //分页跳过10条
+	}
+}) 
+where操作符：$eq =, $ne !=, $gt >, $gte >=, $lt <, $lte <=, $between 之间, $notBetween 非之间, $in IN(), $notIn NOT IN(), $like 通配符, $notLike 
+where条件：$and AND, $or OR, $not NOT,
+```
+  create 创建表
+  查单条A.findAll == select * from A 查询并获取数A.findAndCountAll 
+  a = await A.findOne() -> a.get('列')
+  插入 A.bulkCreate([{'列':值}, {'列':值}])
+  /update/destroy 更新删除

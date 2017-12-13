@@ -381,12 +381,12 @@ throw方法：配合生成器使用。
 for..of：
   1. 内部调用[Symbol.iterator]()。
   2. `obj[Symbol.iterator] = arr[Symbol.iterator].bind(arr);`这样遍历obj等于遍历arr。
-  4. 对于数组：for...in遍历的是键名，for...of遍历的是(仅数值索引)的键值。
+  4. 对于数组：for-in遍历的是键名，for-of遍历的是(仅数值索引)的键值。
   5. 对于Map：for ([k,v] of m)可以遍历键值。返回值是数组。顺序为添加顺序。
-  6. 供for..of使用:`entries()`键值对，keys()键名，values()键值。
-  7. 对于对象：for...in遍历的是键名。for...of报错：1.`Object.keys`获得键名进而obj[k]获得键值。2.Generator包装对象。3.Generator赋值到[Symbol.iterator]。
-  8. for..of解决的问题：不会像for-in无顺序还遍历非数字键和原型键。不会像forEach中途无法break退出。比for简洁。 
-  9. 对于Generator：for..of只能遍历yield,不包括return。如果格式:yield [k,o[k]]，那可以解构赋值for([key,value] of g()){console.log(`${key}: ${value}`);}
+  6. 供for-of使用:`entries()`键值对，keys()键名，values()键值。
+  7. 对于对象：for-in遍历的是键名。for-of报错：1.`Object.keys`获得键名进而obj[k]获得键值。2.Generator包装对象。3.Generator赋值到[Symbol.iterator]。
+  8. for-of解决的问题：不会像for-in无顺序还遍历非数字键和原型键。不会像forEach中途无法break退出。比for简洁。 
+  9. 对于Generator：for-of只能遍历yield,不包括return。如果格式:yield [k,o[k]]，那可以解构赋值for([key,value] of g()){console.log(`${key}: ${value}`);}
 **Generator状态机**
 用法：
 ```
