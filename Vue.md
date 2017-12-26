@@ -42,3 +42,24 @@ mounted 挂载后（不包括子组件） 调用this.$nextTick包括子组件
 export default{} 等同于 new vue({})
 
 本地访问打包后：把dist子内容复制到KOA的静态目录下。 config.index.js修改assetsPublicPath
+
+#### vue-router
+点击 <router-link to="/foo">Go to Foo</router-link>
+渲染 <router-view></router-view>
+router必须传入根实例
+激活class="router-link-exact-active router-link-active"
+path: '/user/x' 指向 to="/user/x"
+path: '/user/:id' 指向 to="/user/所有"  {{ $route.params.id }}可取路由值 冒号代表任意值，id只是取值用的 $route.query取问号查询参数 复用路由组件会导致生命周期失效,需watch它的$route或使用beforeRouteUpdate
+嵌套路由子内容：用children属性和<router-view/>
+手动点击 this.$router.push('aa') 或this.$router.push({ path: 'aa', query: { a: '1' }})
+以名字来跳转 this.$router.push({ name:'user'}) 等价于 <router-link :to="{ name: 'user', params: { a: 1 }}">
+一路由控制多组件：多个<router-view name="a">和components:{a:A,default:B}
+把路由传入组件属性 props: true 不用调用$router
+
+#### 其它：
+`#`是用来指导浏览器动作的,表位置，也可以用来显示个性化内容
+  ajax请求自动剔除它。 
+  如果#有意义需转码 
+  改变#会改变浏览器的访问历史不会重载,触发onhashchange
+  window.location.hash
+  Google爬虫读不到#，读得到`#!`转成查询字符串 /#!/username等同于/？_escaped_fragment_=/username
