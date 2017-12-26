@@ -109,3 +109,33 @@ where条件：$and AND, $or OR, $not NOT,
   a = await A.findOne() -> a.get('列')
   插入 A.bulkCreate([{'列':值}, {'列':值}])
   /update/destroy 更新删除
+
+#### ioredis
+```
+var redis = new Redis({ //可new多个实例作发布订阅
+  port: 6379,          
+  host: '127.0.0.1',   
+  family: 4,           // 4 (IPv4) or 6 (IPv6)
+  password: 'auth',
+  db: 0,
+  prefix : 'sam:',//存诸前缀
+  ttl : 60 * 60 * 23,//过期时间
+})
+var pipeline = redis.pipeline(); //批处理性能提高3倍，用法相同。
+```
+redis.set('key', 100, 'EX', 10)
+redis.get('key').then((result)=>)
+redis.set('foo', new Buffer('bar'))
+redis.getBuffer('foo',(err,res)=>) 
+redis.sadd('sets', [1, 3, 5, 7])
+
+redis1.subscribe("channel1",(err,count)=> )
+redis2.publish("channel1","msg")
+redis.on('message'或'messageBuffer',(channel, message)=> ) 统一接收数据，后者接收二进制
+
+redis.pipeline().set('foo','bar').del('cc').exec().then((result)=>) result是数组保存每条命令的结果。
+redis.multi().set('foo', 'bar').get('foo').exec((err, results)=>) multi返回管道实例，err会自动取消事务。
+redis.pipeline().get('foo').multi().set('foo', 'bar').get('foo').exec().get('foo').exec(); 
+
+redis.monitor 监控redis服务器接收到的所有命令
+redis.scanStream 遍历所有key
