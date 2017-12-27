@@ -69,7 +69,7 @@ path: '/user/:id' 指向 to="/user/所有"  {{ $route.params.id }}可取路由�
 接口的调用需要先获取access_token 2小时内有效
 获取OpenID是无需同意，获取用户基本信息则需用户同意
 资质认证通过，才可获得公众号接口。
-两种公众号：订阅号和服务号 权限不同接口不同
+两种公众号：订阅号和服务号 权限不同接口不同 企业号只有通讯录成员可关注
 `http://res.wx.qq.com/open/js/jweixin-1.2.0.js`
 生成签名步骤:请求access_token -> access_token获取jsapi_ticket -> appId jsapi_ticket、noncestr、timestamp、url拼接，使用SHA1加密算法生成签名 -> 把数据给前端向微信官方注入`wx.config`配置
 SDK只能调起的授权过的域名，变化url的SPA可在每次url变化时进行调用`wx.config`
@@ -83,3 +83,8 @@ wx.ready
   wx.微信sdk
 分享4个：朋友圈、微信好友、qq好友、qq空间 wx.onMenuShareTimeline onMenuShareAppMessage onMenuShareQQ onMenuShareQZone
 wx.error 如签名过期在这里更新
+
+兼容：
+6.2-安卓微信不支持pushState，不支持history模式，导致签名失败，解决：hash模式、监听url更改注入config
+ios微信的支付和分享链接按照首次进入的链接来算，pushState无效，解决：/?#/ 取url用`window.location.href`
+Hash中的/会被微信认为是一个目录
