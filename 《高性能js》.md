@@ -25,6 +25,8 @@ Interactions 事件列表
 点击链接跳转到sources,代码左边有运行时间。
 304表示已被缓存
 IE8及其之前的IE版本更新间隔为15.6毫秒。假设你设定的setTimeout延迟为16.7ms，那么它要更新两个15.6毫秒才会该触发延时。
+修改iframe.contentWindow.location跳转,使用这个的话iframe的src是不变化的
+
 
 **图片优化**
 base64图片:适用于图片<2KB,重用不多。IE8不得超过32KB。移动端不好。
