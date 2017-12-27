@@ -63,3 +63,23 @@ path: '/user/:id' 指向 to="/user/所有"  {{ $route.params.id }}可取路由�
   改变#会改变浏览器的访问历史不会重载,触发onhashchange
   window.location.hash
   Google爬虫读不到#，读得到`#!`转成查询字符串 /#!/username等同于/？_escaped_fragment_=/username
+
+
+#### 微信平台
+接口的调用需要先获取access_token 2小时内有效
+获取OpenID是无需同意，获取用户基本信息则需用户同意
+资质认证通过，才可获得公众号接口。
+两种公众号：订阅号和服务号 权限不同接口不同
+`http://res.wx.qq.com/open/js/jweixin-1.2.0.js`
+生成签名步骤:请求access_token -> access_token获取jsapi_ticket -> appId jsapi_ticket、noncestr、timestamp、url拼接，使用SHA1加密算法生成签名 -> 把数据给前端向微信官方注入`wx.config`配置
+SDK只能调起的授权过的域名，变化url的SPA可在每次url变化时进行调用`wx.config`
+
+SDK：
+前端要先向后台请求微信配置的数据。`location.href.split('#')[0]`
+wx.config
+  debug:true 调试模式,调用所有api的返回值会alert出来
+  appId timestamp nonceStr随机串 signature签名 jsApiList接口列表
+wx.ready
+  wx.微信sdk
+分享4个：朋友圈、微信好友、qq好友、qq空间 wx.onMenuShareTimeline onMenuShareAppMessage onMenuShareQQ onMenuShareQZone
+wx.error 如签名过期在这里更新
