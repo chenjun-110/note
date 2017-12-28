@@ -74,7 +74,7 @@ path: '/user/:id' 指向 to="/user/所有"  {{ $route.params.id }}可取路由�
 生成签名步骤:请求access_token -> access_token获取jsapi_ticket -> appId jsapi_ticket、noncestr、timestamp、url拼接，使用SHA1加密算法生成签名 -> 把数据给前端向微信官方注入`wx.config`配置
 SDK只能调起的授权过的域名，变化url的SPA可在每次url变化时进行调用`wx.config`
 
-SDK：
+#### 微信SDK
 前端要先向后台请求微信配置的数据。`location.href.split('#')[0]`
 wx.config
   debug:true 调试模式,调用所有api的返回值会alert出来
@@ -88,3 +88,9 @@ wx.error 如签名过期在这里更新
 6.2-安卓微信不支持pushState，不支持history模式，导致签名失败，解决：hash模式、监听url更改注入config
 ios微信的支付和分享链接按照首次进入的链接来算，pushState无效，解决：/?#/ 取url用`window.location.href`
 Hash中的/会被微信认为是一个目录
+
+#### 微信小程序
+事件：`bind:tap="回调名"` catch:tap阻止冒泡 capture-bind:tap捕获 capture-catch:tap阻止捕获(包括后面的冒泡)
+ 触摸事件 tap touchstart touchmove touchcancel touchend longpress长按 
+ 过渡事件 transitionend animationend animationstart animationiteration一次迭代结束 
+其他事件都是非冒泡
