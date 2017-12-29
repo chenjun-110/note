@@ -90,7 +90,29 @@ ios微信的支付和分享链接按照首次进入的链接来算，pushState�
 Hash中的/会被微信认为是一个目录
 
 #### 微信小程序
+和Vue的不同：
+  this.setData({},()=>) 修改data并渲染，能设置obj.key属性，也能设置并新建不存在的对象和属性。
+  没有method属性,挂方法和react一样。
+注意：
+  `"{{false}}"`和`"false"` 后者为真
+  `"{{a}} "`等同于`"'{{a}}'+' '"`
 事件：`bind:tap="回调名"` catch:tap阻止冒泡 capture-bind:tap捕获 capture-catch:tap阻止捕获(包括后面的冒泡)
  触摸事件 tap touchstart touchmove touchcancel touchend longpress长按 
  过渡事件 transitionend animationend animationstart animationiteration一次迭代结束 
 其他事件都是非冒泡
+
+App生命周期： onLaunch初始化 onShow前台 onHide后台 onError 时间参数能确定小程序入口
+Page生命周期： onLoad加载 onReady初次渲染 onShow/onHide显示隐藏 onUnload页面卸载(点左上退回健) ---onShow快于onReady
+Page页面事件： onPageScroll滚动 onPullDownRefresh下拉 onReachBottom上拉触底 onShareAppMessage点击转发按钮
+
+getApp().globalData 全局变量属性
+支持文件模块： module.exports = {} require()
+
+this.route
+  getCurrentPages()保存了页面数组栈，
+  wx.redirectTo 重定向覆盖当前栈 wx.reLaunch刷新进入 wx.switchTab打开子页  wx.navigateTo wx.navigateBack
+
+WXML
+定义模板：<template name="msgItem"></template> 调用<template is="msgItem" data="{{...item}}"/>  扩展运算符把对象属性当做参数传入，模板内容可直接调用。{{...item}}等同于{{a:1,b:2,c}}这里的c表示c:c变量
+wx:for="{{arr或obj}}" 循环次数等同对象长度 默认项item，默认索引index，
+  嵌套wx:for貌似只是数据层为了拿到循环的变量？展现只靠最里面。wx:for-item/index自定义项、索引，用来做条件运算的。
