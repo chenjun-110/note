@@ -65,7 +65,7 @@ path: '/user/:id' 指向 to="/user/所有"  {{ $route.params.id }}可取路由�
   Google爬虫读不到#，读得到`#!`转成查询字符串 /#!/username等同于/？_escaped_fragment_=/username
 
 
-#### 微信平台
+## 微信平台
 接口的调用需要先获取access_token 2小时内有效
 获取OpenID是无需同意，获取用户基本信息则需用户同意
 资质认证通过，才可获得公众号接口。
@@ -74,7 +74,7 @@ path: '/user/:id' 指向 to="/user/所有"  {{ $route.params.id }}可取路由�
 生成签名步骤:请求access_token -> access_token获取jsapi_ticket -> appId jsapi_ticket、noncestr、timestamp、url拼接，使用SHA1加密算法生成签名 -> 把数据给前端向微信官方注入`wx.config`配置
 SDK只能调起的授权过的域名，变化url的SPA可在每次url变化时进行调用`wx.config`
 
-#### 微信SDK
+### 微信SDK
 前端要先向后台请求微信配置的数据。`location.href.split('#')[0]`
 wx.config
   debug:true 调试模式,调用所有api的返回值会alert出来
@@ -89,17 +89,20 @@ wx.error 如签名过期在这里更新
 ios微信的支付和分享链接按照首次进入的链接来算，pushState无效，解决：/?#/ 取url用`window.location.href`
 Hash中的/会被微信认为是一个目录
 
-#### 微信小程序
+### 微信小程序
 和Vue的不同：
   this.setData({},()=>) 修改data并渲染，能设置obj.key属性，也能设置并新建不存在的对象和属性。
-  没有method属性,挂方法和react一样。
+  没有method属性,挂方法和react一样。 它的methods在自定义组件上，而且data仍然是对象。
 注意：
   `"{{false}}"`和`"false"` 后者为真
   `"{{a}} "`等同于`"'{{a}}'+' '"`
+   `wx:for="arr"` 等同于 `wx:for="{{['a','r','r']}}"` 所以要防止空格导致变为字符串数组。
+   静态样式不要写在style中，style适合动态渲染样式
+
 事件：`bind:tap="回调名"` catch:tap阻止冒泡 capture-bind:tap捕获 capture-catch:tap阻止捕获(包括后面的冒泡)
  触摸事件 tap touchstart touchmove touchcancel touchend longpress长按 
  过渡事件 transitionend animationend animationstart animationiteration一次迭代结束 
-其他事件都是非冒泡
+其他事件都是非冒泡。data-属性挂载dataset对象下。
 
 App生命周期： onLaunch初始化 onShow前台 onHide后台 onError 时间参数能确定小程序入口
 Page生命周期： onLoad加载 onReady初次渲染 onShow/onHide显示隐藏 onUnload页面卸载(点左上退回健) ---onShow快于onReady
@@ -112,7 +115,42 @@ this.route
   getCurrentPages()保存了页面数组栈，
   wx.redirectTo 重定向覆盖当前栈 wx.reLaunch刷新进入 wx.switchTab打开子页  wx.navigateTo wx.navigateBack
 
-WXML
-定义模板：<template name="msgItem"></template> 调用<template is="msgItem" data="{{...item}}"/>  扩展运算符把对象属性当做参数传入，模板内容可直接调用。{{...item}}等同于{{a:1,b:2,c}}这里的c表示c:c变量
+#### WXML
+定义模板：<template name="{{a ? 'm':''}}"></template> 引入<import src="item.wxml"/> 调用<template is="m" data="{{...item}}"/>  
+  扩展运算符把对象属性当做参数传入，模板内容可直接调用。{{...item}}等同于{{a:1,b:2,c}}这里的c表示c:c变量。有自己的作用域，只能引用模板内定义的wxs。
+  <include src="header.wxml"/>只用来引入代码，切分文件
 wx:for="{{arr或obj}}" 循环次数等同对象长度 默认项item，默认索引index，
   嵌套wx:for貌似只是数据层为了拿到循环的变量？展现只靠最里面。wx:for-item/index自定义项、索引，用来做条件运算的。
+  <block wx:for 是渲染多个结构块
+wx:key 动态渲染时保留状态(重排序) `wx:key="u"` 表示绑定item.u `wx:key="*this"`表示绑定item,item要是唯一字符串或数字。
+```
+wx:if
+wx:elif
+wx:else
+```
+
+```
+<wxs module="a">
+  var b="1"; module.exports.b=b;
+</wxs>
+或
+<wxs src="kaka.wxs" module="a" />
+<view>{{a.b}}</view>
+```
+优点：IOS下比JS快，缺点：不能调用小程序api，不能调用js文件的js函数，不能做事件回调。
+用途: {{}}下做运算。
+  .wxs应用.wxs用require
+  单例模式，多次引用
+数据类型的判断可以使用 constructor 属性。
+
+#### WXSS
+  1rpx=1物理像素，自适应。
+  导入外联样式表 `@import 'a.wxss';`
+  app.wxss 中的样式为全局样式
+
+#### 自定义组件
+定义页的json设为 "component": true
+使用页的json设为 "usingComponents": { 组件名: 路径 }
+把wxml插在调用处。
+Component({})
+ properties属性 data数据 methods方法
