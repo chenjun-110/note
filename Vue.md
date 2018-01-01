@@ -104,8 +104,11 @@ Hash中的/会被微信认为是一个目录
  过渡事件 transitionend animationend animationstart animationiteration一次迭代结束 
 其他事件都是非冒泡。data-属性挂载dataset对象下。
 
-App生命周期： onLaunch初始化 onShow前台 onHide后台 onError 时间参数能确定小程序入口
-Page生命周期： onLoad加载 onReady初次渲染 onShow/onHide显示隐藏 onUnload页面卸载(点左上退回健) ---onShow快于onReady
+生命周期：
+  App生命周期： onLaunch初始化 onShow前台 onHide后台 onError 时间参数能确定小程序入口
+  Page生命周期： onLoad加载 onReady初次渲染 onShow/onHide显示隐藏 onUnload页面卸载(点左上退回健) ---onShow快于onReady
+  组件生命周期：`created/attached`组件进入页面 `ready`组件节点布局完成 `moved`组件在节点树移动 `detached`页面移除组件
+  组件relations生命周期：`linked`插入后 `linkChanged`移动后 `unlinked`移除后
 Page页面事件： onPageScroll滚动 onPullDownRefresh下拉 onReachBottom上拉触底 onShareAppMessage点击转发按钮
 
 getApp().globalData 全局变量属性
@@ -147,10 +150,58 @@ wx:else
   1rpx=1物理像素，自适应。
   导入外联样式表 `@import 'a.wxss';`
   app.wxss 中的样式为全局样式
+  组件wxss中不应使用ID、属性和标签名选择器
+  .a > .b 前者必须是<view>
+  :host{} 组件控制其所在父节点
 
 #### 自定义组件
 定义页的json设为 "component": true
 使用页的json设为 "usingComponents": { 组件名: 路径 }
-把wxml插在调用处。
+把组件插在调用处。小写字母和下划线。
 Component({})
  properties属性 data数据 methods方法
+ observer属性改变执行该函数。驼峰写法：定义和表达式内。-符写法：传入在组件上。
+ 
+`<slot></slot>`是给使用页插节点的。像参数。
+  默认只有一处，多处要设置Component.options.multipleSlots为true
+  使用页的`<view slot="a">`会插入到`<slot name="a">`
+  
+组件生命周期：`created/attached`组件进入页面 `ready`组件节点布局完成 `moved`组件在节点树移动 `detached`页面移除组件
+组件relations生命周期：`linked`插入后 `linkChanged`移动后 `unlinked`移除后
+  父子组件都要设Component.relations属性。
+  获取关联组件实例的有序数组：this.getRelationNodes(url)
+	
+自定义事件：
+  组件内通过原生事件回调手动触发自定义事件：this.triggerEvent('xxevent',{},{})
+  组件外监听自定义事件：bindxxevent="xx" e.detail是二参 xx是父组件的方法。默认不冒泡。
+  composed: true事件会冒泡进入父组件的模板内部，然后进入页面的父组件
+  
+module.exports = Behavior() 类似mixins,抽象出选项的公共部分。组件通过behaviors属使用。
+  覆盖优先级：同名属性/方法：组件>后behavior>前behavior data:对象则合并，其他相互覆盖。 生命周期函数：都调用。
+  
+####
+单包<2M 所有包<4M 打开对应子包页时下载子包。
+按需加载：app.json subPackages 子包之间不能引用js、template。
+小程序进入后台5分钟微信销毁，除了置顶的小程序
+
+性能：
+  WebView和js数据传输是通过字符串拼接。
+  微信小程序CDN的Gzip对文本压缩好，图片不好。
+  后台页面最好不要setData。每次setData不要传太多数据。
+  图片过大、过多会引发内存回收webview
+### 原生组件
+view 有点击class
+scroll-vieww 滚到顶部和底部都有事件。
+swiper 滑条
+movable-area 拖拽 可限制拖拽方向 可做拖拽的图标
+cover-view 覆盖map、video、canvas、camera 可与自己和cover-image嵌套
+icon √ × ！ 箭头 放大镜
+progress 进度条
+rich-text nodes属性写显示的HTML节点，数组类型性能高。
+navigator 路由
+camera 相机 wx.createCameraContext().takePhoto
+# word介绍-能做什么
+小程序的视图层目前使用 WebView（app内嵌网页）作为渲染载体。
+原生组件：滑条选择器，拖拽、音视频、地图、相机、实时音视频录制、实时音视频播放、内嵌网页、客服会话、
+系统功能：操作文件/加速度/罗盘/打电话/扫码/蓝牙/截屏/屏幕亮度/振动/通讯录/NFC/WiFi
+数据分析：用户访问趋势、用户访问分布、用户访问留存、页面访问数据。
