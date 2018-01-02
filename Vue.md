@@ -91,7 +91,7 @@ Hash中的/会被微信认为是一个目录
 
 ### 微信小程序
 和Vue的不同：
-  this.setData({},()=>) 修改data并渲染，能设置obj.key属性，也能设置并新建不存在的对象和属性。
+  单向绑定 this.setData({},()=>) 修改data并渲染，能设置obj.key属性，也能设置并新建不存在的对象和属性。
   没有method属性,挂方法和react一样。 它的methods在自定义组件上，而且data仍然是对象。
 注意：
   `"{{false}}"`和`"false"` 后者为真
@@ -200,8 +200,39 @@ progress 进度条
 rich-text nodes属性写显示的HTML节点，数组类型性能高。
 navigator 路由
 camera 相机 wx.createCameraContext().takePhoto
+#### 动画
+创建实例 wx.createAnimation()
+一组 step() 同时开始，可传入配置指定当前组动画，不同时开始的用step衔接。
+提交 this.setData({Data:animation.export()}) 就算有多组貌似也只有一次提交
+#### DOM
+wx.createSelectorQuery().in(this)
+  select('.class')  跨自定义组件的后代选择器：.the-ancestor >>> .the-descendant
+  selectAll
+  selectViewport().scrollOffset(res=>).exec() 节点必须是scroll-view或viewport,滚动位置查询
+.boundingClientRect(res=>).exec()    坐标和dataset
+.fields({},res=>)).exec() 			 所有节点信息
+  
+
+图片全屏显示
+```
+<image src bindtap="previewImage"></image>  
+previewImage: function (e) {
+    var current = e.target.dataset.src;
+    wx.previewImage({
+      current: current, // 当前显示图片的http链接  
+      urls:  [] // 需要预览的图片http链接列表  
+    })
+} 
+```
+
+
 # word介绍-能做什么
 小程序的视图层目前使用 WebView（app内嵌网页）作为渲染载体。
 原生组件：滑条选择器，拖拽、音视频、地图、相机、实时音视频录制、实时音视频播放、内嵌网页、客服会话、
 系统功能：操作文件/加速度/罗盘/打电话/扫码/蓝牙/截屏/屏幕亮度/振动/通讯录/NFC/WiFi
 数据分析：用户访问趋势、用户访问分布、用户访问留存、页面访问数据。
+
+照相自定义截图
+淡入淡出图廊
+选择音乐
+全屏
