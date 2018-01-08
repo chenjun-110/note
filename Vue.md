@@ -102,7 +102,7 @@ Hash中的/会被微信认为是一个目录
 事件：`bind:tap="回调名"` catch:tap阻止冒泡 capture-bind:tap捕获 capture-catch:tap阻止捕获(包括后面的冒泡)
  触摸事件 tap touchstart touchmove touchcancel touchend longpress长按 
  过渡事件 transitionend animationend animationstart animationiteration一次迭代结束 
-其他事件都是非冒泡。data-属性挂载dataset对象下。
+其他事件都是非冒泡。data-属性挂载dataset对象下。`target`指向发生事件的组件，`currentTarget`指向绑定事件的组件。
 
 生命周期：
   App生命周期： onLaunch初始化 onShow前台 onHide后台 onError 时间参数能确定小程序入口
@@ -161,6 +161,7 @@ wx:else
 Component({})
  properties属性 data数据 methods方法
  observer属性改变执行该函数。驼峰写法：定义和表达式内。-符写法：传入在组件上。
+ <popup taps="{{taps}}" /> 下传属性
  
 `<slot></slot>`是给使用页插节点的。像参数。
   默认只有一处，多处要设置Component.options.multipleSlots为true
@@ -224,7 +225,45 @@ previewImage: function (e) {
     })
 } 
 ```
-
+分享到朋友圈：后台生成图片，拿到后再保存到本地。用户自己去发朋友圈。 wx.downloadFile -> wx.saveImageToPhotosAlbum
+父组件：
+```
+var pages = getCurrentPages();
+var currPage = pages[pages.length - 1];   //当前页面
+currPage.setData({ sharepop: true })
+```
+路由传参：
+```
+ onLoad: function(option){
+    console.log(option.参数)  
+  }
+```
+圆形旋转用：wx.onAccelerometerChange加速计，手机垂直地面时,左倒x=-1,右倒x=1。绝对值大于1表示在甩。
+```
+rotate:function(){
+  that.prevtime = new Date().getTime();
+  that.once = 100;
+  that.prevdiec=0;
+  wx.onAccelerometerChange(function (res) {
+    console.log('x: '+res.x, 'y: '+res.y, 'z: '+res.z)
+    let directions = res.x.toFixed(2);
+    that.currtime = new Date().getTime();
+    let x = that.currtime - that.prevtime;
+    that.currvdiec = directions * 360;
+    if (x > 200 && (Math.abs(that.currvdiec - that.prevdiec) > 20)) {
+      that.prevtime = that.currtime;
+      that.prevdiec = that.currvdiec;
+      that.setData({
+        rotate: directions*360
+      })
+    }
+  })
+}
+```
+### API
+wx.getSetting 了解是否授权
+<button open-type='share'> 分享弹框  open-type="contact" 跳客服会话
+wx.navigateToMiniProgram 跳转别的小程序
 
 # word介绍-能做什么
 小程序的视图层目前使用 WebView（app内嵌网页）作为渲染载体。
