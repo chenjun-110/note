@@ -89,6 +89,38 @@ wx.error 如签名过期在这里更新
 ios微信的支付和分享链接按照首次进入的链接来算，pushState无效，解决：/?#/ 取url用`window.location.href`
 Hash中的/会被微信认为是一个目录
 
+### 微信小程序基本介绍
+原生组件：
+  view 有点击class
+  scroll-vieww 滚到顶部和底部都有事件。
+  swiper 滑条
+  movable-area 拖拽 可限制拖拽方向 可做拖拽的图标
+  cover-view 覆盖map、video、canvas、camera 可与自己和cover-image嵌套
+  icon √ × ！ 箭头 放大镜
+  progress 进度条
+  rich-text nodes属性写显示的HTML节点，数组类型性能高。
+  navigator 路由
+  camera 相机 wx.createCameraContext().takePhoto
+WXSS样式：
+  1rpx=1物理像素，自适应。
+  导入外联样式表 `@import 'a.wxss';`
+  app.wxss 中的样式为全局样式
+  组件wxss中不应使用ID、属性和标签名选择器
+  .a > .b 前者必须是<view>
+  :host{} 组件控制其所在父节点
+  **问题**：
+    子元素的层级超不出容器的z-index
+    absolute层级比z-index高，兄弟元素也要position
+this.route：
+  getCurrentPages()保存了页面数组栈，
+  wx.redirectTo 重定向覆盖当前栈 wx.reLaunch刷新进入 wx.switchTab打开子页  wx.navigateTo wx.navigateBack
+WXML：
+  wx:if  wx:elif  wx:else
+API：
+  wx.getSetting 了解是否授权
+  <button open-type='share'> 分享弹框  open-type="contact" 跳客服会话
+  wx.navigateToMiniProgram 跳转别的小程序
+
 ### 微信小程序
 和Vue的不同：
   单向绑定 this.setData({},()=>) 修改data并渲染，能设置obj.key属性，也能设置并新建不存在的对象和属性。
@@ -114,23 +146,20 @@ Page页面事件： onPageScroll滚动 onPullDownRefresh下拉 onReachBottom上�
 getApp().globalData 全局变量属性
 支持文件模块： module.exports = {} require()
 
-this.route
-  getCurrentPages()保存了页面数组栈，
-  wx.redirectTo 重定向覆盖当前栈 wx.reLaunch刷新进入 wx.switchTab打开子页  wx.navigateTo wx.navigateBack
+模板和组件的区别及思路：
+  组件wxss的样式只对组件内的节点生效。 
+  模板没有父级，作用只是切分wxml和wxss和js代码片段,要各自导入，data数据只共享当前页面的注入部分。
+  init函数下把that.func=func，可以把自定义方法挂到其他对象中去，方便做函数级的mixin封装。
 
+用CSS3动画比这垃圾API强多了。keyframes触发animationend事件。
 #### WXML
 定义模板：<template name="{{a ? 'm':''}}"></template> 引入<import src="item.wxml"/> 调用<template is="m" data="{{...item}}"/>  
   扩展运算符把对象属性当做参数传入，模板内容可直接调用。{{...item}}等同于{{a:1,b:2,c}}这里的c表示c:c变量。有自己的作用域，只能引用模板内定义的wxs。
   <include src="header.wxml"/>只用来引入代码，切分文件
 wx:for="{{arr或obj}}" 循环次数等同对象长度 默认项item，默认索引index，
   嵌套wx:for貌似只是数据层为了拿到循环的变量？展现只靠最里面。wx:for-item/index自定义项、索引，用来做条件运算的。
-  <block wx:for 是渲染多个结构块
+  <block wx:for> 是渲染多个结构块
 wx:key 动态渲染时保留状态(重排序) `wx:key="u"` 表示绑定item.u `wx:key="*this"`表示绑定item,item要是唯一字符串或数字。
-```
-wx:if
-wx:elif
-wx:else
-```
 
 ```
 <wxs module="a">
@@ -146,13 +175,6 @@ wx:else
   单例模式，多次引用
 数据类型的判断可以使用 constructor 属性。
 
-#### WXSS
-  1rpx=1物理像素，自适应。
-  导入外联样式表 `@import 'a.wxss';`
-  app.wxss 中的样式为全局样式
-  组件wxss中不应使用ID、属性和标签名选择器
-  .a > .b 前者必须是<view>
-  :host{} 组件控制其所在父节点
 
 #### 自定义组件
 定义页的json设为 "component": true
@@ -173,14 +195,14 @@ Component({})
   获取关联组件实例的有序数组：this.getRelationNodes(url)
 	
 自定义事件：
-  组件内通过原生事件回调手动触发自定义事件：this.triggerEvent('xxevent',{},{})
-  组件外监听自定义事件：bindxxevent="xx" e.detail是二参 xx是父组件的方法。默认不冒泡。
+  组件内通过原生事件回调手动触发自定义事件：`this.triggerEvent('xxevent',{},{})`
+  组件外监听自定义事件：`bindxxevent="xx"` e.detail是二参 xx是父组件的方法。默认不冒泡。
   composed: true事件会冒泡进入父组件的模板内部，然后进入页面的父组件
   
 module.exports = Behavior() 类似mixins,抽象出选项的公共部分。组件通过behaviors属使用。
   覆盖优先级：同名属性/方法：组件>后behavior>前behavior data:对象则合并，其他相互覆盖。 生命周期函数：都调用。
   
-####
+#### 性能
 单包<2M 所有包<4M 打开对应子包页时下载子包。
 按需加载：app.json subPackages 子包之间不能引用js、template。
 小程序进入后台5分钟微信销毁，除了置顶的小程序
@@ -190,17 +212,7 @@ module.exports = Behavior() 类似mixins,抽象出选项的公共部分。组件
   微信小程序CDN的Gzip对文本压缩好，图片不好。
   后台页面最好不要setData。每次setData不要传太多数据。
   图片过大、过多会引发内存回收webview
-### 原生组件
-view 有点击class
-scroll-vieww 滚到顶部和底部都有事件。
-swiper 滑条
-movable-area 拖拽 可限制拖拽方向 可做拖拽的图标
-cover-view 覆盖map、video、canvas、camera 可与自己和cover-image嵌套
-icon √ × ！ 箭头 放大镜
-progress 进度条
-rich-text nodes属性写显示的HTML节点，数组类型性能高。
-navigator 路由
-camera 相机 wx.createCameraContext().takePhoto
+
 #### 动画
 创建实例 wx.createAnimation()
 一组 step() 同时开始，可传入配置指定当前组动画，不同时开始的用step衔接。
@@ -260,10 +272,6 @@ rotate:function(){
   })
 }
 ```
-### API
-wx.getSetting 了解是否授权
-<button open-type='share'> 分享弹框  open-type="contact" 跳客服会话
-wx.navigateToMiniProgram 跳转别的小程序
 
 # word介绍-能做什么
 小程序的视图层目前使用 WebView（app内嵌网页）作为渲染载体。
