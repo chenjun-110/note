@@ -108,6 +108,7 @@ WXSS样式：
   组件wxss中不应使用ID、属性和标签名选择器
   .a > .b 前者必须是<view>
   :host{} 组件控制其所在父节点
+  优先级：同个wxss文件内，同个属性值，上面写的会覆盖下面写的。
   **问题**：
     子元素的层级超不出容器的z-index
     absolute层级比z-index高，兄弟元素也要position
@@ -116,12 +117,15 @@ this.route：
   wx.redirectTo 重定向覆盖当前栈 wx.reLaunch刷新进入 wx.switchTab打开子页  wx.navigateTo wx.navigateBack
 WXML：
   wx:if  wx:elif  wx:else
-API：
+**API**：
   wx.getSetting 了解是否授权
   <button open-type='share'> 分享弹框  open-type="contact" 跳客服会话
   wx.navigateToMiniProgram 跳转别的小程序
+  wx.setNavigationBarTitle({ title: '当前页面'}) 设置标题
 
 ### 微信小程序
+遇到的坑：
+  箭头函数在模块文件里，拿不到this(就连bind都无效)，要写成function。
 和Vue的不同：
   单向绑定 this.setData({},()=>) 修改data并渲染，能设置obj.key属性，也能设置并新建不存在的对象和属性。
   没有method属性,挂方法和react一样。 它的methods在自定义组件上，而且data仍然是对象。
@@ -283,3 +287,66 @@ rotate:function(){
 淡入淡出图廊
 选择音乐
 全屏
+
+日历思路
+首行 要知道有几个项 7-n得出剩余位置 n是1日位
+要知道有几行 x/7 
+末行 总天数-首数-中间行*7
+求总行数 
+获取当前星期 new Date(str).getDay() 0-6 日至六
+getMonth() 0-11 一至十二
+
+<form bindsubmit="formSubmit" report-submit="true">
+<button formType="submit" open-type='share' >转发到好友或群聊</button>
+<button formType="submit" bindtap='bindcof'>生成朋友圈分享图</button>
+bindcof: function (e) {
+    var that = this;
+    wx.request({
+      url: app.getdata(app.config_url.getrecord, "&type=cof"),
+      success: function (res) {
+        console.log("分享到朋友圈", res)
+        var imgSrc = app.config_url.rurl + '/' + res.data.data.img;
+        that.setData({ fogimgsrc: imgSrc, myCanvas: "myCanvas", previmg: "previmg" })
+        console.log("图片地址", imgSrc)
+        //图片保存到本地
+        wx.downloadFile({
+          url: imgSrc,
+          success: function (res) {
+            let path = res.tempFilePath
+            wx.saveImageToPhotosAlbum({
+              filePath: path,
+              success(res) {
+                console.log("保存图片成功")
+                wx.showToast({
+                  title: '图片已存入相册',
+                  icon: 'success',
+                  duration: 2000
+                })
+                that.setData({ previmg: "", share_model: false })
+              },
+              fail(res) {
+                console.log(res);
+                wx.showToast({
+                  title: '请先授权',
+                  image: '/image/x.png',
+                  duration: 2000
+                })
+                that.setData({ previmg: "" })
+                wx.openSetting({
+                  success: (res) => {
+                  }
+                })
+              },
+              complete(res) {
+                console.log(res)
+              }
+            })
+          }, fail: function (res) {
+            console.log(res)
+          }
+        })
+
+      }
+    })
+
+  },
