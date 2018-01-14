@@ -143,20 +143,6 @@ img{width:100%;heigth:auto;} 响应图片
 filter 滤镜
 @media only screen and (max-width:){} 响应式
 @media all and (min-width:){}
-**弹性盒子**
-direction: rtl 方向
-`display`: flex; 容器弹性盒子
-`flex-direction`： 弹性子元素方向 (row默认|row-reverse右对齐反排列|column竖向|column-reverse反竖向)
-`flex-wrap` 换行 绝不超出容器（nowrap单行默认|wrap多行|wrap-reverse多行向上）
-`flex-flow`是flex-direction和flex-wrap的简写
-
-`justify-content`: 容器横向内容对齐 (flex-start左对齐|certer|flex-end右对齐|space-between占左右2边平均分布|space-around不占首尾平均分布)
-`align-items`: 容器竖向内容对齐(flex-start上对齐|flex-end下对齐|center垂直居中|baseline基线对齐|stretch默认拉伸)
-`align-self` 元素竖向内容对齐，参数同上
-`align-content `‘行’对齐 certer居中换行，参数同上。
-`order:-1 `排序，和z-index类似。数值小的在前面。
-`margin:auto` 获取所有剩余空间，单个元素可实现居中
-`flex:1 100%` 分配空间，1代表1/n。flex和为n。参数：拉伸比率 收缩比率 基准值。
 
 **响应式设计**
 IE9+`<meta name="viewport" content="width=device-width, initial-scale=1.0"/>` IE8-用css3-mediaqueries.js
@@ -258,7 +244,22 @@ padding-box，padding计算入width内
 border-box，border和padding计算入width之内
 
 
+#### 弹性盒子
+direction: rtl 方向
+`display`: flex; 容器弹性盒子
+`flex-direction`： 弹性子元素方向 (row默认|row-reverse右对齐反排列|column竖向|column-reverse反竖向)
+`flex-wrap` 换行 绝不超出容器（nowrap单行默认|wrap多行|wrap-reverse多行向上）
+`flex-flow`是flex-direction和flex-wrap的简写
+`justify-content`: 容器横向内容对齐 (flex-start左对齐|certer|flex-end右对齐|space-between占左右2边平均分布|space-around不占首尾平均分布)
+`align-items`: 容器竖向内容对齐(flex-start上对齐|flex-end下对齐|center垂直居中|baseline基线对齐|stretch默认拉伸)
+`align-self` 元素竖向内容对齐，参数同上
+`align-content `‘行’对齐 certer居中换行，参数同上。
+`order:-1 `排序，和z-index类似。数值小的在前面。
+`margin:auto` 获取所有剩余空间，单个元素可实现居中
+`flex:1 100%` 分配空间，1代表1/n。flex和为n。参数：拉伸比率 收缩比率 基准值。
 
+水平排列：display: flex; flex-direction: row;
+ 水平且均分空间：占位符flex:1,其余固宽。
 **选择器**
 A>B 表示选择A元素的所有子B，仅一代。`>*`所有直接子元素。
 A B 选择多代B
