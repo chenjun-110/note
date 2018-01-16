@@ -126,6 +126,9 @@ WXML：
 ### 微信小程序
 遇到的坑：
   箭头函数在模块文件里，拿不到this(就连bind都无效)，要写成function。
+  cover-view自己是绝对定位，子元素绝对定位会消失。
+  有时候工具的API调用不了，是权限设置没开。
+  onShareAppMessage报错会无法带参数。
 和Vue的不同：
   单向绑定 this.setData({},()=>) 修改data并渲染，能设置obj.key属性，也能设置并新建不存在的对象和属性。
   没有method属性,挂方法和react一样。 它的methods在自定义组件上，而且data仍然是对象。
@@ -138,7 +141,8 @@ WXML：
 事件：`bind:tap="回调名"` catch:tap阻止冒泡 capture-bind:tap捕获 capture-catch:tap阻止捕获(包括后面的冒泡)
  触摸事件 tap touchstart touchmove touchcancel touchend longpress长按 
  过渡事件 transitionend animationend animationstart animationiteration一次迭代结束 
-其他事件都是非冒泡。data-属性挂载dataset对象下。`target`指向发生事件的组件，`currentTarget`指向绑定事件的组件。
+ 其他事件都是非冒泡。data-属性挂载dataset对象下。`target`指向发生事件的组件，`currentTarget`指向绑定事件的组件。
+ 用CSS3动画比这垃圾API强多了。keyframes触发animationend事件。
 
 生命周期：
   App生命周期： onLaunch初始化 onShow前台 onHide后台 onError 时间参数能确定小程序入口
@@ -155,7 +159,7 @@ getApp().globalData 全局变量属性
   模板没有父级，作用只是切分wxml和wxss和js代码片段,要各自导入，data数据只共享当前页面的注入部分。
   init函数下把that.func=func，可以把自定义方法挂到其他对象中去，方便做函数级的mixin封装。
 
-用CSS3动画比这垃圾API强多了。keyframes触发animationend事件。
+
 #### WXML
 定义模板：<template name="{{a ? 'm':''}}"></template> 引入<import src="item.wxml"/> 调用<template is="m" data="{{...item}}"/>  
   扩展运算符把对象属性当做参数传入，模板内容可直接调用。{{...item}}等同于{{a:1,b:2,c}}这里的c表示c:c变量。有自己的作用域，只能引用模板内定义的wxs。
@@ -216,7 +220,9 @@ module.exports = Behavior() 类似mixins,抽象出选项的公共部分。组件
   微信小程序CDN的Gzip对文本压缩好，图片不好。
   后台页面最好不要setData。每次setData不要传太多数据。
   图片过大、过多会引发内存回收webview
-
+Redux:
+  业务逻辑写在reducer
+  createStore的二参是初始数据，用于前后端同构。
 #### 动画
 创建实例 wx.createAnimation()
 一组 step() 同时开始，可传入配置指定当前组动画，不同时开始的用step衔接。
@@ -299,54 +305,22 @@ getMonth() 0-11 一至十二
 <form bindsubmit="formSubmit" report-submit="true">
 <button formType="submit" open-type='share' >转发到好友或群聊</button>
 <button formType="submit" bindtap='bindcof'>生成朋友圈分享图</button>
-bindcof: function (e) {
-    var that = this;
-    wx.request({
-      url: app.getdata(app.config_url.getrecord, "&type=cof"),
-      success: function (res) {
-        console.log("分享到朋友圈", res)
-        var imgSrc = app.config_url.rurl + '/' + res.data.data.img;
-        that.setData({ fogimgsrc: imgSrc, myCanvas: "myCanvas", previmg: "previmg" })
-        console.log("图片地址", imgSrc)
-        //图片保存到本地
-        wx.downloadFile({
-          url: imgSrc,
-          success: function (res) {
-            let path = res.tempFilePath
-            wx.saveImageToPhotosAlbum({
-              filePath: path,
-              success(res) {
-                console.log("保存图片成功")
-                wx.showToast({
-                  title: '图片已存入相册',
-                  icon: 'success',
-                  duration: 2000
-                })
-                that.setData({ previmg: "", share_model: false })
-              },
-              fail(res) {
-                console.log(res);
-                wx.showToast({
-                  title: '请先授权',
-                  image: '/image/x.png',
-                  duration: 2000
-                })
-                that.setData({ previmg: "" })
-                wx.openSetting({
-                  success: (res) => {
-                  }
-                })
-              },
-              complete(res) {
-                console.log(res)
-              }
-            })
-          }, fail: function (res) {
-            console.log(res)
-          }
-        })
+rotate:function(){
+      that.prevtime = new Date().getTime();
+      that.once = 100;
+      that.prevdiec=0;
+      wx.onAccelerometerChange(function (res) {
+        if (Math.abs(res.x) > 1 && Math.abs(res.y) > 1 && Math.abs(res.z) > 1) console.log('x: ' + res.x, 'y: ' + res.y, 'z: ' + res.z)
+        let directions = res.x.toFixed(2);
+        that.currtime = new Date().getTime();
+        let x = that.currtime - that.prevtime;
+        that.currvdiec = directions * 360;
+        if (x > 200 && (Math.abs(that.currvdiec - that.prevdiec) > 20)) {
+          that.prevtime = that.currtime;
+          that.prevdiec = that.currvdiec;
+          that.setData({
+            rotate: directions*360
+          })
+        }
 
-      }
-    })
-
-  },
+      })
