@@ -125,10 +125,14 @@ WXML：
 
 ### 微信小程序
 遇到的坑：
+  把所有该用的init数据，最开始就要拿到！别到时候该有的数据没有，异步请求写一大堆，逻辑思路全乱还分散精力。路由入口判断尤为重要！
   箭头函数在模块文件里，拿不到this(就连bind都无效)，要写成function。
   cover-view自己是绝对定位，子元素绝对定位会消失。
   有时候工具的API调用不了，是权限设置没开。
   onShareAppMessage报错会无法带参数。
+兼容性：
+  IOS能放音的API是wx.createInnerAudioContext()
+  IOS的image比background-image好
 和Vue的不同：
   单向绑定 this.setData({},()=>) 修改data并渲染，能设置obj.key属性，也能设置并新建不存在的对象和属性。
   没有method属性,挂方法和react一样。 它的methods在自定义组件上，而且data仍然是对象。
@@ -223,6 +227,7 @@ module.exports = Behavior() 类似mixins,抽象出选项的公共部分。组件
 Redux:
   业务逻辑写在reducer
   createStore的二参是初始数据，用于前后端同构。
+  视图组件只包含了渲染逻辑和触发 action
 #### 动画
 创建实例 wx.createAnimation()
 一组 step() 同时开始，可传入配置指定当前组动画，不同时开始的用step衔接。
