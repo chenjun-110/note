@@ -124,15 +124,24 @@ WXML：
   wx.setNavigationBarTitle({ title: '当前页面'}) 设置标题
 
 ### 微信小程序
+重构思路：
+  Page对象设name属性/this，保存起来统一管理。 this.data.name复用同组件时区分页面
+  ajax和回调业务分离。
+  把跨页面跨组件的数据放入Redux。改了数据要有个机制实时刷新呢？ ：：Redux->setData
+  如果用 redux，就没有 state 和 props 的区分了。组件都应该用 props
 遇到的坑：
   把所有该用的init数据，最开始就要拿到！别到时候该有的数据没有，异步请求写一大堆，逻辑思路全乱还分散精力。路由入口判断尤为重要！
   箭头函数在模块文件里，拿不到this(就连bind都无效)，要写成function。
   cover-view自己是绝对定位，子元素绝对定位会消失。
   有时候工具的API调用不了，是权限设置没开。
   onShareAppMessage报错会无法带参数。
+  自定义组件的`wx.createCanvasContext`必须带二参this。`wx.createSelectorQuery().in(this)`也是(要在ready周期后)！
+  `this.data.obj`设初始属性会被下次赋值覆盖。
 兼容性：
-  IOS能放音的API是wx.createInnerAudioContext()
+  IOS能放音的API是wx.createInnerAudioContext()，设不理会静音开关obeyMuteSwitch=false
   IOS的image比background-image好
+  
+  绝对定位必须有定位值。或者说弹性居中对绝对元素无效。
 和Vue的不同：
   单向绑定 this.setData({},()=>) 修改data并渲染，能设置obj.key属性，也能设置并新建不存在的对象和属性。
   没有method属性,挂方法和react一样。 它的methods在自定义组件上，而且data仍然是对象。
@@ -193,7 +202,7 @@ wx:key 动态渲染时保留状态(重排序) `wx:key="u"` 表示绑定item.u `w
 使用页的json设为 "usingComponents": { 组件名: 路径 }
 把组件插在调用处。小写字母和下划线。
 Component({})
- properties属性 data数据 methods方法
+ properties属性 data数据 methods方法 `this.properties`渲染不需要转成data。
  observer属性改变执行该函数。驼峰写法：定义和表达式内。-符写法：传入在组件上。
  <popup taps="{{taps}}" /> 下传属性
  
@@ -232,6 +241,10 @@ Redux:
 创建实例 wx.createAnimation()
 一组 step() 同时开始，可传入配置指定当前组动画，不同时开始的用step衔接。
 提交 this.setData({Data:animation.export()}) 就算有多组貌似也只有一次提交
+Canvas api
+draw会清空画布，draw(true)会保留。
+restore返回save保存的ctx设置
+drawImage(url,x,y,w,h) xy都是左上角
 #### DOM
 wx.createSelectorQuery().in(this)
   select('.class')  跨自定义组件的后代选择器：.the-ancestor >>> .the-descendant
@@ -287,7 +300,10 @@ rotate:function(){
   })
 }
 ```
-
+ sin30°就得写成 Math.sin（30*Math.PI/180）
+`dy=dc*sin; dx=dc*cos;`
+wx.canvasGetImageData无法在组件中使用
+只有[].every能中途终止
 # word介绍-能做什么
 小程序的视图层目前使用 WebView（app内嵌网页）作为渲染载体。
 原生组件：滑条选择器，拖拽、音视频、地图、相机、实时音视频录制、实时音视频播放、内嵌网页、客服会话、
@@ -310,22 +326,9 @@ getMonth() 0-11 一至十二
 <form bindsubmit="formSubmit" report-submit="true">
 <button formType="submit" open-type='share' >转发到好友或群聊</button>
 <button formType="submit" bindtap='bindcof'>生成朋友圈分享图</button>
-rotate:function(){
-      that.prevtime = new Date().getTime();
-      that.once = 100;
-      that.prevdiec=0;
-      wx.onAccelerometerChange(function (res) {
-        if (Math.abs(res.x) > 1 && Math.abs(res.y) > 1 && Math.abs(res.z) > 1) console.log('x: ' + res.x, 'y: ' + res.y, 'z: ' + res.z)
-        let directions = res.x.toFixed(2);
-        that.currtime = new Date().getTime();
-        let x = that.currtime - that.prevtime;
-        that.currvdiec = directions * 360;
-        if (x > 200 && (Math.abs(that.currvdiec - that.prevdiec) > 20)) {
-          that.prevtime = that.currtime;
-          that.prevdiec = that.currvdiec;
-          that.setData({
-            rotate: directions*360
-          })
-        }
 
-      })
+单页思路
+下拉刷新的每次数据保存在store,tab状态记入store,init画布数据记入store 
+组件出生时从store载入数据。
+下拉不会刷新页面，只是请求数据而已.store改变应该监听到列表数据setData,从index注入到组件！
+切换tab是否刷新数据？为性能暂不处理，可设超过1分钟切换tab刷新
