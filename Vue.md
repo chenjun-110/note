@@ -33,7 +33,12 @@ mixins：
 mode属性：过渡模式，默认进入和离开过渡同时进行，
 
 <transition-group> ： 子元素必须有key name属性是动画类前缀 name-move类在元素的改变定位时中应用 tag属性设置包裹元素 FLIP过渡元素不能是inline内联的
-
+```
+easeInOut(t, b, c, d)的t是当前时间差，b初始值，c变化值，d变化时间
+easeInOut(currtime, -0.5, 2, duration)
+const currtime = Date.now() - borntime;
+退出条件是：currtime >= duration
+```
 #### 生命周期
 mounted 挂载后（不包括子组件） 调用this.$nextTick包括子组件
 
@@ -137,6 +142,8 @@ WXML：
   onShareAppMessage报错会无法带参数。
   自定义组件的`wx.createCanvasContext`必须带二参this。`wx.createSelectorQuery().in(this)`也是(要在ready周期后)！
   `this.data.obj`设初始属性会被下次赋值覆盖。
+  Canvas组件前5秒巨卡，setData巨慢，只能把按钮延迟setData显示,drawImage阻塞setData。
+  离屏Canvas识别不适用对加载速度严格的组件。
 兼容性：
   IOS能放音的API是wx.createInnerAudioContext()，设不理会静音开关obeyMuteSwitch=false
   IOS的image比background-image好
@@ -300,10 +307,15 @@ rotate:function(){
   })
 }
 ```
+滑块组件： 比手写滑动算法好用（上下滑时不允许左右滑，左右滑时不允许上下滑）
+<swiper current="1"  class='swiperbox' interval="0" duration="500"  bindchange="SlideFinish"> 
+	<swiper-item><view /></swiper-item> 
+</swiper>
  sin30°就得写成 Math.sin（30*Math.PI/180）
 `dy=dc*sin; dx=dc*cos;`
 wx.canvasGetImageData无法在组件中使用
 只有[].every能中途终止
+
 # word介绍-能做什么
 小程序的视图层目前使用 WebView（app内嵌网页）作为渲染载体。
 原生组件：滑条选择器，拖拽、音视频、地图、相机、实时音视频录制、实时音视频播放、内嵌网页、客服会话、
@@ -326,9 +338,11 @@ getMonth() 0-11 一至十二
 <form bindsubmit="formSubmit" report-submit="true">
 <button formType="submit" open-type='share' >转发到好友或群聊</button>
 <button formType="submit" bindtap='bindcof'>生成朋友圈分享图</button>
-
+,
+    "enablePullDownRefresh":true
 单页思路
 下拉刷新的每次数据保存在store,tab状态记入store,init画布数据记入store 
 组件出生时从store载入数据。
 下拉不会刷新页面，只是请求数据而已.store改变应该监听到列表数据setData,从index注入到组件！
 切换tab是否刷新数据？为性能暂不处理，可设超过1分钟切换tab刷新
+
