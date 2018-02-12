@@ -114,6 +114,7 @@ WXSS样式：
   .a > .b 前者必须是<view>
   :host{} 组件控制其所在父节点
   优先级：同个wxss文件内，同个属性值，上面写的会覆盖下面写的。
+  所有同名css会合并而非覆盖！
   **问题**：
     子元素的层级超不出容器的z-index
     absolute层级比z-index高，兄弟元素也要position
@@ -326,7 +327,7 @@ wx.canvasGetImageData无法在组件中使用
 淡入淡出图廊
 选择音乐
 全屏
-
+	
 日历思路
 首行 要知道有几个项 7-n得出剩余位置 n是1日位
 要知道有几行 x/7 
@@ -338,7 +339,6 @@ getMonth() 0-11 一至十二
 <form bindsubmit="formSubmit" report-submit="true">
 <button formType="submit" open-type='share' >转发到好友或群聊</button>
 <button formType="submit" bindtap='bindcof'>生成朋友圈分享图</button>
-,
     "enablePullDownRefresh":true
 单页思路
 下拉刷新的每次数据保存在store,tab状态记入store,init画布数据记入store 
@@ -346,3 +346,5 @@ getMonth() 0-11 一至十二
 下拉不会刷新页面，只是请求数据而已.store改变应该监听到列表数据setData,从index注入到组件！
 切换tab是否刷新数据？为性能暂不处理，可设超过1分钟切换tab刷新
 
+公司公用组件：
+提现页
