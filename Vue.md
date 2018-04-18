@@ -1,3 +1,41 @@
+### 实战bug
+异步子组件：异步数据没有时，v-if不显示该组件配合computed赋值状态。貌似是响应依赖关系没建立。
+路由传参：
+  1. 如果 props 被设置为 true，`route.params`将会被设置为组件属性。
+  2. 函数模式：props: (route) => ({ A: `route.query`.a }) A将会被设置为组件属性。 ？&可以传复杂对象！ :to="{ path: 'a/b', query: { data: item }}"
+  3. 弃用this.$route的强耦合。
+jsx:
+  1. {this.arr} 千万别用双括号！
+  2. 代替v-for: let A = data.map((v) => <p>{v}</p>)  <div>{A}</div>
+监听路由变化：`@Watch('$route')`
+监听数组绑定：`arr.splice(index, 1, value)` 直接索引赋值无效
+监听数据初始化：
+  1. 增加对象属性是无法建立依赖追踪！
+  2. `Vue.set(obj,k,v)`/`this.$set(obj,k,v)` 
+  3. 合并对象或赋值整个对象`this.obj = Object.assign({}, this.obj, {a: 1})`
+  4. 推荐设异步属性初始化为`null` 
+  5. 响应属性赋值是异步的，确保回调执行`Vue.nextTick(callback)`/`this.$nextTick`
+异步数据tsx渲染：`if (!Object.keys(this.all).length) return (<div>数据加载中</div>)` 好处：不用判定异步数据是否存在
+get不能用data关键字，否则this指向VUE非组件。
+import导入库的时候，可能导致循环依赖，在微信PC端游览器上无法显示！是因为调用了URLSearchParams不兼容的方法！
+100vw会超出微信游览器屏宽，100%不会。img只要有宽度就出现？
+微信：
+  1. 微信分享会把`?from=singlemessage`添加在`#/route?`之前: [?][\s\S]*[#]
+
+https里的iframe不能用http
+webpackjsop报错和异步require组件报错原因：没用https流量劫持导致js文件没下载下来
+#### vue-cli开发环境配置
+1. 配置scss:vue-cli有sass的loader不用手动加。
+  npm install node-sass --save-dev  
+  npm install sass-loader --save-dev  
+  <style lang="scss">
+.vue
+export default{} 等同于 new vue({})
+2. 本地访问打包后：把dist子内容复制到KOA的静态目录下。 config.index.js把assetsPublicPath的'/'改成'./'
+3. 配置免密git: 修改.git/config http://chenjun-110:password@git.com
+4. tsx引入图片： `declare var require: any` 或 `declare function require(string): string;`
+5. 微信环境：dist目录要有个带密钥的txt文件
+####
 以下都和data属性绑定，data属性渲染后手动赋值全部会实时生效
 
 {{m}} 双括号变量
@@ -6,6 +44,7 @@ v-if="m" 控制本节点存在性 false用注释替换节点  v-shows适合高�
 v-for="(v,i) in arr" 数组批量渲染本节点，v表示每项,可以迭代对象
 v-on:click="方法名" @事件绑定方法 methods属性存方法 事件修饰符有原生事件能力 按键修饰符缩小触发范围
 v-model="m" input绑定 复选框注入m的值为true/false 单选框和下拉框注入的值是value属性值
+:key在语法提示里是必须的
 
 自定义指令：
   钩子：bind inserted update componentUpdated unbind
@@ -42,32 +81,90 @@ const currtime = Date.now() - borntime;
 #### 生命周期
 mounted 挂载后（不包括子组件） 调用this.$nextTick包括子组件
 
-#### vue-cli
-.vue
-export default{} 等同于 new vue({})
 
-本地访问打包后：把dist子内容复制到KOA的静态目录下。 config.index.js修改assetsPublicPath
+#### vuex
+store.dispatch('Action') 异步
+store.commit('Mutations') 同步(改变state)
 
+组件内：`this.$store`.dispatch()
+监听： 
+#### Typescript
+每个vue文件引入：import { Component, Emit, Inject, Model, Prop, Provide, Vue, Watch } from 'vue-property-decorator'
+`get count(){}`等价于computed:{count(){}}
+ts中的写法：
+```
+@Emit()
+addToCount(n: number){ this.count += n }
+
+@Emit('reset')
+resetCount(){ this.count = 0 }
+
+@Inject() foo: string
+@Inject('bar') bar: string
+@Inject(s) baz: string
+
+@Model('change') checked: boolean
+
+@Prop()
+propA: number
+@Prop({ default: 'default value' })
+propB: string
+@Prop([String, Boolean])
+propC: string | boolean
+
+@Provide() foo = 'foo'
+@Provide('bar') baz = 'bar'
+
+@Watch('person', { immediate: true, deep: true })
+onPersonChanged(val: Person, old: Person) { }
+```
 #### vue-router
+异步组件语法：`component: resolve => require(['@/components/Subscribe'], resolve),` 
+ 优点：延迟执行代码，减少首屏内存。缺点：异步组件会闪屏。页面由大量异步组件构成导致http阻塞和渲染不齐。
+meta信息：beforeEach判定，做tab状态、title信息。
+钩子：
+ 1. 单个路由钩子：beforeEnter
+ 2. 全局路由钩子：beforeEach afterEach
 点击 <router-link to="/foo">Go to Foo</router-link>
 渲染 <router-view></router-view>
 router必须传入根实例
 激活class="router-link-exact-active router-link-active"
 path: '/user/x' 指向 to="/user/x"
-path: '/user/:id' 指向 to="/user/所有"  {{ $route.params.id }}可取路由值 冒号代表任意值，id只是取值用的 $route.query取问号查询参数 复用路由组件会导致生命周期失效,需watch它的$route或使用beforeRouteUpdate
+path: '/user/:id' 指向 to="/user/所有"  {{ $route.params.id }}可取路由值 $route.query取问号查询参数 复用路由组件会导致生命周期失效,需watch它的$route或使用beforeRouteUpdate
 嵌套路由子内容：用children属性和<router-view/>
 手动点击 this.$router.push('aa') 或this.$router.push({ path: 'aa', query: { a: '1' }})
 以名字来跳转 this.$router.push({ name:'user'}) 等价于 <router-link :to="{ name: 'user', params: { a: 1 }}">
 一路由控制多组件：多个<router-view name="a">和components:{a:A,default:B}
 把路由传入组件属性 props: true 不用调用$router
+传参：this.$route
 
 #### 其它：
 `#`是用来指导浏览器动作的,表位置，也可以用来显示个性化内容
-  ajax请求自动剔除它。 
-  如果#有意义需转码 
+  ajax请求自动剔除它，如果#有意义需转码 。
   改变#会改变浏览器的访问历史不会重载,触发onhashchange
   window.location.hash
   Google爬虫读不到#，读得到`#!`转成查询字符串 /#!/username等同于/？_escaped_fragment_=/username
+
+#### Element-UI
+<el-row> 
+  :gutter 列的间隙
+  :justify="start/end/center/space-around/space-between" 水平排列方式 :type="flex"
+  :align="top/middle/bottom" 垂直排列方式
+ <el-col> 
+  :span 普通单位。 :xs/sm/md/lg/xl 屏宽响应单位,总24,一般同时写。
+  :offset ->左间隔单位(会影响右侧空间) :push/pull 右左移单位
+<el-container > 用它的不同组合来确定flexbox分布 direction="horizontal/vertical"排列
+ <el-header height="60px">
+ <el-main>
+ <el-footer height="60px">
+ <el-aside width="300px">
+
+设计规范：
+  font-size：主标题20px 标题18px 小标题16px 正文14px 小正文13px 辅助文字12px 
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+设计：
+ 16：9 height:56.25vw
+
 
 
 ## 微信平台
@@ -312,22 +409,24 @@ rotate:function(){
 <swiper current="1"  class='swiperbox' interval="0" duration="500"  bindchange="SlideFinish"> 
 	<swiper-item><view /></swiper-item> 
 </swiper>
+
  sin30°就得写成 Math.sin（30*Math.PI/180）
 `dy=dc*sin; dx=dc*cos;`
 wx.canvasGetImageData无法在组件中使用
 只有[].every能中途终止
 
-# word介绍-能做什么
-小程序的视图层目前使用 WebView（app内嵌网页）作为渲染载体。
-原生组件：滑条选择器，拖拽、音视频、地图、相机、实时音视频录制、实时音视频播放、内嵌网页、客服会话、
-系统功能：操作文件/加速度/罗盘/打电话/扫码/蓝牙/截屏/屏幕亮度/振动/通讯录/NFC/WiFi
-数据分析：用户访问趋势、用户访问分布、用户访问留存、页面访问数据。
+### mpvue
+1. 新增的页面需要重新 npm run dev 来进行编译
 
-照相自定义截图
-淡入淡出图廊
-选择音乐
-全屏
-	
+### D3
+SVG原生元素：矩形 圆 椭圆 线段 折线 多边形 路径 
+svg.selectAll("rect").data(dataset).enter().append("rect") 有数据，而没有足够图形元素的时候，使用此方法可以添加足够的元素。
+css: fill背景色 x y width height
+比例尺:将某一区域的值映射到另一区域，其大小关系不变。开发者需要指定 定义域domain 和 值域range 的范围
+  1. 线性比例尺，能将一个连续的区间，映射到另一区间。要解决柱形图宽度的问题，就需要线性比例尺。
+  2. d3.scaleLinear().domain([d3.min(dataset), d3.max(dataset)]).range([0, 300]); linear(min)返回0  domain的最小值映射到range的最小值，最大值同理。
+  3. var ordinal = d3.scaleOrdinal().domain([]).range([]); 映射离散值按索引一一对应。
+# word介绍-能做什么
 日历思路
 首行 要知道有几个项 7-n得出剩余位置 n是1日位
 要知道有几行 x/7 
@@ -347,4 +446,9 @@ getMonth() 0-11 一至十二
 切换tab是否刷新数据？为性能暂不处理，可设超过1分钟切换tab刷新
 
 公司公用组件：
-提现页
+
+http实时交互：每个请求返回一个list,包含服务端的变化,去请求对应的接口。服务端要记住前端请求了哪些，这要求数据库信息有序号。
+
+离线缓存思路：
+把app.js等缓存进catch,用ajax更新动态内容
+线上改动时：js判断是否页面联网，联网就更新

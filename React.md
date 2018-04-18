@@ -62,7 +62,6 @@ class InputControlES6 extends Component {
 	}   //手动绑定方法的this(性能高)，或者：<div onClick={()=>this.handleClick()}></div>
 	handleClick(){}
 	render(){return();}
-
 	static propTypes = {} //ES7静态属性，取代propTypes:{}
 	static defaultProps = {} //取代getDefaultProps，定义在本组件内不需要父级传入
 }
