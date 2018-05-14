@@ -169,6 +169,12 @@ http请求：
   1. Wing编辑器: 新建组 - 新建动画 - 右键设置最少2个关键帧 - 右键设置补间动画 - 把组名id调用 a.play(0) a.stop() a.pause() - 动画完成事件` this.a.addEventListener('complete', this.onTweenGroupComplete, this);`
   2. 帧事件：ENTER_FRAME是帧频，startTick是60帧。egret.Ticker.getInstance().register(v,this) / unregister 把
   3. 
+思路：
+  1. 墙的四个边放上透明的条形图片，用这些透明图来和子弹判断碰撞，就可以知道碰撞的是哪个边。
+#### 微信小游戏
+全局对象： window => GameGlobal
+wx.onTouchStart onTouchMove onTouchEnd onTouchCancel
+wx.createCanvas()
 
 
 贴图是一张照片，用于替代模型。纹理是重复，阵列，缩放的贴图。材质是视觉层面的反光表现力。
@@ -570,3 +576,12 @@ card.runAction([
 //HSlider.skinName="a"
 不能获取它的子节点，但可以用id获取。
 ```
+
+碰撞：if (shp.hitTestPoint( this.obj.x, this.obj.y)) this.removeEventListener(egret.Event.ENTER_FRAME, calls, this )
+弹球反弹： 
+  1. 碰到矩形x边 `vx*=-1` 碰到y边 `vy*=-1` 垂直水平边取反正负号
+  2. 球球之间碰 遍历所有对象坐标,比较二者坐标判断 左上/左/左下/右上/右/右下/上/下 8个方位。转换vx/vy正负既可。
+向量积：
+ 1. 如果向量1转向向量2为逆时针，那么他们的向量积就大于0，如果是顺时针，那么就小于0。`<x1,y1>*<x2,y2> = x1*y2-x2*y1` 手算过转了三个象限判断顺逆时针有效。
+ 2.  如果两个点在一个位于原点的向量（暂称原向量）两侧，那两个向量必将在原向量的顺时针和逆时针两侧。那么原向量和两个向量分别的向量积必定异号
+

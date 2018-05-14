@@ -1,4 +1,6 @@
 ### 实战bug
+ts写法直接修改变量无效，src={a} 通过三元运算符才能改？ 复杂的要函数操作渲染{func()}
+blob图片透明底会变白色
 异步子组件：异步数据没有时，v-if不显示该组件配合computed赋值状态。貌似是响应依赖关系没建立。
 路由传参：
   1. 如果 props 被设置为 true，`route.params`将会被设置为组件属性。
@@ -21,6 +23,7 @@ import导入库的时候，可能导致循环依赖，在微信PC端游览器上
 100vw会超出微信游览器屏宽，100%不会。img只要有宽度就出现？
 微信：
   1. 微信分享会把`?from=singlemessage`添加在`#/route?`之前: [?][\s\S]*[#]
+  2. 微信分享的连接和图片url必须在公众号后台设定的js安全域名内！
 
 https里的iframe不能用http
 webpackjsop报错和异步require组件报错原因：没用https流量劫持导致js文件没下载下来
@@ -35,6 +38,16 @@ export default{} 等同于 new vue({})
 3. 配置免密git: 修改.git/config http://chenjun-110:password@git.com
 4. tsx引入图片： `declare var require: any` 或 `declare function require(string): string;`
 5. 微信环境：dist目录要有个带密钥的txt文件
+6. 手机访问PC环境：
+  1. 反向代理：ipconfig找到无线局域网适配器IP就是ngnix服务器在局域网的IP 手机WIFI的IP设置成ngnix是访问nginx本身！
+  2. 正向代理：wifi的IP设置成fiddler的IP:8888 
+  3. HTTPS抓包：fiddlerPC端在 https://www.telerik.com/fiddler/add-ons 下证书，手机端访问IP:8888点击链接下证书。 谷歌PC游览器需要从fiddler的tools里导出证书。 IOS还需要开启：设置 –> 通用 –> 关于本机 –> 证书信息设置; 
+7. 移动控制台
+```
+npm install vconsole
+import VConsole from 'vconsole/dist/vconsole.min.js' //import vconsole
+let vConsole = new VConsole()
+```
 ####
 以下都和data属性绑定，data属性渲染后手动赋值全部会实时生效
 
@@ -421,11 +434,19 @@ wx.canvasGetImageData无法在组件中使用
 ### D3
 SVG原生元素：矩形 圆 椭圆 线段 折线 多边形 路径 
 svg.selectAll("rect").data(dataset).enter().append("rect") 有数据，而没有足够图形元素的时候，使用此方法可以添加足够的元素。
-css: fill背景色 x y width height
+css: style/attr()
+  1. rect `fill`背景色 x y width height `transform:translate(x,y)`定位
+  2. circle cx cy r fill
+  3. text x y dx dy
+特效： circle.transition().duration(1000).ease('bounce').style('fill','red').attr('cx', 300) 
 比例尺:将某一区域的值映射到另一区域，其大小关系不变。开发者需要指定 定义域domain 和 值域range 的范围
   1. 线性比例尺，能将一个连续的区间，映射到另一区间。要解决柱形图宽度的问题，就需要线性比例尺。
-  2. d3.scaleLinear().domain([d3.min(dataset), d3.max(dataset)]).range([0, 300]); linear(min)返回0  domain的最小值映射到range的最小值，最大值同理。
-  3. var ordinal = d3.scaleOrdinal().domain([]).range([]); 映射离散值按索引一一对应。
+  2. var linear = d3.`scaleLinear`().domain([d3.min(dataset), d3.max(dataset)]).range([0, 300]); linear(min)返回0  domain的最小值映射到range的最小值，最大值同理。
+  3. var ordinal = `d3.scaleOrdinal`().domain([]).range([]); 映射离散值按索引一一对应。
+坐标轴：svg.append("g").call(`d3.axisBottom`(linear).ticks(7)); 
+没有元素与之对应的数据称为 Enter。元素和数据对应称为 Update。没有和数据绑定的元素称为 Exit。
+.on("mouseover",function(d,i){d3.select(this).attr("fill","yellow");})
+.on("mouseout",function(d,i){d3.select(this).transition().duration(500).attr("fill","steelblue");});
 # word介绍-能做什么
 日历思路
 首行 要知道有几个项 7-n得出剩余位置 n是1日位
@@ -452,3 +473,10 @@ http实时交互：每个请求返回一个list,包含服务端的变化,去请�
 离线缓存思路：
 把app.js等缓存进catch,用ajax更新动态内容
 线上改动时：js判断是否页面联网，联网就更新
+
+ajax下载图片等blob二进制
+`window.URL.createObjectURL(blob)`
+```
+axios.get('http://app.gym2.com/?file_name=00.gif', {onDownloadProgress: e => this.progress = (e.loaded / e.total * 100 | 0) + '%', responseType: 'blob'})
+.then(v => this.$set(this.img, 'src', window.URL.createObjectURL(v.data)))
+```

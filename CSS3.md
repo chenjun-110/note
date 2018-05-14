@@ -257,9 +257,11 @@ direction: rtl 方向
 `order:-1 `排序，和z-index类似。数值小的在前面。
 `margin:auto` 获取所有剩余空间，单个元素可实现居中
 `flex:1 100%` 分配空间，1代表1/n。flex和为n。参数：拉伸比率 收缩比率 基准值。
-
 水平排列：display: flex; flex-direction: row;
  水平且均分空间：占位符flex:1,其余固宽。
+实战：
+  1. margin-left: auto; 可代替 justify-self: flex-end; 后者不兼容,auto会消耗所有空闲空间。auto可以调整水平方向任意元素的间距。flexbox内部元素的magrin:auto是垂直水平居中。
+  2. 控制文字高度和文字高度相等,font-size === line-height
 **选择器**
 A>B 表示选择A元素的所有子B，仅一代。`>*`所有直接子元素。
 A B 选择多代B
