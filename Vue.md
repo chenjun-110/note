@@ -177,6 +177,8 @@ path: '/user/:id' 指向 to="/user/所有"  {{ $route.params.id }}可取路由�
   font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
 设计：
  16：9 height:56.25vw
+和设计的约定：
+  列表式icon切图宽度务必一致。防止比例不对。
 
 
 
