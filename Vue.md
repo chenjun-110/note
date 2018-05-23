@@ -24,6 +24,13 @@ import导入库的时候，可能导致循环依赖，在微信PC端游览器上
 微信：
   1. 微信分享会把`?from=singlemessage`添加在`#/route?`之前: [?][\s\S]*[#]
   2. 微信分享的连接和图片url必须在公众号后台设定的js安全域名内！
+  3. ios-safari的往返缓存会丢失dom事件，必须下拉一下页面。
+```
+window.addEventListener('popstate', function (e) {
+  console.log('referrer', document.referrer)
+  if (window.location.href.indexOf('member') > 1) that.$router.push('/member') 重置当前url
+}, false)
+```
 
 https里的iframe不能用http
 webpackjsop报错和异步require组件报错原因：没用https流量劫持导致js文件没下载下来
