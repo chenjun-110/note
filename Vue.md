@@ -24,7 +24,14 @@ import导入库的时候，可能导致循环依赖，在微信PC端游览器上
 微信：
   1. 微信分享会把`?from=singlemessage`添加在`#/route?`之前: [?][\s\S]*[#]
   2. 微信分享的连接和图片url必须在公众号后台设定的js安全域名内！
-  3. ios-safari的往返缓存会丢失dom事件，必须下拉一下页面。
+  3. ios-safari的往返缓存会丢失dom事件，必须下拉一下页面,用popstate事件。
+  4. 用 `window.wx` 代替 wx。解决首次进入wx的undefined
+  5. 微信分享的VUE在根组件时获取query也是没有参数的！还需要每个页面都签名一次。
+ios8兼容：
+  1. includes不兼容
+  2. flex不兼容
+安卓兼容：
+  1. pointer-events:none 安卓点击image预览
 ```
 window.addEventListener('popstate', function (e) {
   console.log('referrer', document.referrer)
@@ -65,6 +72,9 @@ v-for="(v,i) in arr" 数组批量渲染本节点，v表示每项,可以迭代对
 v-on:click="方法名" @事件绑定方法 methods属性存方法 事件修饰符有原生事件能力 按键修饰符缩小触发范围
 v-model="m" input绑定 复选框注入m的值为true/false 单选框和下拉框注入的值是value属性值
 :key在语法提示里是必须的
+:class
+  :class="[{'a': true}, 'b']" a,b都有
+  :class="[id === 20 ? 'a' : 'b']"
 
 自定义指令：
   钩子：bind inserted update componentUpdated unbind
