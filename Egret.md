@@ -5,12 +5,12 @@
   4. resource default.res.json配置资源
   5. template 调试(不动)
   6. egretProperties.json 项目配置
-    1. path：是库的版本，没写则升级，写了则不升级。`"${EGRET_DEFAULT}"`引擎路径，`"${EGRET_APP_DATA}/4.0.3"`引擎历史版本路径。
+        1. path：是库的版本，没写则升级，写了则不升级。`"${EGRET_DEFAULT}"`引擎路径，`"${EGRET_APP_DATA}/4.0.3"`引擎历史版本路径。
   7. index.html 入口
-    1. game_files：由`build -e`构建生成
-    2. modules_files对应：libs/modules、项目配置中的mudules
-    3. div:旋转模式、适配模式、帧频、游戏宽高、、多指数、显示fps/脏矩形区域/fpslog/过滤log/ps面板样式.
-    4. script:egret.runEgret({}) 渲染模式、音频类型、抗锯齿、缩放画布
+        1. game_files：由`build -e`构建生成
+            2. modules_files对应：libs/modules、项目配置中的mudules
+                3. div:旋转模式、适配模式、帧频、游戏宽高、、多指数、显示fps/脏矩形区域/fpslog/过滤log/ps面板样式.
+                    4. script:egret.runEgret({}) 渲染模式、音频类型、抗锯齿、缩放画布
 运行：构建egret build->调试egret startserver -a
 生命周期egret.lifecycle
   1. onPause：进入后台
@@ -23,14 +23,14 @@ egret.ticker
 七大显示类：
   1. DisplayObject 显示对象基类，所有显示对象均继承自此类
   2. Bitmap	显示位图
-  3. Shape	显示矢量图
-  4. TextField	文本类
-  5. BitmapText	位图文本类
-  6. DisplayObjectContainer	显示对象容器接口
-    1. Stage
-    2. ScrollView
-    3. Sprite
-  7. Sprite	矢量绘制的显示容器
+  	. Shape	显示矢量图
+  	. TextField	文本类
+  	. BitmapText	位图文本类
+  	. DisplayObjectContainer	显示对象容器接口
+        1. Stage
+        2. ScrollView
+        3. Sprite
+  		 Sprite	矢量绘制的显示容器
   8. Stage 舞台类
   9. MovieClip MovieClipData MovieClipDataFactory
 容器API：
@@ -47,7 +47,7 @@ egret.ticker
   5. 增删改对象：`addChildAt`(显示对象, 深度值)： 插入到指定z-index。 `removeChildAt`(深度值)：移出指定深度对象 `removeChildren`():移出所有子对象 交换对象深度：`swapChildren`(对象, 对象)/`swapChildrenAt`(深度值, 深度值) `setChildIndex`(显示对象, 新深度值)：修改对象深度
   6. 容器获取子对象：推荐`getChildAt`(深度值)。 `getChildByName`(name属性) 
   3. this.stage: 获取对象的容器？
-  
+
 矢量画图API:
  shape/Sprite实例：`spr.graphics`前缀
   1. 基础过程： beginFill() -> drawReact/drawCircle() -> endFill() 
@@ -65,12 +65,12 @@ egret.ticker
   5. 布局：`textAlign`默认左对齐 值：egret.HorizontalAlign.RIGHT右对齐/CENTER居中。 `verticalAlign`默认顶对齐 值：egret.VerticalAlign.BOTTOM底对齐/MIDDLE垂直居中。注意：相对文字宽高
   6. 描边样式：stroke描边宽度 strokeColor描边颜色
   7. 混合样式：
-    1. js写法：`textFlow`=[{text:"a",style:{"size":6}},{text:"b",style:{"italic":true}}] `text:"\n"`换行
-    2. HTML写法：`textFlow=(new egret.HtmlTextParser).parser("")` 默认"",有样式"<font color="" size="" fontFamily=""><i></i><b></b></font>"
+        1. js写法：`textFlow`=[{text:"a",style:{"size":6}},{text:"b",style:{"italic":true}}] `text:"\n"`换行
+            2. HTML写法：`textFlow=(new egret.HtmlTextParser).parser("")` 默认"",有样式"<font color="" size="" fontFamily=""><i></i><b></b></font>"
   8. 输入框：`type` = egret.TextFieldType.INPUT 默认是没背景色的，需要额外的Shape绘制
-    1. 获得焦点：按钮监听TOUCH_BEGIN -> 调用text.`setFocus()`
-    2. 输入样式：inputType=egret.TextFieldInputType.TEXT/PASSWORD/TEL displayAsPassword=true隐藏密码
- 
+        1. 获得焦点：按钮监听TOUCH_BEGIN -> 调用text.`setFocus()`
+            2. 输入样式：inputType=egret.TextFieldInputType.TEXT/PASSWORD/TEL displayAsPassword=true隐藏密码
+
 事件：`circle.touchEnabled = true; circle.addEventListener(egret.TouchEvent.TOUCH_TAP,fuc,this);`
   1. 手指按到屏幕：egret.TouchEvent.TOUCH_BEGIN
   2. 手指离开屏幕：egret.TouchEvent.TOUCH_END
@@ -89,14 +89,14 @@ egret.ticker
   15. 数组更改事件：eui.CollectionEvent.COLLECTION_CHANGE
   16. 加载skinName事件：eui.UIEvent.COMPLETE 在createChildren之后触发
   17. event:
-    1. 点击坐标：e.localX/localY
-    2. 手指坐标：e.stageX/Y 
-    3. 手指按到的当前对象：e.currentTarget
-    4. 多点触摸标识：e.touchPointID
+        1. 点击坐标：e.localX/localY
+        2. 手指坐标：e.stageX/Y 
+        3. 手指按到的当前对象：e.currentTarget
+        4. 多点触摸标识：e.touchPointID
   18. 事件搭配：
-    1. egret.Event.COMPLETE -> new egret.Sound/Video() sound.load() -> new egret.HttpRequest();
+        1. egret.Event.COMPLETE -> new egret.Sound/Video() sound.load() -> new egret.HttpRequest();
   19. 事件代理：
-    1. 单选：RadioButton.group监听egret.Event.CHANGE
+        1. 单选：RadioButton.group监听egret.Event.CHANGE
   20. 事件传参：this.reset.addEventListener(egret.TouchEvent.TOUCH_TAP,this.fuc.`bind(this,"reset")` ,this) //回调第一个参数是传参，第二个参数是event对象。 不管用就`bind(null,[this,'reset'])`如果事件在回调内绑定好像拿不到回调内的局部变量？
   21. 阻止冒泡：e.stopImmediatePropagation()
 自定义事件：
@@ -122,14 +122,14 @@ http请求：
   6. 平铺属性：fillMode = egret.BitmapFillMode.REPEAT默认是拉伸
   7. 纹理集：用Texture Merger工具制作纹理集json -> 改配置文件type:'sheet'，keys和name值为json名 -> new egret.Bitmap(RES.getRes("jsonname.name1"))
   8. 截图：
-    1. 截图转存本地：texture=RES.getRes() texture.saveToFile(截图格式,截图名,new egret.Rectangle(2,2,1,1)) 截图格式：'image/png'/ 'image/jpeg'
-    2. 截屏显示对象：new egret.RenderTexture -> drawToTexture(displayobj，rect) -> 赋值给new egret.Bitmap的texture
+        1. 截图转存本地：texture=RES.getRes() texture.saveToFile(截图格式,截图名,new egret.Rectangle(2,2,1,1)) 截图格式：'image/png'/ 'image/jpeg'
+            2. 截屏显示对象：new egret.RenderTexture -> drawToTexture(displayobj，rect) -> 赋值给new egret.Bitmap的texture
   9. 图片重叠时：img.blendMode = egret.BlendMode.NORMAL;覆盖 egret.BlendMode.ADD叠加透明变亮 egret.BlendMode.ERASE重叠区删除
   10. 滤镜：
-    1. 光晕：img.`filters` = [new egret.GlowFilter(颜色，透明，x模糊,y模糊，强度，次数，方向，挖空)]
-    2. 阴影：new egret.DropShadowFilter()
-    3. 变色：new egret.ColorMatrixFilter(矩阵数组) 该实例的matrix属性获取矩阵数组
-    4. 模糊：new egret.BlurFilte(x,y)
+        1. 光晕：img.`filters` = [new egret.GlowFilter(颜色，透明，x模糊,y模糊，强度，次数，方向，挖空)]
+        2. 阴影：new egret.DropShadowFilter()
+        3. 变色：new egret.ColorMatrixFilter(矩阵数组) 该实例的matrix属性获取矩阵数组
+        4. 模糊：new egret.BlurFilte(x,y)
   11. 位图字体：RES.getResByUrl获取fnt文件 -> 回调参数赋值给BItmapText.font -> 修改text属性 `<e:BitmapLabel text="1" font="1_fnt" />`
   12. 
 时间：
@@ -138,19 +138,19 @@ http请求：
   3. 获取框架启动时间：egret.getTimer() 依赖系统本地时间不太可靠
 多媒体：
   1. 音频：
-    1. sound加载：new egret.Sound() -> 监听音频加载 -> sound.play()播放
-    2. URLLoader加载：new egret.URLLoader() -> 监听音频加载事件 -> sound=loader.data; sound.play() -> dataFormat=egret.URLLoaderDataFormat.SOUND -> load(new egret.URLRequest("resource/sound/sound.mp3"))
-    3. res加载：var sound = RES.getRes("sound_mp3") -> sound.play()
-    4. api:channel=sound.play(播放位置,播放次数) channel.stop() volume音量 position当前播放位置 sound.length时长
+        1. sound加载：new egret.Sound() -> 监听音频加载 -> sound.play()播放
+            2. URLLoader加载：new egret.URLLoader() -> 监听音频加载事件 -> sound=loader.data; sound.play() -> dataFormat=egret.URLLoaderDataFormat.SOUND -> load(new egret.URLRequest("resource/sound/sound.mp3"))
+                3. res加载：var sound = RES.getRes("sound_mp3") -> sound.play()
+                    4. api:channel=sound.play(播放位置,播放次数) channel.stop() volume音量 position当前播放位置 sound.length时长
   2. 视频：
-    1. new egret.Video
+        1. new egret.Video
 硬件信息：
   1. egret.Capabilities.isMobile移动系统/language语言/os操作系统/runtimeType项目类型
   2. 陀螺仪：new egret.DeviceOrientation() -> 监听egret.Event.CHANGE -> orientation.start() | e.alpha/beta/gamma
   3. 地理位置：
-    1. new egret.Geolocation() -> 监听egret.Event.CHANGE -> gps.start() e.latitude/altitude/longitude/speed
-    2. 监听用户手动拒绝事件： egret.GeolocationEvent.PERMISSION_DENIED
-    3. 失败事件：egret.GeolocationEvent.UNAVAILABLE e.errorMessage/errorType
+        1. new egret.Geolocation() -> 监听egret.Event.CHANGE -> gps.start() e.latitude/altitude/longitude/speed
+            2. 监听用户手动拒绝事件： egret.GeolocationEvent.PERMISSION_DENIED
+                3. 失败事件：egret.GeolocationEvent.UNAVAILABLE e.errorMessage/errorType
 调试：
   1. 开发版：if(DEBUG){} 发行版：if(RELEASE){}  发行后会移除DEBUG代码块
   2. log: 先开启data-show-log="true" ->  egret.log()
@@ -160,12 +160,12 @@ http请求：
   2. IOS配置在ViewController.mm
 问题：
  随机色：(Math.floor(Math.random() * 0xff)<<16）+(Math.floor(Math.random() * 0xff )<<8）+Math.floor(Math.random() * 0xff）
-  cacheAsBitmap = true; 对象转位图，频繁改位置不用重渲
-  父级宽度：this.stage.stageWidth
-  Sprite和Shape的区别？
-   this.stage.addEventListener(egret.Event.ACTIVATE,this.onActive,this)
-  egret.registerImplementation("eui.IAssetAdapter",assetAdapter); eui.IThemeAdapte
-  Socket
+    cacheAsBitmap = true; 对象转位图，频繁改位置不用重渲
+    父级宽度：this.stage.stageWidth
+    Sprite和Shape的区别？
+      this.stage.addEventListener(egret.Event.ACTIVATE,this.onActive,this)
+    egret.registerImplementation("eui.IAssetAdapter",assetAdapter); eui.IThemeAdapte
+    Socket
 动画：
   1. Wing编辑器: 新建组 - 新建动画 - 右键设置最少2个关键帧 - 右键设置补间动画 - 把组名id调用 a.play(0) a.stop() a.pause() - 动画完成事件` this.a.addEventListener('complete', this.onTweenGroupComplete, this);`
   2. 帧事件：ENTER_FRAME是帧频，startTick是60帧。egret.Ticker.getInstance().register(v,this) / unregister 把
@@ -182,68 +182,68 @@ wx.createCanvas()
 ####Typescript:
 语法：
   1. 基本 :any  :Object :string :boolean :number :symbol支持浮点数/2、8、10、16进制数 :Error :Date :RegExp :HTMLElement ：Document ：Event ：NodeList 
-    1. `：any`声明但未赋值的变量默认类型，可做任意操作。
-    2. `:undefined`和`:null`值只能为自己,且是所有类型的子类型。
-    3. 类型推论：声明且赋值自动加类型。2.1中根据最后一次赋值，联合类型会变化哦！
-    4. 联合类型：`:string | number`注意如果传值没定义类型，则只能访问共有属性！ 
-    5. 类型断言： `(a as string).length` / `(<string>a).length` 等价于a.length,前者支持JSX
-    6. 
+        1. `：any`声明但未赋值的变量默认类型，可做任意操作。
+            2. `:undefined`和`:null`值只能为自己,且是所有类型的子类型。
+                3. 类型推论：声明且赋值自动加类型。2.1中根据最后一次赋值，联合类型会变化哦！
+                    4. 联合类型：`:string | number`注意如果传值没定义类型，则只能访问共有属性！ 
+                        5. 类型断言： `(a as string).length` / `(<string>a).length` 等价于a.length,前者支持JSX
+                            6. 
   2. `type` 用于综合类型
-    1. type EventNames = 'click' | 'scroll' | 'mousemove'; 必须为这三个字符串之一。
-    2. type A = typeA|typeB 为type综合类型之一
+        1. type EventNames = 'click' | 'scroll' | 'mousemove'; 必须为这三个字符串之一。
+            2. type A = typeA|typeB 为type综合类型之一
   3. 数组：
-    1. 数字`:number[]`或`:Array<number>` `:any[]`
-    2. 只读的数组 ：ReadonlyArray<number>
-    3. 元组 :[string,number] 前2位按顺序为该类型，后添加值也得是该类型之一。赋值时必须一次按类型赋值，不能分段赋值
+        1. 数字`:number[]`或`:Array<number>` `:any[]`
+            2. 只读的数组 ：ReadonlyArray<number>
+                3. 元组 :[string,number] 前2位按顺序为该类型，后添加值也得是该类型之一。赋值时必须一次按类型赋值，不能分段赋值
   4. 枚举类型 enum Name {a, b=100, c,} let kk:Name=Name.a;  值必须为数字。默认值从0开始，累加1。手动赋值的值后面累加1。适用于给数字命名。 
   5. 设了某种类型，其它类型的原生方法会被屏蔽。
   6. 函数 
-    1. ():void 规定返回值类型,必须为`null`和`undefined`。
-    2. ():never throw或return error 或while语句。 never类型不能被其它类型赋值 
-    3. (obj:{a:string}) 检查传参的a属性 等价于(obj:jiekou) interface jiekou{a:string}
-    4. 可选参数：`p?:string`放在最后
-    5. 剩余参数：`(A , ...B:any[])`
-    6. 
+        1. ():void 规定返回值类型,必须为`null`和`undefined`。
+            2. ():never throw或return error 或while语句。 never类型不能被其它类型赋值 
+                3. (obj:{a:string}) 检查传参的a属性 等价于(obj:jiekou) interface jiekou{a:string}
+                    4. 可选参数：`p?:string`放在最后
+                        5. 剩余参数：`(A , ...B:any[])`
+                            6. 
   7. .d.ts:
-    1. 声明：`declare var jQuery: (string) => any;`
-    2. 调用:`/// <reference path="./jQuery.d.ts" />`文件开头
-    3. TypeScript 核心库的定义中不包含 Node.js 部分。`npm install @types/node --save-dev`
+        1. 声明：`declare var jQuery: (string) => any;`
+            2. 调用:`/// <reference path="./jQuery.d.ts" />`文件开头
+                3. TypeScript 核心库的定义中不包含 Node.js 部分。`npm install @types/node --save-dev`
   8. 接口：interface jiekou{a:string; b?:number; readonly c:number; (d:string):boolean; [index: number]: string; f(e:Date);} 
-    1. 可选属性：`?` 
-    2. 只读属性：`readonly a:number` 调用时只能被赋值一次，适合属性
-    3. ():boolean 函数类型，参数名可不与接口参数一致
-    4. [index:number]:string 用数字索引取的值必须是字符串
-    5. f(d:Date) 继承类必须重写它
-    6. 首字母大写
-    7. 总结：必选属性不多不少，可选属性可以少,任意属性可以多。 
-    8. 任意属性：`[propName: string]: any;` 其它属性类型必须为任意类型的子类型。
-    9. 数组的接口定义：`[index:number]:number`
-    10. 接口用`:`在左边是约束定义时的格式，用`<>`在右边是约束后面的赋值格式。
-    11. 同名接口会合并。
+        1. 可选属性：`?` 
+            2. 只读属性：`readonly a:number` 调用时只能被赋值一次，适合属性
+                3. ():boolean 函数类型，参数名可不与接口参数一致
+                    4. [index:number]:string 用数字索引取的值必须是字符串
+                        5. f(d:Date) 继承类必须重写它
+                            6. 首字母大写
+                                7. 总结：必选属性不多不少，可选属性可以少,任意属性可以多。 
+                                    8. 任意属性：`[propName: string]: any;` 其它属性类型必须为任意类型的子类型。
+                                        9. 数组的接口定义：`[index:number]:number`
+                                            10. 接口用`:`在左边是约束定义时的格式，用`<>`在右边是约束后面的赋值格式。
+                                                11. 同名接口会合并。
   9. 类：
-    1. pubilc 默认
-    2. private 用this.xx访问
-    3. protected 子类在内部可用this.xx访问父类的xx，子类的实例不能直接访问。
-    4. readonly 只读
-    6. super 调用父类的constructor
-    7. get name() {} set name(value) {} 影响点操作符
-    8. 实例属性： name="a" 等价于 constructor内的this.name="a"
-    9. abstract 抽象类或抽象方法，父类对子类的约束，子类必须实现抽象方法！
-    9. implements和interface 接口定义的类似公用方法，但没有方法体。接口可继承接口。接口对任何类的约束，该类必须实现接口方法！
+        1. pubilc 默认
+            2. private 用this.xx访问
+                3. protected 子类在内部可用this.xx访问父类的xx，子类的实例不能直接访问。
+                    4. readonly 只读
+                        6. super 调用父类的constructor
+                            7. get name() {} set name(value) {} 影响点操作符
+                                8. 实例属性： name="a" 等价于 constructor内的this.name="a"
+                                    9. abstract 抽象类或抽象方法，父类对子类的约束，子类必须实现抽象方法！
+                                        9. implements和interface 接口定义的类似公用方法，但没有方法体。接口可继承接口。接口对任何类的约束，该类必须实现接口方法！
   10. 模块：
-    1. 声明 declare module "url" {export }  
-    2. 导入 import * as URL from "url"
+        1. 声明 declare module "url" {export }  
+        2. 导入 import * as URL from "url"
   11. 泛型： 用来约束未知类型
-    1. `fuc<T,U>(len: U, value: T): Array<T>` 表示返回值是数组，数组成员类型为value类型。
-    2. 因为泛型不知道具体类型，访问属性会报错，所以泛型可继承接口`<T extends a>`,在接口内定义要访问的属性。
+        1. `fuc<T,U>(len: U, value: T): Array<T>` 表示返回值是数组，数组成员类型为value类型。
+        2. 因为泛型不知道具体类型，访问属性会报错，所以泛型可继承接口`<T extends a>`,在接口内定义要访问的属性。
   12. 反射：运行时探知未知类的属性和方法，运行时能使用任意类！
-    1. `abstract class`内的private调用`protected abstract`方法可调用子类的同名`protected`方法。
-    2. 父类的protected可调用protected间接调用子类同名protected方法。
+        1. `abstract class`内的private调用`protected abstract`方法可调用子类的同名`protected`方法。
+        2. 父类的protected可调用protected间接调用子类同名protected方法。
 tsconfig.json：
   1. noEmitOnError：报错不编译成js
 问题：
 type C = { a: string, b?: number }
-  function f({ a, b }: C): void {
+    function f({ a, b }: C): void {
 }
 
 技巧：
@@ -299,7 +299,7 @@ class haha{
 顺序：加载资源配置loadConfig -> 加载资源组loadGroup -> 加载资源getRes
 自定义解析类代替默认解析类：registerAnalyzer
 清除已加载资源的缓存：RES.destroyRes()
-预加载：loadGroup() 所有资源会载入缓存，之前要监听3个资源组事件，e.groupName正在加载的组名	
+	加载：loadGroup() 所有资源会载入缓存，之前要监听3个资源组事件，e.groupName正在加载的组名	
 获取：RES.getRes RES.getResByUrl(适合三方网络资源/本地，不需要加载配置) RES.getResAsync(只能得到已缓存的)
 合并/创建资源组：RES.createGroup
 CDN:`RES.web.Html5VersionController.prototype.getVirtualUrl = function (url) {return url = Configure.CDN_HOST + "/" + url + '?v=' + Configure.resVersion;}`
@@ -312,26 +312,26 @@ EXML格式：
   1. <e:Group 表示继承eui.Group类。 
   2. class="app.my" 表示app模块内的my类
   3. <e:Image /> 位置在根节点内部，表示在constructor内 new eui.Image() -> this.addChild(image)
-    1. source  图片路径
-    2. scale9Grid  给父级设置九宫格.
-    3. id 声明pubilc变量
-    4. height="100%" 等价 image.percentHeight = 100
-    5. 如果子节点是父节点的默认属性，可不写属性节点(属性内部的还是要写)
-    6. horizontalCenter="0" 水平方向居中 verticalCenter="0"垂直居中
-    7. label 文字
-    8. top 同时约束相对位置和宽高
+        1. source  图片路径
+            2. scale9Grid  给父级设置九宫格.
+                3. id 声明pubilc变量
+                    4. height="100%" 等价 image.percentHeight = 100
+                        5. 如果子节点是父节点的默认属性，可不写属性节点(属性内部的还是要写)
+                            6. horizontalCenter="0" 水平方向居中 verticalCenter="0"垂直居中
+                                7. label 文字
+                                    8. top 同时约束相对位置和宽高
   4. 数据绑定：text="{data.label}" 这里绑定的是父级data属性的label值
   5. skinName 引用其他exml皮肤类，值对应class,相当于把被引用的标签写为它的子节点。父级exml声明的属性会传到skinName子级作`"{}"`变量。
   6. states状态
-    1. 对应各个子节点：source.down 或 includeIn="down"
-    2. excludeFrom表示不存在某个状态时
-    3. js内设置button.currentState = "down"
-    4. js内的this.invalidateState() -> 触发getCurrentState() 后者的return值就是状态值
+        1. 对应各个子节点：source.down 或 includeIn="down"
+            2. excludeFrom表示不存在某个状态时
+                3. js内设置button.currentState = "down"
+                    4. js内的this.invalidateState() -> 触发getCurrentState() 后者的return值就是状态值
   7. 皮肤组件<e:Skin>的同名变量值会赋值给逻辑组件button.skinName的pubilc变量。
   8. thm.json:skins是默认皮肤，exmls是预加载的文件列表
-    1. 版本号：url加？v=123
-    2. 异步加载主题：new eui.Theme("resource/thm.json", this.stage)
-    3. 更改根目录前缀：EXML.prefixURL 
+        1. 版本号：url加？v=123
+            2. 异步加载主题：new eui.Theme("resource/thm.json", this.stage)
+                3. 更改根目录前缀：EXML.prefixURL 
   9. 自动测量：不显示设置宽高
 布局：控制EUI的layout属性
   1. 基本布局：new eui.BasicLayout() 常用于外层Group
@@ -352,24 +352,24 @@ EXML格式：
   10. 输入框： new eui.EditableText() 要搭配背景图 属性：displayAsPassword密码 left左距 textColor text width height e.target.text
 容器：
   1. 简单容器：eui.Group 适用不带皮肤的，类似Sprite,内部组件要放在 protected createChildren(){super.createChildren()} 中
-    1. removeChildren删除内部所有显示对象
-    2. scrollEnabled = true 超出容器部分隐藏
+        1. removeChildren删除内部所有显示对象
+            2. scrollEnabled = true 超出容器部分隐藏
   2. 层叠容器:new eui.ViewStack() 只能显示一个子项。属性：selectedIndex默认项。 内部组件放置同上
   3. 面板容器：基于Group但eui.Panel()放在createChildren内
-    1. 必须有3个id：moveArea/titleDisplay/closeButton
+        1. 必须有3个id：moveArea/titleDisplay/closeButton
   4. 滚动容器：new eui.Scroller() -> 把Group实例赋值给viewport属性 内部组件放置同上 属性：Scroller.viewport.scrollV/scrollH纵横向滚动位置 Scroller.height滚动区域高度 Scroller.viewport.contentHeight滚动内容高度 stopAnimation()停止滚动动画 scroller.verticalScrollBar.autoVisibility/visible是否显示滚动条 滚动回弹时间0.5s
 数据：
   1. 数据容器：new eui.ArrayCollection([]) -> new eui.DataGroup() -> dataProvider=arc ->itemRenderer=类(这个类有数据！)
-    1. 大数据优化：useVirtualLayout = true;
-    2. itemRenderer类：数组改变则触发dataChanged()显示几条就循环调用几次,this.data是数组里显示的1条数据，继承在原型上无需定义。
+        1. 大数据优化：useVirtualLayout = true;
+            2. itemRenderer类：数组改变则触发dataChanged()显示几条就循环调用几次,this.data是数组里显示的1条数据，继承在原型上无需定义。
   2. 数组集合：eui.ArrayCollection 可监听数组更改事件eui.CollectionEvent.COLLECTION_CHANGE e.kind操作类型、e.target.length
-    1. addItem()相当于push addItemAt(,index)添加到指定索引
-    2. getItemAt(index)获取值 getItemIndex()获取索引 length获取数组长度
-    3. replaceItemAt(,index)替换数据
-    4. removeItemAt(index)删除某个 removeAll()全删
+        1. addItem()相当于push addItemAt(,index)添加到指定索引
+            2. getItemAt(index)获取值 getItemIndex()获取索引 length获取数组长度
+                3. replaceItemAt(,index)替换数据
+                    4. removeItemAt(index)删除某个 removeAll()全删
   3. 列表：new eui.List() -> dataProvider=arc -> itemRendererSkinName=exml列表样式({data}可取到数组各项) -> 
-    1. 属性：selectedIndex默认项 allowMultipleSelection可多选
-    2. 事件：eui.ItemTapEvent.ITEM_TAP点击列表项 list.selectedIndices/selectedItems选中项 requireSelection至少有一个选中
+        1. 属性：selectedIndex默认项 allowMultipleSelection可多选
+            2. 事件：eui.ItemTapEvent.ITEM_TAP点击列表项 list.selectedIndices/selectedItems选中项 requireSelection至少有一个选中
 ####Tween
 egret.Tween.get( shp, { loop:true,onChange:fuc} ).to( {x:10}, 500, egret.Ease.backInOut)
 .call() 动画结束后都回调
@@ -459,42 +459,69 @@ Facade：
 
 
 
-踩坑：
+实战踩坑：
   1. 定时器：不用TIMER_COMPLETE事件，直接
+
   2. 调用timer.stop();
-  2. dispatchEventWith触发任意字符串。dispatchEvent不行。
-  3. dispatchEventWith发送的参数，event.data接收。
-  4. window.location.href跳转地址必须带协议
-  5. 调用组件父级容器的validateNow()方法解决异步刷新闪屏
-  6. 获取主场景引用：egret.MainContext.instance.stage
-  7. 文本颜色：textColor十六进制 #FFCD70 应写成 0XFFCD70
-  8. 强制横屏：this.stage.orientation = egret.OrientationMode.LANDSCAPE;
-  9. 蓝屏后网页白板：index.html损坏！
-  10. addListener()这个API会被调用2次！
-  11. 子级点击区域不能超过父级Group
-  12. 老手机不支持new url()
-  13. IOS的资源有缓存。在index.html里加window.sourceVer = "1.1";
-  14. 动态组件：
-    1. collection.addItem()不卡。 replaceAll()不会重置滚动位置
-    2. Itemrender内存调用栈爆炸：是因为ArrayCollection传参不是数组！
-    3. Itemrender数据错误：滚动的时候没被新数据覆盖的老数据区域没清，需要手动隐藏。
-    4. 隐藏滚动条：scrollPolicyH="ScrollPolicy.OFF"
-    5. 原理：拿List组件来说，如果数据源只有一条数据，显示区域可以同时显示十条，则开始时只创建一个项目渲染器，添加一条数据，再创建一个新的项目渲染器。当数据量超过显示区域的最大值10时，就不再创建新的itemRenderer，而是回收利用现有资源。
-    6. 事件：eui.ItemTapEvent.ITEM_TAP -> e.itemRenderer。点list项找到itemRenderer再找到按钮属性，用once挂事件，不能批量绑定按钮事件因为只能找到数据，找不到显示对象(itemRenderer有限)。
-  15. 手机扫描egret本地服务器要在同一网关，查看本地网络的IPv4地址。
-  16. 引入三方库：文件夹放在项目外同级位置。首先要有文件夹包含3个文件p2.d.ts p2.js p2.min.js -> egretProperties.json用name:'p2',"path":绝对路径引入文件夹。-> 项目内用egret build -e编译      Cannot find name 'p2'是官网的.d.ts不能用！ 
-  17. 获取Group组子元素：`this.group.getElementAt(1)`
-  18. 大量Image动画性能比大量Button高
-  19. 调用其它类方法时不奏效：因为拿到的不是这个实例，检查下该类是被new出来的还是get单例出来的！
-  20. Wing编辑器踩坑：
-    1. 图片居中：位图字体不能设宽度！分类属性勾选详细约束上中项0！
-    2. 锚点：点击图片按shift键拖动蓝点！ 复合组件双击进入子界面分别设置锚点！
-  21. 屏幕适配：
-    1. fixedwidth模式：宽度不变。
-    2. egret.Event.RESIZE只能被this.stage监听！
-  22. id属性不可为关键字：name、 
-常用组件写法例子：
-  垂直动态数据滚动条：
+
+  3. dispatchEventWith触发任意字符串。dispatchEvent不行。
+
+  4. dispatchEventWith发送的参数，event.data接收。
+
+  5. window.location.href跳转地址必须带协议
+
+  6. 调用组件父级容器的validateNow()方法解决异步刷新闪屏
+
+  7. 获取主场景引用：egret.MainContext.instance.stage
+
+  8. 文本颜色：textColor十六进制 #FFCD70 应写成 0XFFCD70
+
+  9. 强制横屏：this.stage.orientation = egret.OrientationMode.LANDSCAPE;
+
+  10. 蓝屏后网页白板：index.html损坏！
+
+  11. addListener()这个API会被调用2次！
+
+  12. 子级点击区域不能超过父级Group
+
+  13. 老手机不支持new url()
+
+  14. IOS的资源有缓存。在index.html里加window.sourceVer = "1.1";
+
+  15. 动态组件：
+          1. collection.addItem()不卡。 replaceAll()不会重置滚动位置
+          2. Itemrender内存调用栈爆炸：是因为ArrayCollection传参不是数组！
+          3. Itemrender数据错误：滚动的时候没被新数据覆盖的老数据区域没清，需要手动隐藏。
+          4. 隐藏滚动条：scrollPolicyH="ScrollPolicy.OFF"
+          5. 原理：拿List组件来说，如果数据源只有一条数据，显示区域可以同时显示十条，则开始时只创建一个项目渲染器，添加一条数据，再创建一个新的项目渲染器。当数据量超过显示区域的最大值10时，就不再创建新的itemRenderer，而是回收利用现有资源。
+          6. 事件：eui.ItemTapEvent.ITEM_TAP -> e.itemRenderer。点list项找到itemRenderer再找到按钮属性，用once挂事件，不能批量绑定按钮事件因为只能找到数据，找不到显示对象(itemRenderer有限)。
+
+  16. 手机扫描egret本地服务器要在同一网关，查看本地网络的IPv4地址。
+
+  17. 引入三方库：文件夹放在项目外同级位置。首先要有文件夹包含3个文件p2.d.ts p2.js p2.min.js -> egretProperties.json用name:'p2',"path":绝对路径引入文件夹。-> 项目内用egret build -e编译      Cannot find name 'p2'是官网的.d.ts不能用！ 
+
+  18. 获取Group组子元素：`this.group.getElementAt(1)`
+
+  19. 大量Image动画性能比大量Button高
+
+  20. 调用其它类方法时不奏效：因为拿到的不是这个实例，检查下该类是被new出来的还是get单例出来的！
+
+  21. Wing编辑器踩坑：
+          1. 图片居中：位图字体不能设宽度！分类属性勾选详细约束上中项0！
+          2. 锚点：点击图片按shift键拖动蓝点！ 复合组件双击进入子界面分别设置锚点！
+
+  22. 屏幕适配：
+          1. fixedwidth模式：宽度不变。
+          2. egret.Event.RESIZE只能被this.stage监听！
+
+  23. id属性不可为关键字：name、 
+
+  24. ios的touchPointID值是随机的，安卓是单指0 二指1
+
+  25. win10的微信开发者工具点击按钮黑屏：右键图形独显开启
+
+      常用组件写法例子：
+        垂直动态数据滚动条：
 ```
 <e:Scroller id="Scroller" xmlns:e="http://ns.egret.com/eui" scrollPolicyH="ScrollPolicy.OFF">
     <e:Skin>

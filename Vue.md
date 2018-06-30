@@ -43,9 +43,9 @@ https里的iframe不能用http
 webpackjsop报错和异步require组件报错原因：没用https流量劫持导致js文件没下载下来
 #### vue-cli开发环境配置
 1. 配置scss:vue-cli有sass的loader不用手动加。
-  npm install node-sass --save-dev  
-  npm install sass-loader --save-dev  
-  <style lang="scss">
+    npm install node-sass --save-dev  
+    npm install sass-loader --save-dev  
+    <style lang="scss">
 .vue
 export default{} 等同于 new vue({})
 2. 本地访问打包后：把dist子内容复制到KOA的静态目录下。 config.index.js把assetsPublicPath的'/'改成'./'
@@ -259,12 +259,15 @@ WXML：
   wx.setNavigationBarTitle({ title: '当前页面'}) 设置标题
 
 ### 微信小程序
-重构思路：
+##### 重构思路
+
   Page对象设name属性/this，保存起来统一管理。 this.data.name复用同组件时区分页面
   ajax和回调业务分离。
   把跨页面跨组件的数据放入Redux。改了数据要有个机制实时刷新呢？ ：：Redux->setData
   如果用 redux，就没有 state 和 props 的区分了。组件都应该用 props
-遇到的坑：
+
+##### 遇到的坑
+
   把所有该用的init数据，最开始就要拿到！别到时候该有的数据没有，异步请求写一大堆，逻辑思路全乱还分散精力。路由入口判断尤为重要！
   箭头函数在模块文件里，拿不到this(就连bind都无效)，要写成function。
   cover-view自己是绝对定位，子元素绝对定位会消失。
@@ -274,12 +277,16 @@ WXML：
   `this.data.obj`设初始属性会被下次赋值覆盖。
   Canvas组件前5秒巨卡，setData巨慢，只能把按钮延迟setData显示,drawImage阻塞setData。
   离屏Canvas识别不适用对加载速度严格的组件。
-兼容性：
+
+##### 兼容性
+
   IOS能放音的API是wx.createInnerAudioContext()，设不理会静音开关obeyMuteSwitch=false
   IOS的image比background-image好
-  
+
   绝对定位必须有定位值。或者说弹性居中对绝对元素无效。
-和Vue的不同：
+
+##### 和Vue的不同
+
   单向绑定 this.setData({},()=>) 修改data并渲染，能设置obj.key属性，也能设置并新建不存在的对象和属性。
   没有method属性,挂方法和react一样。 它的methods在自定义组件上，而且data仍然是对象。
 注意：
@@ -289,34 +296,36 @@ WXML：
    静态样式不要写在style中，style适合动态渲染样式
 
 事件：`bind:tap="回调名"` catch:tap阻止冒泡 capture-bind:tap捕获 capture-catch:tap阻止捕获(包括后面的冒泡)
- 触摸事件 tap touchstart touchmove touchcancel touchend longpress长按 
- 过渡事件 transitionend animationend animationstart animationiteration一次迭代结束 
+ 触摸事件 `tap touchstart touchmove touchcancel touchend` `longpress`长按 
+ 过渡事件 `transitionend animationend animationstart animationiteration`一次迭代结束 
  其他事件都是非冒泡。data-属性挂载dataset对象下。`target`指向发生事件的组件，`currentTarget`指向绑定事件的组件。
- 用CSS3动画比这垃圾API强多了。keyframes触发animationend事件。
+ 用CSS3动画比这垃圾API强多了。`keyframes`触发`animationend`事件。
 
-生命周期：
-  App生命周期： onLaunch初始化 onShow前台 onHide后台 onError 时间参数能确定小程序入口
-  Page生命周期： onLoad加载 onReady初次渲染 onShow/onHide显示隐藏 onUnload页面卸载(点左上退回健) ---onShow快于onReady
+##### 生命周期
+
+  App生命周期： `onLaunch`初始化 `onShow`前台 `onHide`后台 `onError` 时间参数能确定小程序入口
+  Page生命周期： `onLoad`加载 `onReady`初次渲染 `onShow`/`onHide`显示隐藏 `onUnload`页面卸载(点左上退回健) ---`onShow`快于`onReady`
   组件生命周期：`created/attached`组件进入页面 `ready`组件节点布局完成 `moved`组件在节点树移动 `detached`页面移除组件
   组件relations生命周期：`linked`插入后 `linkChanged`移动后 `unlinked`移除后
-Page页面事件： onPageScroll滚动 onPullDownRefresh下拉 onReachBottom上拉触底 onShareAppMessage点击转发按钮
+Page页面事件： `onPageScroll`滚动 `onPullDownRefresh`下拉 `onReachBottom`上拉触底 `onShareAppMessage`点击转发按钮
 
 getApp().globalData 全局变量属性
-支持文件模块： module.exports = {} require()
+支持文件模块： `module.exports = {}` `require()`
 
-模板和组件的区别及思路：
+##### 模板和组件的区别及思路
+
   组件wxss的样式只对组件内的节点生效。 
   模板没有父级，作用只是切分wxml和wxss和js代码片段,要各自导入，data数据只共享当前页面的注入部分。
   init函数下把that.func=func，可以把自定义方法挂到其他对象中去，方便做函数级的mixin封装。
 
 
-#### WXML
-定义模板：<template name="{{a ? 'm':''}}"></template> 引入<import src="item.wxml"/> 调用<template is="m" data="{{...item}}"/>  
+##### WXML
+定义模板：`<template name="{{a ? 'm':''}}"></template>` 引入`<import src="item.wxml"/>` 调用`<template is="m" data="{{...item}}"/>`  
   扩展运算符把对象属性当做参数传入，模板内容可直接调用。{{...item}}等同于{{a:1,b:2,c}}这里的c表示c:c变量。有自己的作用域，只能引用模板内定义的wxs。
-  <include src="header.wxml"/>只用来引入代码，切分文件
+  `<include src="header.wxml"/>`只用来引入代码，切分文件
 wx:for="{{arr或obj}}" 循环次数等同对象长度 默认项item，默认索引index，
   嵌套wx:for貌似只是数据层为了拿到循环的变量？展现只靠最里面。wx:for-item/index自定义项、索引，用来做条件运算的。
-  <block wx:for> 是渲染多个结构块
+  `<block wx:for>` 是渲染多个结构块
 wx:key 动态渲染时保留状态(重排序) `wx:key="u"` 表示绑定item.u `wx:key="*this"`表示绑定item,item要是唯一字符串或数字。
 
 ```
@@ -334,7 +343,7 @@ wx:key 动态渲染时保留状态(重排序) `wx:key="u"` 表示绑定item.u `w
 数据类型的判断可以使用 constructor 属性。
 
 
-#### 自定义组件
+##### 自定义组件
 定义页的json设为 "component": true
 使用页的json设为 "usingComponents": { 组件名: 路径 }
 把组件插在调用处。小写字母和下划线。
@@ -342,25 +351,27 @@ Component({})
  properties属性 data数据 methods方法 `this.properties`渲染不需要转成data。
  observer属性改变执行该函数。驼峰写法：定义和表达式内。-符写法：传入在组件上。
  <popup taps="{{taps}}" /> 下传属性
- 
+
 `<slot></slot>`是给使用页插节点的。像参数。
   默认只有一处，多处要设置Component.options.multipleSlots为true
   使用页的`<view slot="a">`会插入到`<slot name="a">`
-  
+
 组件生命周期：`created/attached`组件进入页面 `ready`组件节点布局完成 `moved`组件在节点树移动 `detached`页面移除组件
 组件relations生命周期：`linked`插入后 `linkChanged`移动后 `unlinked`移除后
   父子组件都要设Component.relations属性。
   获取关联组件实例的有序数组：this.getRelationNodes(url)
 	
-自定义事件：
+
+##### 自定义事件：
+
   组件内通过原生事件回调手动触发自定义事件：`this.triggerEvent('xxevent',{},{})`
   组件外监听自定义事件：`bindxxevent="xx"` e.detail是二参 xx是父组件的方法。默认不冒泡。
   composed: true事件会冒泡进入父组件的模板内部，然后进入页面的父组件
-  
+
 module.exports = Behavior() 类似mixins,抽象出选项的公共部分。组件通过behaviors属使用。
   覆盖优先级：同名属性/方法：组件>后behavior>前behavior data:对象则合并，其他相互覆盖。 生命周期函数：都调用。
-  
-#### 性能
+
+##### 性能
 单包<2M 所有包<4M 打开对应子包页时下载子包。
 按需加载：app.json subPackages 子包之间不能引用js、template。
 小程序进入后台5分钟微信销毁，除了置顶的小程序
@@ -374,7 +385,7 @@ Redux:
   业务逻辑写在reducer
   createStore的二参是初始数据，用于前后端同构。
   视图组件只包含了渲染逻辑和触发 action
-#### 动画
+##### 动画
 创建实例 wx.createAnimation()
 一组 step() 同时开始，可传入配置指定当前组动画，不同时开始的用step衔接。
 提交 this.setData({Data:animation.export()}) 就算有多组貌似也只有一次提交
@@ -382,14 +393,14 @@ Canvas api
 draw会清空画布，draw(true)会保留。
 restore返回save保存的ctx设置
 drawImage(url,x,y,w,h) xy都是左上角
-#### DOM
+##### DOM
 wx.createSelectorQuery().in(this)
   select('.class')  跨自定义组件的后代选择器：.the-ancestor >>> .the-descendant
   selectAll
   selectViewport().scrollOffset(res=>).exec() 节点必须是scroll-view或viewport,滚动位置查询
 .boundingClientRect(res=>).exec()    坐标和dataset
 .fields({},res=>)).exec() 			 所有节点信息
-  
+
 
 图片全屏显示
 ```
