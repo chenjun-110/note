@@ -309,7 +309,7 @@ WXML：
   组件relations生命周期：`linked`插入后 `linkChanged`移动后 `unlinked`移除后
 Page页面事件： `onPageScroll`滚动 `onPullDownRefresh`下拉 `onReachBottom`上拉触底 `onShareAppMessage`点击转发按钮
 
-getApp().globalData 全局变量属性
+`getApp().globalData` 全局变量属性
 支持文件模块： `module.exports = {}` `require()`
 
 ##### 模板和组件的区别及思路
