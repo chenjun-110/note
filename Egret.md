@@ -98,6 +98,7 @@ egret.ticker
   19. 事件代理：
     1. 单选：RadioButton.group监听egret.Event.CHANGE
   20. 事件传参：this.reset.addEventListener(egret.TouchEvent.TOUCH_TAP,this.fuc.`bind(this,"reset")` ,this) //回调第一个参数是传参，第二个参数是event对象。 不管用就`bind(null,[this,'reset'])`如果事件在回调内绑定好像拿不到回调内的局部变量？
+  21. 阻止冒泡：e.stopImmediatePropagation()
 自定义事件：
   1. 事件类：`class abc extends egret.Event` constructor(type,bubbles,cancelable){super(type,bubbles,cancelable)}
   2. 注册：`.addEventListener(abc.type, f.a, f)` f是接受事件的类,2参必是返回空值的函数格式，5参可设优先级数字 .removeEventListener参数一致
@@ -374,6 +375,26 @@ egret.Tween.get( shp, { loop:true,onChange:fuc} ).to( {x:10}, 500, egret.Ease.ba
 .call() 动画结束后都回调
 .wait().to() 延迟时间
 onChange: 执行次数由时间决定。
+#### Tiled
+1.下载tiled编辑器，设置地图属性-图块层格式(XML), .tmx文件和图片都放入resource
+2.引入tiled官方库，渲染tiled.TMXTilemap对象。
+控制首个对象层的子元素：this.tmxTileMap.getObjects()[0].getObjectById(1).x += 50
+getlayers()
+#### 微信小游戏
+wx.navigateToMiniProgram 跳转到小程序
+引入三方tiled库：
+1. 改配置先清理再构建
+2. wxgame.ts改：if (filename == 'libs/modules/tiled/tiled.js' || filename == 'libs/modules/tiled/tiled.min.js') {content += ';window.tiled = tiled';}
+3. 如果需要解析XML文件，要下载xml支持库,在ganme.js引用：
+window.DOMParser = require("./xmldom/xmldom.js").DOMParser;
+4. 注释setTimeout语句。
+发布：先关闭微信开发者工具，再点击插件发布小游戏。
+tiled编辑器：
+ 1. 对象层是用来预埋坐标的。
+ 2. 对象层无子元素：.tmx必须要有<tileset><image /></tileset>
+ 3. 图片层不显示:修改tiled.js：_this.x = +data.attributes.offsetx; min.js要重新压缩。
+点击失效：设$touchEnabled = true
+侦听到 tiled.TMXImageLoadEvent.ALL_IMAGE_COMPLETE 事件
 ####Soket
 创建：new egret.WebSocket()
 读取数据：readUTF()
