@@ -93,6 +93,9 @@ props自定义属性负责渲染template,大写无效 v-bind="m"值为对象表�
 
 mixins：
   合并选项，冲突项不合并
+
+父传子批量绑定props:`v-bind="$attrs" `
+
 #### 动画：
 <transition name="v"> ： 包裹的dom有动画效果， name是CSS类名前缀：v-enter v-enter-to v-leave v-leave-to v-enter-active/v-leave-active
  <transition name="v" enter-active-class=""> 使用三方CSS动画库
@@ -285,6 +288,8 @@ WXML：
 
   绝对定位必须有定位值。或者说弹性居中对绝对元素无效。
 
+webview的url里不能出现`{}`字符，要`encodeURI`
+
 ##### 和Vue的不同
 
   单向绑定 this.setData({},()=>) 修改data并渲染，能设置obj.key属性，也能设置并新建不存在的对象和属性。
@@ -305,7 +310,15 @@ WXML：
 
   App生命周期： `onLaunch`初始化 `onShow`前台 `onHide`后台 `onError` 时间参数能确定小程序入口
   Page生命周期： `onLoad`加载 `onReady`初次渲染 `onShow`/`onHide`显示隐藏 `onUnload`页面卸载(点左上退回健) ---`onShow`快于`onReady`
-  组件生命周期：`created/attached`组件进入页面 `ready`组件节点布局完成 `moved`组件在节点树移动 `detached`页面移除组件
+  组件生命周期：
+```
+ created/attached 组件进入页面  created不能setData
+ ready 组件节点布局完成 
+ moved 组件在节点树移动 
+ detached 页面移除组件。
+```
+
+
   组件relations生命周期：`linked`插入后 `linkChanged`移动后 `unlinked`移除后
 Page页面事件： `onPageScroll`滚动 `onPullDownRefresh`下拉 `onReachBottom`上拉触底 `onShareAppMessage`点击转发按钮
 
@@ -393,6 +406,9 @@ Canvas api
 draw会清空画布，draw(true)会保留。
 restore返回save保存的ctx设置
 drawImage(url,x,y,w,h) xy都是左上角
+
+webview:网页向小程序 postMessage 时，会在特定时机（**小程序后退、组件销毁、分享**）触发并收到消息。一定看清楚是**小程序后退、组件销毁、分享**时才会触发， 
+
 ##### DOM
 wx.createSelectorQuery().in(this)
   select('.class')  跨自定义组件的后代选择器：.the-ancestor >>> .the-descendant

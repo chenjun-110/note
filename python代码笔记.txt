@@ -53,3 +53,21 @@ def person(name, age, **kw):
     两层循环：
 [m + n for m in 'ABC' for n in 'XYZ']
 ['AX', 'AY', 'AZ', 'BX', 'BY', 'BZ', 'CX', 'CY', 'CZ']
+
+
+
+平方 `i**2 `
+列表解析
+
+```
+L3 = [ (a,b) for a in L1 for b in L2 ] 
+等同
+for a in L1:
+	for b in L2:
+		L3.append((a,b))
+```
+
+
+
+= {w for w in words} 集合set推导
+= {value: key for key, value in original.items()} 字典dict推导，交换键和值到新字典

@@ -2,13 +2,15 @@
 ```
 <head><!--[if lt IE 9]> 
 <script src="http://apps.bdimg.com/libs/html5shiv/3.7/html5shiv.min.js"></script>
-<![endif]--></head>```
+<![endif]--></head>
+```
 载入后，初始化新标签的CSS：浏览器对无法识别的元素会作为内联元素自动处理。
 ```
 article,aside,dialog,footer,header,section,footer,nav,figure,menu
 {
 display:block
-}```
+}
+```
 为IE添加新元素标签`<my>`： (ie8及以下不支持)
 `document.createElement("my")`
 
@@ -17,12 +19,14 @@ display:block
 header, section, footer, aside, nav, article, figure
 {
 display: block;
-} ```
+} 
+```
 IE兼容渲染语义元素CSS：head脚本加载HTML5 Shiv
 ```
 <!--[if lt IE 9]>
 <script src="html5shiv.js"></script>
-<![endif]--> ```
+<![endif]--> 
+```
 #### meta
 `<meta http-equiv="X-UA-Compatible" content="IE=Edge">`
 X-UA-Compatible它告诉IE8采用何种IE版本去渲染网页。IE=edge告诉IE使用最新的引擎渲染网页，IE=EmulateIE7 使用IE7渲染，chrome=1则可以激活Chrome Frame。
@@ -85,7 +89,7 @@ getBoundingClientRect() 获取元素距离页面的偏移，利用它获得canva
   线宽随速度变化公式：max线宽-(v-minv)/(maxv-minv) * (max线宽-min线宽) 
   解决平滑过度线宽：上次线宽占2/3，当次线宽占1/3。
   重置画布：先clearRect()->再调用初始化背景函数。
-  
+
 触控事件：多点触控存在数组内e.touches[0] touchstart-touchmove-touchend
 ----------
 
@@ -259,7 +263,6 @@ w.terminate();                       终止web worker
 </script>```
 worker.js无法访问windowDOM，但可用self、location、close、importScripts、XMLHttpRequest、setTimeout、setInterval、addEventListener/postMessage。
 
-
 ----------
 ####语义化标签
 `<nav>`     导航
@@ -305,7 +308,8 @@ worker.js无法访问windowDOM，但可用self、location、close、importScript
 > 强调文本应该用 <em> ，
 > 重要文本应用 <strong>，
 > 被标记的或者高亮显示的文本应该用 <mark> 。
->可以有多个头足标签。 <header> 标签不能被放在 <footer>、<address>、<header> 元素内部。```
+> 可以有多个头足标签。 <header> 标签不能被放在 <footer>、<address>、<header> 元素内部。```
+> ```
 
 标题栏图标：
 `<link rel="icon" href="" type=""> `
@@ -323,4 +327,16 @@ audio音频方法
 ```
 paused返回true说明正在播放，返回false说明正在暂停。
 play()播放 pause()暂停 load()重载 fastSeek()指定播放时间 addTextTrack()添加文本轨道 canPlayType()检测游览器是否支持音频类型 
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
 ```

@@ -28,26 +28,26 @@
    	. TextField	文本类
    	. BitmapText	位图文本类
    	. DisplayObjectContainer	显示对象容器接口
-      1. Stage
-      2. ScrollView
-      3. Sprite
+            1. Stage
+            2. ScrollView
+            3. Sprite
    		 Sprite	矢量绘制的显示容器
-    13. Stage 舞台类
-    14. MovieClip MovieClipData MovieClipDataFactory
-   容器API：
-   `var shape:egret.Shape = new egret.Shape();`
-    15. shape.x/y 图片锚点位置(笛卡尔坐标)
-    16. scaleX/Y缩放 alpha透明度 rotation旋转角度 skewX/Y横纵向斜切 visible是否可见 width/height anchorOffsetX/Y改锚点自己的坐标
-    17. 遮罩：mask=new egret.Rectangle(,,,) 仅显示对象的遮罩区 .mask=obj 显示对象obj的轮廓就是遮罩区(obj要在列表，要填充) maks=null和$maskedObject=null删除遮罩
-    18. 碰撞检测：`shp.hitTestPoint(x,y,true)`判断某点，返回true是发生了碰撞。 带3参是精确碰撞(消耗性能)，不带是非精确。适用于判断点击区域范围是否为目标范围。 pixelHitTest位图透明碰撞
-   `var container: egret.DisplayObjectContainer = new egret.DisplayObjectContainer();`
-    19. container.globalToLocal(0,0): 全局坐标(0,0)转容器内坐标.值输出到返回值的x、y属性。 localToGlobal是本地转舞台。
-    20. addChild:  对象放在显示列表的顶层。同一对象多次添加只绘制一次(跟在哪个容器无关)。深度默认从0开始，每次+1。先把显示对象容器实例addChild到this -> 再把Shape实例addChild到container 注意：addChild进去的对象用contains会返回true
-    21. 容器对象.removeChild( 显示对象 ): 对象移出显示列表
-    22. 插到最前列：this.setChildIndex(obj, this.numChildren - 1)
-    23. 增删改对象：`addChildAt`(显示对象, 深度值)： 插入到指定z-index。 `removeChildAt`(深度值)：移出指定深度对象 `removeChildren`():移出所有子对象 交换对象深度：`swapChildren`(对象, 对象)/`swapChildrenAt`(深度值, 深度值) `setChildIndex`(显示对象, 新深度值)：修改对象深度
-    24. 容器获取子对象：推荐`getChildAt`(深度值)。 `getChildByName`(name属性) 
-    25. this.stage: 获取对象的容器？
+        13. Stage 舞台类
+        14. MovieClip MovieClipData MovieClipDataFactory
+      容器API：
+      `var shape:egret.Shape = new egret.Shape();`
+        15. shape.x/y 图片锚点位置(笛卡尔坐标)
+        16. scaleX/Y缩放 alpha透明度 rotation旋转角度 skewX/Y横纵向斜切 visible是否可见 width/height anchorOffsetX/Y改锚点自己的坐标
+        17. 遮罩：mask=new egret.Rectangle(,,,) 仅显示对象的遮罩区 .mask=obj 显示对象obj的轮廓就是遮罩区(obj要在列表，要填充) maks=null和$maskedObject=null删除遮罩
+        18. 碰撞检测：`shp.hitTestPoint(x,y,true)`判断某点，返回true是发生了碰撞。 带3参是精确碰撞(消耗性能)，不带是非精确。适用于判断点击区域范围是否为目标范围。 pixelHitTest位图透明碰撞
+      `var container: egret.DisplayObjectContainer = new egret.DisplayObjectContainer();`
+        19. container.globalToLocal(0,0): 全局坐标(0,0)转容器内坐标.值输出到返回值的x、y属性。 localToGlobal是本地转舞台。
+        20. addChild:  对象放在显示列表的顶层。同一对象多次添加只绘制一次(跟在哪个容器无关)。深度默认从0开始，每次+1。先把显示对象容器实例addChild到this -> 再把Shape实例addChild到container 注意：addChild进去的对象用contains会返回true
+        21. 容器对象.removeChild( 显示对象 ): 对象移出显示列表
+        22. 插到最前列：this.setChildIndex(obj, this.numChildren - 1)
+        23. 增删改对象：`addChildAt`(显示对象, 深度值)： 插入到指定z-index。 `removeChildAt`(深度值)：移出指定深度对象 `removeChildren`():移出所有子对象 交换对象深度：`swapChildren`(对象, 对象)/`swapChildrenAt`(深度值, 深度值) `setChildIndex`(显示对象, 新深度值)：修改对象深度
+        24. 容器获取子对象：推荐`getChildAt`(深度值)。 `getChildByName`(name属性) 
+        25. this.stage: 获取对象的容器？
 
 ##### 矢量画图API
 
@@ -349,6 +349,58 @@ Mediator通过listNotificationInterests注册、Command通过facade.registerComm
 18. 获取代理引用：this.facade.retrieveProxy(bull.CardProxy.NAME)
 19. Mediator通信：listNotificationInterests数组手写入字符，handleNotification判断字符执行回调。
 
+#### Three.js
+
+
+
+```
+castShadow = true;   //设置该对象可以产生阴影
+receiveShadow = true;  //设置该对象可以接收阴影
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // 修改阴影柔和模式
+spotLight.shadowMapHeight=5048; //阴影分辨率精度
+spotLight.shadowMapWidth=5148;
+lightMap属性 用阴影图片代替阴影
+new TWEEN.Tween( mesh.position).to( { x: -400 }, 3000 ).repeat( Infinity ).start();// 随便哪调用
+TWEEN.update(); // 在requestAnimationFrame内调用
+```
+
+MeshBasicMaterial：对光照无感，给几何体一种简单的颜色或显示线框。
+
+MeshLambertMaterial：这种材质对光照有反应，用于创建暗淡的不发光的物体。
+
+MeshPhongMaterial：这种材质对光照也有反应，用于创建金属类明亮的物体。
+
+emissive是材质的自发光颜色 
+
+ambient：设置材质的环境色，和AmbientLight光源一起使用 
+
+
+
+
+
+```
+texture = new THREE.Texture( canvas);  动态纹理
+texture.needsUpdate = true 
+```
+
+加载3D模型：不支持.tga 引入1.DDSLoader.js   2.OBJLoader.js    3.OBJMTLLoader.js 
+
+```
+THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+new THREE.MTLLoader()
+   .load('http://127.0.0.1/male02.mtl', function (materials) {
+       materials.preload();
+       new THREE.OBJLoader()
+          .setMaterials(materials)
+          .load('http://127.0.0.1/male02.obj',
+             function (object) {
+                 object.position.z = -160;
+                 scene.add(object);
+           });
+});
+
+```
+
 #### Egret3D 
 
 贴图是一张照片，用于替代模型。纹理是重复，阵列，缩放的贴图。材质是视觉层面的反光表现力。
@@ -399,21 +451,27 @@ this.gameObject.transform.setLocalEulerAngles(x,y,z) 旋转
 `wx.onTouchStart onTouchMove onTouchEnd onTouchCancel`
 `wx.createCanvas()`
 
-`wx.navigateToMiniProgram` 跳转到小程序
-引入三方tiled库：
+`wx.navigateToMiniProgram` 小程序跳转到小游戏
+
+##### 开放数据源
+
+类似getUserCloudStorage 这种只能在另一个js里单独调用。
+
+##### 引入三方tiled库：
+
 1. 改配置先清理再构建
 2. wxgame.ts改：if (filename == 'libs/modules/tiled/tiled.js' || filename == 'libs/modules/tiled/tiled.min.js') {content += ';window.tiled = tiled';}
 3. 如果需要解析XML文件，要下载xml支持库,在ganme.js引用：
-  window.DOMParser = require("./xmldom/xmldom.js").DOMParser;
+    window.DOMParser = require("./xmldom/xmldom.js").DOMParser;
 4. 注释setTimeout语句。
-  发布：先关闭微信开发者工具，再点击插件发布小游戏。
-  tiled编辑器：
+    发布：先关闭微信开发者工具，再点击插件发布小游戏。
+    tiled编辑器：
  5. 对象层是用来预埋坐标的。
  6. 对象层无子元素：.tmx必须要有<tileset><image /></tileset>
  7. 图片层不显示:修改tiled.js：_this.x = +data.attributes.offsetx; min.js要重新压缩。
-  点击失效：设$touchEnabled = true
-  侦听到 tiled.TMXImageLoadEvent.ALL_IMAGE_COMPLETE 事件
-  
+    点击失效：设$touchEnabled = true
+    侦听到 tiled.TMXImageLoadEvent.ALL_IMAGE_COMPLETE 事件
+
 
 ##### 命令行
 
@@ -460,6 +518,7 @@ egret前缀 当前文件夹则不需要name
    1. 声明：`declare var jQuery: (string) => any;`
    2. 调用:`/// <reference path="./jQuery.d.ts" />`文件开头
    3. TypeScript 核心库的定义中不包含 Node.js 部分。`npm install @types/node --save-dev`
+   4. 修改默认:`D:\Microsoft VS Code\resources\app\extensions\node_modules\typescript\liblib.dom.d.ts`
 8. 接口：interface jiekou{a:string; b?:number; readonly c:number; (d:string):boolean; [index: number]: string; f(e:Date);} 
    1. 可选属性：`?` 
    2. 只读属性：`readonly a:number` 调用时只能被赋值一次，适合属性
@@ -539,33 +598,33 @@ class haha{
 #### 实战踩坑
 
     1. 定时器：不用TIMER_COMPLETE事件，直接
-
+    
     2. 调用timer.stop();
-
+    
     3. dispatchEventWith触发任意字符串。dispatchEvent不行。
-
+    
     4. dispatchEventWith发送的参数，event.data接收。
-
+    
     5. window.location.href跳转地址必须带协议
-
+    
     6. 调用组件父级容器的validateNow()方法解决异步刷新闪屏
-
+    
     7. 获取主场景引用：egret.MainContext.instance.stage
-
+    
     8. 文本颜色：textColor十六进制 #FFCD70 应写成 0XFFCD70
-
+    
     9. 强制横屏：this.stage.orientation = egret.OrientationMode.LANDSCAPE;
-
+    
     10. 蓝屏后网页白板：index.html损坏！
-
+    
     11. addListener()这个API会被调用2次！
-
+    
     12. 子级点击区域不能超过父级Group
-
+    
     13. 老手机不支持new url()
-
+    
     14. IOS的资源有缓存。在index.html里加window.sourceVer = "1.1";
-
+    
     15. 动态组件：
             1. collection.addItem()不卡。 replaceAll()不会重置滚动位置
             2. Itemrender内存调用栈爆炸：是因为ArrayCollection传参不是数组！
@@ -573,29 +632,29 @@ class haha{
             4. 隐藏滚动条：scrollPolicyH="ScrollPolicy.OFF"
             5. 原理：拿List组件来说，如果数据源只有一条数据，显示区域可以同时显示十条，则开始时只创建一个项目渲染器，添加一条数据，再创建一个新的项目渲染器。当数据量超过显示区域的最大值10时，就不再创建新的itemRenderer，而是回收利用现有资源。
             6. 事件：eui.ItemTapEvent.ITEM_TAP -> e.itemRenderer。点list项找到itemRenderer再找到按钮属性，用once挂事件，不能批量绑定按钮事件因为只能找到数据，找不到显示对象(itemRenderer有限)。
-
+    
     16. 手机扫描egret本地服务器要在同一网关，查看本地网络的IPv4地址。
-
+    
     17. 引入三方库：文件夹放在项目外同级位置。首先要有文件夹包含3个文件p2.d.ts p2.js p2.min.js -> egretProperties.json用name:'p2',"path":绝对路径引入文件夹。-> 项目内用egret build -e编译      Cannot find name 'p2'是官网的.d.ts不能用！ 
-
+    
     18. 获取Group组子元素：`this.group.getElementAt(1)`
-
+    
     19. 大量Image动画性能比大量Button高
-
+    
     20. 调用其它类方法时不奏效：因为拿到的不是这个实例，检查下该类是被new出来的还是get单例出来的！
-
+    
     21. Wing编辑器踩坑：
             1. 图片居中：位图字体不能设宽度！分类属性勾选详细约束上中项0！
             2. 锚点：点击图片按shift键拖动蓝点！ 复合组件双击进入子界面分别设置锚点！
-
+    
     22. 屏幕适配：
             1. fixedwidth模式：宽度不变。
             2. egret.Event.RESIZE只能被this.stage监听！
-
+    
     23. id属性不可为关键字：name、 
-
+    
     24. ios的touchPointID值是随机的，安卓是单指0 二指1
-
+    
     25. win10的微信开发者工具点击按钮黑屏：右键图形独显开启
 #### 常用组件写法例子
 
