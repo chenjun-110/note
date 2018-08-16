@@ -1,4 +1,5 @@
-第三方库：
+##### 第三方库
+
   兼容IE8：html5shiv兼容h5标签，es5-shim兼容ES5数组方法。es5-sham兼容对象方法。console-polyfill兼容console.*。react-ie8
   事件库：add-dom-event-listener 或 bean 或 自定义PubSubJS
   class库：
@@ -29,17 +30,21 @@
   撤销、重置reducer库：redux-undo
   表单库：redux-form-utils
 
-无法做的事：
-  1. 调用Audio/Video的play方法 和 input的focus方法，只能直接操作DOM.
-  2. 事件绑定在根节点之外。document
-JSX语法：
-  1. 标签必须闭合，首字母大写。组件的最终目的是输出虚拟元素，也就是需要被渲染到界面的结构。
+##### 无法做的事
+
+    1. 调用Audio/Video的play方法 和 input的focus方法，只能直接操作DOM.
+    2. 事件绑定在根节点之外。document
+
+##### JSX语法
+
+1. 标签必须闭合，首字母大写。组件的最终目的是输出虚拟元素，也就是需要被渲染到界面的结构。
   2. 组件库写法：<MUI.xxx label="Default" /> 
   3. 注释写法：
      31. 写在组件子级或同级 `{/* note */}`  
      32. 写在组件标签内 <Nav `/* note */` />
      33. 游览器条件注释： { (!!window.ActiveXObject || 'ActiveXObject' in window) ? <p>IE</p> : '' }
   4. 组件属性：都是标准属性，除了className、htmlFor、tabIndex
+
 ```
 const Header = ({title, children}) => (
 	<h3 title={title}>{children}</h3>
@@ -50,7 +55,8 @@ const Header = ({title, children}) => (
     42. 属性不写死：<C name={name} /> 等价于 c=<C />; c.props.name=name;
     43. 展开属性：data={name:'foo'}  <C name={data.name} /> 等价于 <C `{...data}` />
     44. 阻止转义字符串：用在html元素上。<div `dangerouslySetInnerHTML`={{__html: 'cc &copy; 2015'}} /> 或者 <div>{['cc ', <span>&copy;</span>, ' 2015']}</div> 或者 用UTF8字符、Unicode编码。
-组件：
+##### 组件
+
   1. 无状态组件写法：仅function-return即可，函数名就是组件名。没有实例不占内存、没有this、没有生命周期。(参考上面的Header)
   2. 正常组件写法： React.Component已经取代了React.createClass
 ```
@@ -66,133 +72,144 @@ class InputControlES6 extends Component {
 	static defaultProps = {} //取代getDefaultProps，定义在本组件内不需要父级传入
 }
 ```
-  
+
 state：通常放在组件上层，向下流动。
   1. 无状态组件：无状态组件只负责渲染数据，在它的上层创建state组件封装交互逻辑，再通过props传给无状态组件。不会新建实例(refs、findDOMNode失效)
   2. this.state:内部保存基础交互数据，其它数据由它计算出最好。
   3. 子组件状态：style={{ '{{'}}display: 'none' }}状态子组件最好隐藏而非删除。
   4. setState是异步方法，一个周期内的setState会合并。
   5. 设计状态：state多针对组件自身
-    51. 智能组件：state在组件内更新。
-    52. 木偶组件：state在组件外更新。if ('b' in this.props) 传入state
-props:多从父组件传入、或默认。
-  1. children:内置prop。`React.Children.map(this.props.children，()=>{})` this.props.children可获取组件标签内所有子节点-如果无子就是udf,有1子则类型是object,有多子则类型是array。
-  2. refs:   挂在div上就是dom节点，挂在组件上就是组件实例(可调用实例方法)
-    21. `ref={(ref)=>this.a=ref}`  this.a指向实例(如果是组件可以调用子组件方法this.refs.a.x()获取子组件的this.b也就是子根dom节点)
-    22. `ref='n'`  Dom=`this.refs.n`指向实例 不推荐但如需组件转节点调用`findDOMNode(Dom)`。
-  3. var {checked,...other}=this.props; 这个checked被列出来就不会传递下去，<div {...other} />。如果想传递列出来的属性，就<div {...other} checked={checked} />。
-  4. 单纯的<div {...this.props} />会把所有属性传下去。
-  5. propTypes属性是用来验证组件实例的属性是否符合要求. propTypes:{len:React.PropTypes.number}
+        1. 智能组件：state在组件内更新。
+        2. 木偶组件：state在组件外更新。if ('b' in this.props) 传入state
 
-通信技巧：  父组件向下传函数时要绑定this：hanlde={this.handle.bind(this)}
-  1. 子组件向父组件传值:子组件用事件触发onChange={this.props.father}调用父组件的函数。
-  2. 子组件向父组件传值预处理：把onChange={this.me}把father回调封装在me内。
-  3. 孙组件传给爷组件：`孙：onChange={this.props.a}->父：a={this.props.b}->爷：b={this.c.bind(this)}`
-  4. 兄弟组件传值：兄->父->弟
-  5. 不相关组件传值: 自定义事件，a组件挂载时订阅、卸载时取消。b组件触发自定义事件并传入参数。关系易混乱应从结构上考虑更优解。
-  6. 组件外更新：componentWillReceiveProps(nextProps)
-  7. 组件内更新：子组件调用父组件回调更新父组件
-  8. Context:越级向下传递，组件内定义`getChildContext(){return{color:'red'}}`，后代组件调用`this.context.color` 另外本组件还要定义static childContextTypes={color: PropTypes.string,} 接收组件也要定义static contextTypes = {color: PropTypes.string,}; 动态数据不推荐使用，适合不会更改的全局信息，该方法是不稳定的，转成高阶组件使用。
-技巧：
-  1. state控制dom的增改：`{this.state.list.map((item) => <div>{item}</div>)}` 推荐用这种方法控制dom而非findDOMNode。
-  2. state控制dom属性变化：`<a href={this.state.link}></a>`
-  3. state控制class变化：`<a className={classnames({'hide': !this.state.show,})}></a>`
-  4. state控制css变化：`style={{background: this.state.background ? 'red' :'block'}}`
-  5. {...ref}:把ref对象提出来可以加条件判断是否赋值。比直接写在组件上灵活。
-  6. 动态渲染子组件：render(){List=this.state.List return(<div>{List.map(e,i)=><A key={i} p={e} />}</div>)} 先用事件监听触发ajax,返回数据传给setState，再map遍历state渲染。
-  7. 1个事件函数处理2个表单：onChange={this.handleChange.bind(this, 'name') -> this.setState({[name]: value,}); 利用对象表达式的特性、传参进去。
-组件抽象：
-  1. 划分合理(界面抽象):如果组件内的界面能拆分组装成别的界面，应该拆分。
-  2. 逻辑抽象:把state、事件回调、生命周期函数，都放在高阶组件内定义。向下传进被包裹的组件props。
-  3. 数据组件：获取fetch数据的组件，拿到的数据作props传下去。 业务组件：list.map遍历数据并展示。
-组件结构：
-  1. Layouts-布局组件：页面的基本结构，设置在最外层Route内。
-  2. Views-子路由入口组件：定义数据和action分发入子组件。
-  3. Components-末级渲染组件：数据皆从天来。
-生命周期：
-  1. 更新state:shouldComponentUpdate->componentWillUpdate->render->componentDidUpdate。
-  2. 更新props:componentWillReceiveProps->同上。
-ReactDOM:
-  1. findDOMNode:多用于componentDid-Mount/Update内部。ReactDOM.findDOMNode(this)获取当前组件dom实例。
-  2. unmountComponentAtNode:卸载
-  3. render:3参为渲染后的回调函数。
-  4. unstable_renderSubtreeIntoContainer：更新组件到任何dom上。
-  5. unstable_batchedUpdates
-React事件：
-  1. 原生事件对象：nativeEvent。阻止默认preventDefault。
-  2. 阻止冒泡：
-    21. stopPropagation只能阻止React事件冒泡。
-    22. 原生事件阻止冒泡：判断`e.target.matches`退出回调。原生的阻止冒泡可以阻止React冒泡。
-  3. 合成事件统一由最外层代理监听。
-  4. 绑定this写法：
-    41. 传参：onClick={this.handleClick.bind(this, 'test')} 
-    42. 不传参：onClick={::this.handleClick}  (stage0草案)
-    43. 如果函数是以箭头定义的或手动绑定在constructor内：onClick={this.handleClick} 推荐！
-  5. 绑定原生事件：addEventListener必须配合removeEventListener消除引用。写在div内或dom0级绑定都可以。
-  6. 没有捕获阶段。
-表单：
-  1. 读取文本框的值：e.target.value，值通过v={this.state.v}设置(注意textarea元素也是如此！)
-  2. 多选select：multiple={true} value={[ov1,ov2]} 数组形式表示多选
-  3. 受控组件：推荐。state决定默认值->onChange双向绑定setState组件。好处是取值放值之间可以做特殊处理。(注意：单选复选的`checked={}`、下拉的`value={}`都是用来双向绑定渲染选中项的。)
-  4. 不受控组件：数据被写死、配合dom操作。defaultChecked、defaultValue=""默认值。state并不能改变value。
-CSS:
-  1. style=`{{opacity: this.state.opacity}}` 第一重大括号表示这是JS语法，第二重大括号表示样式对象。
-  2. 前缀大写WebkitTransition会转换成-webkit-transition。仅ms小写。
-  3. 不用写px单位。
-  4. CSS-Modules：需要css-loader。sass仅解决css编程能力，没有解决模块化。Shadow DOM可以但外部无法重写过于局部化。仅对类名生效。
-    41. 配置webpack：css?modules&localIdentName=[name]__[local]-[hash:base64:5] 表示css文件名--类名-hash名。在组件内import该css。
-    42. 写法：
-      1. composes继承语法：`.p{composes:base}`拿到.base的类。`.p{composes:$base from './a.css'}`拿到外部css文件的.base类。 非合并类，是2个类名在一个变量中。 和预处理器不兼容。
-      
-      3. :export语法：`:export{A:a}` 把css的a属性赋值给A变量并输出到js文件的style.A。(css和css变量共享用postcss-loader)
-      4. :global语法：默认局部模式，如需全局样式就这么定义类`:global(.btn{ } .box{ })` 坑！不加圆括号！游览器会显示括号！
-    43. 用法：默认局部`className={style.title}` style为导入名。全局模式：`className="title"`
-    44. 技巧：
-      1. 类命名：模块名-节点名--状态名。不层叠class，只用单个class。用composes复用类。
-      2. 覆盖样式：因为class名无法预知，所以把覆盖类写进组件属性。`[date-role="btn"]{}` date-role="btn"
-      3. react-css-modules库： <div className="a" `styleName="b"`>  export default `库名(组件名，样式对象名)`； 可不写样式对象名。className可看作全局类，styleName可看作局部类。
-        1. 用法：@CSSModules(styles, { allowMultiple: true }) 可写多个类名,问题：不会配置transform-decorators-legacy ? 只能`export default CSSModules(TodoList,styles,{allowMultiple: true})`
-公用方法：
-  1. mixin:官方库里不允许同名方法覆盖。可合并生命周期、state、方法。仅适合createClass
-  2. @mixin:import { mixin } from 'core-decorators'; @mixin(PureRender, Theme) 允许同名方法。缺点是难维护。
-  3. 高阶组件：接收一个组件，返回另一个组件。
-    31. 属性代理：把组件传入函数，返回加工过的组件：控制props、重写refs、把组件的函数抽象到高阶上。
-    32. 反向继承：条件渲染、劫持渲染。避免增加state。
-    33. 找回原组件名：设置static displayName = `HOC(${getDisplayName(WrappedComponent)})`;
-    34. 往常开发维护时不断增加props应对需求。
-    35. 适合抽象与组件主体功能无关的。
-  4. 容器组件：类似高阶组件，适合合并功能。
-性能优化：
+        props:多从父组件传入、或默认。
+  6. children:内置prop。`React.Children.map(this.props.children，()=>{})` this.props.children可获取组件标签内所有子节点-如果无子就是udf,有1子则类型是object,有多子则类型是array。
+  7. refs:   挂在div上就是dom节点，挂在组件上就是组件实例(可调用实例方法)
+        21. `ref={(ref)=>this.a=ref}`  this.a指向实例(如果是组件可以调用子组件方法this.refs.a.x()获取子组件的this.b也就是子根dom节点)
+            22. `ref='n'`  Dom=`this.refs.n`指向实例 不推荐但如需组件转节点调用`findDOMNode(Dom)`。
+  8. var {checked,...other}=this.props; 这个checked被列出来就不会传递下去，<div {...other} />。如果想传递列出来的属性，就<div {...other} checked={checked} />。
+  9. 单纯的<div {...this.props} />会把所有属性传下去。
+  10. propTypes属性是用来验证组件实例的属性是否符合要求. propTypes:{len:React.PropTypes.number}
+
+##### 通信技巧
+
+父组件向下传函数时要绑定this：hanlde={this.handle.bind(this)}
+
+    1. 子组件向父组件传值:子组件用事件触发onChange={this.props.father}调用父组件的函数。
+    2. 子组件向父组件传值预处理：把onChange={this.me}把father回调封装在me内。
+    3. 孙组件传给爷组件：`孙：onChange={this.props.a}->父：a={this.props.b}->爷：b={this.c.bind(this)}`
+    4. 兄弟组件传值：兄->父->弟
+    5. 不相关组件传值: 自定义事件，a组件挂载时订阅、卸载时取消。b组件触发自定义事件并传入参数。关系易混乱应从结构上考虑更优解。
+    6. 组件外更新：componentWillReceiveProps(nextProps)
+    7. 组件内更新：子组件调用父组件回调更新父组件
+    8. Context:越级向下传递，组件内定义`getChildContext(){return{color:'red'}}`，后代组件调用`this.context.color` 另外本组件还要定义static childContextTypes={color: PropTypes.string,} 接收组件也要定义static contextTypes = {color: PropTypes.string,}; 动态数据不推荐使用，适合不会更改的全局信息，该方法是不稳定的，转成高阶组件使用。
+  技巧：
+    9. state控制dom的增改：`{this.state.list.map((item) => <div>{item}</div>)}` 推荐用这种方法控制dom而非findDOMNode。
+    10. state控制dom属性变化：`<a href={this.state.link}></a>`
+    11. state控制class变化：`<a className={classnames({'hide': !this.state.show,})}></a>`
+    12. state控制css变化：`style={{background: this.state.background ? 'red' :'block'}}`
+    13. {...ref}:把ref对象提出来可以加条件判断是否赋值。比直接写在组件上灵活。
+    14. 动态渲染子组件：render(){List=this.state.List return(<div>{List.map(e,i)=><A key={i} p={e} />}</div>)} 先用事件监听触发ajax,返回数据传给setState，再map遍历state渲染。
+    15. 1个事件函数处理2个表单：onChange={this.handleChange.bind(this, 'name') -> this.setState({[name]: value,}); 利用对象表达式的特性、传参进去。
+   组件抽象：
+    16. 划分合理(界面抽象):如果组件内的界面能拆分组装成别的界面，应该拆分。
+    17. 逻辑抽象:把state、事件回调、生命周期函数，都放在高阶组件内定义。向下传进被包裹的组件props。
+    18. 数据组件：获取fetch数据的组件，拿到的数据作props传下去。 业务组件：list.map遍历数据并展示。
+   组件结构：
+    19. Layouts-布局组件：页面的基本结构，设置在最外层Route内。
+    20. Views-子路由入口组件：定义数据和action分发入子组件。
+    21. Components-末级渲染组件：数据皆从天来。
+   生命周期：
+    22. 更新state:shouldComponentUpdate->componentWillUpdate->render->componentDidUpdate。
+    23. 更新props:componentWillReceiveProps->同上。
+   ReactDOM:
+    24. findDOMNode:多用于componentDid-Mount/Update内部。ReactDOM.findDOMNode(this)获取当前组件dom实例。
+    25. unmountComponentAtNode:卸载
+    26. render:3参为渲染后的回调函数。
+    27. unstable_renderSubtreeIntoContainer：更新组件到任何dom上。
+    28. unstable_batchedUpdates
+   React事件：
+    29. 原生事件对象：nativeEvent。阻止默认preventDefault。
+    30. 阻止冒泡：
+         21. stopPropagation只能阻止React事件冒泡。
+             22. 原生事件阻止冒泡：判断`e.target.matches`退出回调。原生的阻止冒泡可以阻止React冒泡。
+    31. 合成事件统一由最外层代理监听。
+    32. 绑定this写法：
+         41. 传参：onClick={this.handleClick.bind(this, 'test')} 
+             42. 不传参：onClick={::this.handleClick}  (stage0草案)
+             43. 如果函数是以箭头定义的或手动绑定在constructor内：onClick={this.handleClick} 推荐！
+    33. 绑定原生事件：addEventListener必须配合removeEventListener消除引用。写在div内或dom0级绑定都可以。
+    34. 没有捕获阶段。
+   表单：
+    35. 读取文本框的值：e.target.value，值通过v={this.state.v}设置(注意textarea元素也是如此！)
+    36. 多选select：multiple={true} value={[ov1,ov2]} 数组形式表示多选
+    37. 受控组件：推荐。state决定默认值->onChange双向绑定setState组件。好处是取值放值之间可以做特殊处理。(注意：单选复选的`checked={}`、下拉的`value={}`都是用来双向绑定渲染选中项的。)
+    38. 不受控组件：数据被写死、配合dom操作。defaultChecked、defaultValue=""默认值。state并不能改变value。
+   CSS:
+    39. style=`{{opacity: this.state.opacity}}` 第一重大括号表示这是JS语法，第二重大括号表示样式对象。
+    40. 前缀大写WebkitTransition会转换成-webkit-transition。仅ms小写。
+    41. 不用写px单位。
+    42. CSS-Modules：需要css-loader。sass仅解决css编程能力，没有解决模块化。Shadow DOM可以但外部无法重写过于局部化。仅对类名生效。
+         41. 配置webpack：css?modules&localIdentName=[name]__[local]-[hash:base64:5] 表示css文件名--类名-hash名。在组件内import该css。
+             42. 写法：
+             1. composes继承语法：`.p{composes:base}`拿到.base的类。`.p{composes:$base from './a.css'}`拿到外部css文件的.base类。 非合并类，是2个类名在一个变量中。 和预处理器不兼容。
+             
+             3. :export语法：`:export{A:a}` 把css的a属性赋值给A变量并输出到js文件的style.A。(css和css变量共享用postcss-loader)
+             4. :global语法：默认局部模式，如需全局样式就这么定义类`:global(.btn{ } .box{ })` 坑！不加圆括号！游览器会显示括号！
+             43. 用法：默认局部`className={style.title}` style为导入名。全局模式：`className="title"`
+             44. 技巧：
+             1. 类命名：模块名-节点名--状态名。不层叠class，只用单个class。用composes复用类。
+             2. 覆盖样式：因为class名无法预知，所以把覆盖类写进组件属性。`[date-role="btn"]{}` date-role="btn"
+             3. react-css-modules库： <div className="a" `styleName="b"`>  export default `库名(组件名，样式对象名)`； 可不写样式对象名。className可看作全局类，styleName可看作局部类。
+         1. 用法：@CSSModules(styles, { allowMultiple: true }) 可写多个类名,问题：不会配置transform-decorators-legacy ? 只能`export default CSSModules(TodoList,styles,{allowMultiple: true})`
+         公用方法：
+    43. mixin:官方库里不允许同名方法覆盖。可合并生命周期、state、方法。仅适合createClass
+    44. @mixin:import { mixin } from 'core-decorators'; @mixin(PureRender, Theme) 允许同名方法。缺点是难维护。
+    45. 高阶组件：接收一个组件，返回另一个组件。
+         31. 属性代理：把组件传入函数，返回加工过的组件：控制props、重写refs、把组件的函数抽象到高阶上。
+             32. 反向继承：条件渲染、劫持渲染。避免增加state。
+             33. 找回原组件名：设置static displayName = `HOC(${getDisplayName(WrappedComponent)})`;
+             34. 往常开发维护时不断增加props应对需求。
+             35. 适合抽象与组件主体功能无关的。
+    46. 容器组件：类似高阶组件，适合合并功能。
+
+##### 性能优化
+
   1. 纯函数：
-    1. 输入输出确定：内部行为依赖传参Math.random/不改变原数组splice/不随时间变化Date。
-    2. 无副作用：不改变外部对象或数组。
-    3. 无状态依赖：不使用共享变量，状态只在方法的生命周期内存活。
+        1. 输入输出确定：内部行为依赖传参Math.random/不改变原数组splice/不随时间变化Date。
+        2. 无副作用：不改变外部对象或数组。
+        3. 无状态依赖：不使用共享变量，状态只在方法的生命周期内存活。
   2. Pure Render：引入react-addons-pure-render-mixin库，然后组件constructor内定义`this.shouldComponentUpdate = raprm.shouldComponentUpdate.bind(this)`, 自动判断props一致就不更新。
-    1. 调用组件会创建新组件：`style={this.props.style||{}}` 代替 style={{color:'red'}} 更新时新对象引用不等于原来。
-    2. 事件this绑定：在构造器内，非组件上。
-    3. PureRender适合浅比较，Immutable适合深比较。如果this.state.a的值是个对象，就用Immutable。
+        1. 调用组件会创建新组件：`style={this.props.style||{}}` 代替 style={{color:'red'}} 更新时新对象引用不等于原来。
+            2. 事件this绑定：在构造器内，非组件上。
+                3. PureRender适合浅比较，Immutable适合深比较。如果this.state.a的值是个对象，就用Immutable。
   3. Immutable.js：Map就是对象，List就是数组，ArraySet是不重复数组。
-    1. 数据很安全，改变的数据新建，没改变的结构引用。
-    2. react-redux的connect优化了shouldComponentUpdate，不需要它。
-    3. 用于组件，只渲染变化节点的祖先节点，不渲染子节点。
-    4. 不用为了不污染原state而新建一个变量了。
-    5. 使用技巧：
-      1. props要转。
-      2. 提交到store的state要转。
-      3. action发送的数据要转。
-      4. action提交给reducer的数据要转。
-      5. reducer处理后的state要转。
-      6. 仅发送给服务器的数据用toJS(),响应的也要转。
+        1. 数据很安全，改变的数据新建，没改变的结构引用。
+
+        2. react-redux的connect优化了shouldComponentUpdate，不需要它。
+
+        3. 用于组件，只渲染变化节点的祖先节点，不渲染子节点。
+
+        4. 不用为了不污染原state而新建一个变量了。
+
+        5. 使用技巧：
+
+            ​    1. props要转。
+                2. 提交到store的state要转。
+                3. action发送的数据要转。
+                4. action提交给reducer的数据要转。
+                5. reducer处理后的state要转。
+                6. 仅发送给服务器的数据用toJS(),响应的也要转。
   4. key:
-    1. 适合动态子组件
-    2. key值不能是随机值，可以把key值保存在state。
-    3. 值在兄弟节点唯一，优化diff算法匹配时间。key应该添加在组件上，而非具体html上。
-    4. 自动加key库：react-addons-create-fragment
+        1. 适合动态子组件
+        2. key值不能是随机值，可以把key值保存在state。
+        3. 值在兄弟节点唯一，优化diff算法匹配时间。key应该添加在组件上，而非具体html上。
+        4. 自动加key库：react-addons-create-fragment
   5. 性能分析库：react-addons-perf
-动画：
-  1. 库：React Transition是js动画，React CSS Transition是C3动画。
-  2. 原理：让状态延迟变化。动画如持续500ms,就setState的回调延迟执行setState。 
-  3. 体验：spring > ease > linear
+    动画：
+  6. 库：React Transition是js动画，React CSS Transition是C3动画。
+  7. 原理：让状态延迟变化。动画如持续500ms,就setState的回调延迟执行setState。 
+  8. 体验：spring > ease > linear
 
 script标签的type="text/babel"
 `<`开头就用HTML规则解析。`{`开头就用js规则解析。
@@ -218,7 +235,8 @@ var SetIntervalMixin = {
 在组件类中设置 mixins: [SetIntervalMixin], 即可引用。组件内凡是调用了this.setInterval都会被push到数组内且组件被删除会清除定时器(共享功能)。
 ```
 
-组件的生命周期：
+##### 组件的生命周期
+
 Mounting：已插入真实DOM。Updating：正在被重新渲染。Unmounting：已移出真实DOM。
 will函数在进入状态之前调用，did函数在进入状态之后调用。
 componentWillMount() 
@@ -370,7 +388,7 @@ actionCreator：由于dispatch分发函数内部的action格式固定，可以�
  1. 把数据中心化管理。组件渲染只有一个触发来源。
  2. flux提供的全局变量可让非父子关系的组件通信，且依赖该数据的都会监听到。
  3. 让view层组件真正纯粹。专注展现。
-### Redux:
+### Redux
 数据容器：const store = createStore(reducer);
 获取数据快照：const state = store.getState(); 一快照对应一视图
 创建消息：function add(t){return {type:'ADD_TODO',payload：t}}   const action=add('message');  一种消息对应一Action。用户通过View影响State。
@@ -394,7 +412,7 @@ actionCreator：由于dispatch分发函数内部的action格式固定，可以�
   2. 创建store:`let newStore = applyMiddleware(mid1, mid2, mid3, ...)(createStore)(reducer, null);`
   3. 增强dispatch方法:`dispatch = compose(...chain)(store.dispatch);` compose是从右到左依次累加执行中间件
   4. middleware流程：store.dispatch(action) -> next() -> ... -> next() -> dispatch -> 再循环出去。 如果中途调用了store.dispatch会回到起点。next()方法是进入下一个中间件。
-redux-thunk：`const store = createStore(reducer,applyMiddleware(thunk));`然后把Action Creator的返回值改为函数格式。比如：get=(url,b)=>(dispatch,getState)=>{fetch(url).then(r=>{dispatch({type:'',payload:r})})} 	
+	edux-thunk：`const store = createStore(reducer,applyMiddleware(thunk));`然后把Action Creator的返回值改为函数格式。比如：get=(url,b)=>(dispatch,getState)=>{fetch(url).then(r=>{dispatch({type:'',payload:r})})} 	
 redux-promise:判断 action 或 action.payload 是否为 promise，如果是，就执行 then，返回的结果再发送一次 dispatch。
 自定义中间件：`const Middleware = store => next => action =>{next(action)}`
 轮询：定时发出dispatch().then then回调递归调用自身
@@ -418,10 +436,10 @@ connect()
   1. 任意组件中获取store中数据的功能。
   2. connect([mapStateToProps], [mapDispatchToProps], [mergeProps], [options])
   3. 用法：`const Comp = connect(...args)(MyComp);`
-    1. mapStateToProps(state, ownProps):返回的对象属性作为 props 绑定到MyComp上。state就是store,ownProps是MyComp的原props。
-    2. mapDispatchToProps(dispatch, ownProps):将action作为 props 绑定到 MyComp 上。这是为了让MyComp感知不到dispatch方法，又能调用它。
-    3. mergeProps(stateProps,dispatchProps,ownProps) : stateProps是mapStateToProps返回的props对象。
-    4. {pure:,withRef:} pure:true在shouldComponentUpdate浅比较props。withRef：true可保存dom引用`getWrappedInstance()` 
+        1. mapStateToProps(state, ownProps):返回的对象属性作为 props 绑定到MyComp上。state就是store,ownProps是MyComp的原props。
+            2. mapDispatchToProps(dispatch, ownProps):将action作为 props 绑定到 MyComp 上。这是为了让MyComp感知不到dispatch方法，又能调用它。
+                3. mergeProps(stateProps,dispatchProps,ownProps) : stateProps是mapStateToProps返回的props对象。
+                    4. {pure:,withRef:} pure:true在shouldComponentUpdate浅比较props。withRef：true可保存dom引用`getWrappedInstance()` 
   4. 内部实现了许多判断组件是否更新的逻辑。
 
 
@@ -466,21 +484,79 @@ setState({},f()) 回调在组件渲染后执行
 
 
 
+# React-Native
 
-###React-Native
-安装：
-1. npm install -g react-native-cli 
+安装条件：
+
+1. npm install -g yarn react-native-cli 
 2. Java Development Kit [JDK] 1.8
-3. Android Studio2.0
+3. Android Studio2.0 Bundle版本,非ide版 
 4. yarn add react-navigation
+5. 环境变量: `ANDROID_HOME`  Android SDK的路径. `PATH` Android SDK的tools和platform-tools目录路径
+6. npm install -g create-react-native-app 
+7. Expo / 夜神模拟器
+
+安装帮助：
+
+```
+安装studio如果提示没有android-Sdk就因为代理设置。点击小弹框里的设置代理，再点第2个勾。sdk装完run-android有问题关掉影梭先重启！！！
+yarn config set registry https://registry.npm.taobao.org --global
+yarn config set disturl https://npm.taobao.org/dist --global
+在欢迎界面中选择Configure | SDK Manager。
+  SDK Platforms | Show Package Details，在Android 6.0 (Marshmallow)中勾选
+	Google APIs
+	Android SDK Platform 23
+	Intel x86 Atom System Image
+	Intel x86 Atom_64 System Image
+	Google APIs Intel x86 Atom_64 System Image。
+	
+	//  sources for android 23
+	//  Google APIs Intel x86 Atom System Image。
+	//  Android SDK Platform 26
+  SDK Tools | Show Package Details，在Android SDK Build Tools中勾选
+    Android SDK Build-Tools 23.0.1 // 26.0.3 23.0.3 google respository
+    Android Support Repository.
+Android SDK Manager找不到就是因为工具是ide版本
+不能用studio打开android文件夹
+```
+
+```
+react-native init test 或 react-native init --version="0.55.4" test 最新版有时候跑不通
+cd test
+react-native run-android  
+或
+create-react-native-app test //可以用Windows开发iOS版的RN应用，再用Expo扫码预览,如果手机VPN不行用fiddler用PC代理。  注意打包iOS和Android编译环境. 
+cd test
+npm start
+```
+
+夜神模拟器用法：
+
+```
+adb connect 127.0.0.1:62001  检查adb devices是否有模拟器
+首次 run-android
+红屏 点击摇一摇-Dev Settings-Debug sever host&port for device- 设为本机IP:8081
+重启模拟器
+再次 run-android
+
+点击remote js谷歌调试因为代理会跨域报错，右键属性目标添加 --disable-web-security --user-data-dir 并取消固定任务栏
+```
+
+
+
+​	
+
+https://dl.google.com/android/repository/android_m2repository_r47.zip
 
 签名打包：仅用于 `react-native init xxx`
 1. windows在jdk的bin目录生成密钥：`keytool -genkey -v -keystore my-release-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000` 粘贴到android/app
 2. 编辑gradle.properties
-```MYAPP_RELEASE_STORE_FILE=my-release-key.keystore
+```
+MYAPP_RELEASE_STORE_FILE=my-release-key.keystore
 MYAPP_RELEASE_KEY_ALIAS=my-key-alias
 MYAPP_RELEASE_STORE_PASSWORD=*****
-MYAPP_RELEASE_KEY_PASSWORD=*****```
+MYAPP_RELEASE_KEY_PASSWORD=*****
+```
 3. 编辑android/app/build.gradle
 4. 发布：`cd android && ./gradlew assembleRelease`
 
@@ -495,41 +571,187 @@ MYAPP_RELEASE_KEY_PASSWORD=*****```
 
 
 Props :
- 1. <Image source={ {uri:('http://a.jpg'||Base64)} || require('./a.jpg') } style={{width: 193}} /> 兼容性：IOS9/10只支持https
- 2. props值的变化，是组件复用的关键。
-State :  this.setState(preState => { return{ showText: !prevState.showText} }); this.state传进preState参数
-Style : 
- 1. 属性名首字母小写驼峰 
- 2. 数组，后面可覆盖前面并继承
- 3. FlexBox：父级必须有height或flex。alignItems: 'stretch'的子元素不能固定次轴尺寸。与css的区别：flexDirection的默认值是column而不是row，而flex也只能指定一个数字值。
-组件：
-1. 每个组件都有一大堆props
-2. <View /> : 支持Flexbox布局、样式、触摸、无障碍、任意嵌套。
-3. <Text /> : 嵌套的Text会继承上面的文字样式。文字必须在该组件内！
-4. <Image />: GIF和WEBP需要编辑build.gradle。
-5. <ImageBackground> ： 背景图
-5. <TextInput onChangeText={(text) => this.setState({text})} value={this.state.text} /> : 键盘字符全部传入text参数
-6. <ScrollView> : 所有元素都被渲染，长列表不适合。pagingEnabled整屏滑动。min/maximumZoomScale双指缩放
-7. <FlatList data renderItem /> : 只渲染可见区。 renderItem函数负责渲染组件
-8. <SectionList sections renderItem renderSectionHeader /> : titile和data交替渲染
-9. 点击组件：
-  1. <TouchableHighlight> 变黑
-  2. <TouchableNativeFeedback> 水滴(安卓)
-  3. <TouchableOpacity> 字变透明
-  4. <TouchableWithoutFeedback> 无变化
-网络：WebSocket('ws://') XMLHttpRequest() fetch()
+  1. <Image source={ {uri:('http://a.jpg'||Base64)} || require('./a.jpg') } style={{width: 193}} /> 兼容性：IOS9/10只支持https
+  2. props值的变化，是组件复用的关键。
+    State :  this.setState(preState => { return{ showText: !prevState.showText} }); this.state传进preState参数
+    Style : 
+  3. 属性名首字母小写驼峰 
+  4. 数组，后面可覆盖前面并继承
+  5. FlexBox：父级必须有height或flex。alignItems: 'stretch'的子元素不能固定次轴尺寸。与css的区别：flexDirection的默认值是column而不是row，而flex也只能指定一个数字值。
+    组件：
+
+每个组件都有一大堆props
+
+ 1. <View /> : 支持Flexbox布局、样式、触摸、无障碍、任意嵌套。
+ 2. <Text /> : 嵌套的Text会继承上面的文字样式。文字必须在该组件内！
+ 3. <Image />: GIF和WEBP需要编辑build.gradle。
+ 4. <ImageBackground> ： 背景图
+ 5. <TextInput onChangeText={(text) => this.setState({text})} value={this.state.text} /> : 键盘字符全部传入text参数
+ 6. <ScrollView> : 所有元素都被渲染，长列表不适合。pagingEnabled整屏滑动。min/maximumZoomScale双指缩放
+ 7. <FlatList data renderItem /> : 只渲染可见区。 renderItem函数负责渲染组件
+ 8. <SectionList sections renderItem renderSectionHeader /> : titile和data交替渲染
+
+
+
+    网络：WebSocket('ws://') XMLHttpRequest() fetch()
+
 图片：
-1. 精度后缀：check@2x.png、check@3x.png
-2. flex缩放图片：需要{ width: undefined, height: undefined }。
-3. 网络图片、混合app的图片、非图片静态资源、要设置尺寸。
+
+ 1. 精度后缀：check@2x.png、check@3x.png
+ 2. flex缩放图片：需要{ width: undefined, height: undefined }。
+ 3. 网络图片、混合app的图片、非图片静态资源、要设置尺寸。
 
 react-navigation：
-1.  切换页面回调：navigate('Main', { })  引入：const {navigate} = this.props.navigetion； 
-2.  定义路由 ： const App = StackNavigator({Main: { screen: HomeClass },Second: {screen:ChatClass}});
-3.  引用参数：1.render内：`this.props.navigation.state.params` 2.navigationOptions内：( {navigation} ) => ({title: navigation.state.params.user,});
-4.  TabNavigator：左右滑动Tab
-5.  嵌套路由：把xxxNavigator的Class替换成yyyNavigator
+1. 切换页面回调：navigate('Main', { })  引入：const {navigate} = this.props.navigetion； 
+
+2. 定义路由 ： const App = StackNavigator({Main: { screen: HomeClass },Second: {screen:ChatClass}});
+
+3. 引用参数：
+
+   1.render内：`this.props.navigation.state.params` 
+
+   2.navigationOptions内：( {navigation} ) => ({title: navigation.state.params.user,});
+
+4. TabNavigator：左右滑动Tab
+
+5. 嵌套路由：把xxxNavigator的Class替换成yyyNavigator
 
 动画：
 1. interpolate线性插值：inputRange:[]映射到outputRange:[],支持数字、字符串、函数
 2. InteractionManager.runAfterInteractions(()=>{}) : 确保同步任务之前交互和动画已执行完毕了
+#### 事件
+
+```
+<TouchableNativeFeedback  onPress={this._onPressButton}>
+            <Image style={styles.arrow} source={require('../assets/arrow.png')} />
+        </TouchableNativeFeedback>
+```
+
+点击组件：
+
+1. <TouchableHighlight> 变黑
+2. <TouchableNativeFeedback> 水滴(安卓)
+3. <TouchableOpacity> 字变透明
+4. <TouchableWithoutFeedback> 无变化
+
+事件属性：
+
+
+1. 点击：`onPress`   
+2. 长按：`onLongPress`  
+3. 按下：`onPressIn` 
+4. 松开：`onPressOut`
+
+
+#### 样式
+
+层叠写法：`style={[styles.text, styles.header]} `
+
+```
+transform: [{scale:3},{rotate: '90deg'}] //等同transform:scale(2) rotate(90deg)
+```
+
+margin只能写一个值
+
+View不支持很多字符串样式
+
+position:fixed的安卓实现： ScrollView放底层/类fixed元素放上层。
+
+display: 
+
+1. `flexDirection: 'row'` 等同 display: 'flex' 
+2. 只支持'flex' 'none'   默认值是‘flex’，且默认方向是column！
+
+box-shadow: 
+
+1. RN阴影属性是只对IOS生效。 在安卓5.0上，要是设置的是黑色的阴影，可以通过设置elevation属性.  不能定义颜色、透明度、偏移，会影响zIndex层级。
+2. Image组件，当为单标签是图片；当为双标签是背景；(UI强调就用图片) 
+
+获取屏幕宽高：`require('Dimensions').get('window').width `
+
+SCSS函数迁移：
+
+```
+@function vw($px) {
+  @return ($px / 375) * 100vw;
+}
+-----------------------
+var Dimensions = require('Dimensions');
+var width = Dimensions.get('window').width;
+function vw ($px) {
+  return ($px / 375) * width;
+}
+```
+
+```
+{
+  display: inline;
+  vertical-align: bottom;
+  line-height: 1;
+}
+每个div都添加这个类。不同字体大小底部对齐。 中文貌似必须手动调整
+-------RN------
+{
+  textAlignVertical: 'bottom', //仅限Android的属性
+  alignItems: 'baseline',
+  lineHeight: 60,
+}
+```
+
+#### 组件
+
+ScrollView必须设高度：<ScrollView style={} horizontal={true}> 
+
+WebView
+
+1. 父容器必须设高度，自身的高度完全依赖父容器好像无法设置？
+2. 加载本地html解决图表功能。Android 需要先把静态资源放到 `android/app/src/main/assets` 目录下面 ` source = Platform.OS === 'ios' ? require('./demo.html') : { uri: 'file:///android_asset/demo.html' };`
+
+#### 动画
+
+`Animated`仅封装了四个可以动画化的组件：`View`、`Text`、`Image`和`ScrollView`，不过你也可以使用`Animated.createAnimatedComponent()`来封装你自己的组件。 
+
+无限旋转
+
+```
+this.state = {
+	fadeAnim: new Animated.Value(0),      // 透明度初始值设为0
+};
+startAnimation () {
+    this.state.fadeAnim.setValue(0); 	  // 暂停所有动画并重置
+    Animated.timing(                      // 随时间变化而执行的动画类型
+      this.state.fadeAnim, {
+        toValue: 360, 					// 终值
+        duration: 2000, 
+        useNativeDriver: true,			 // 开启原生加速(组合里一开都要开)
+        easing: Easing.out(Easing.linear)}
+    ).start(() => this.startAnimation()); // 循环
+}
+<Animated.Image
+  style={{transform: [{rotate: this.state.fadeAnim.interpolate({
+	inputRange: [0, 360],
+	outputRange: ['0deg', '360deg'],
+})}]}} 
+  source={require('./assets/button.png')} />
+```
+
+#### 导航
+
+```
+static navigationOptions = { // 设置该属性改导航栏样式
+    title: '小糖书',
+    headerStyle: {
+      height:0，  		    // 隐藏导航栏
+      backgroundColor: 'rgb(237, 23, 30)'
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'normal',
+    },
+};
+const { navigate, goback } = this.props.navigation;
+global.navigation = this.props.navigation; //  设为全局变量
+navigate('Map',{}) 			// 跳转
+goBack(null)                 // 返回
+```
+

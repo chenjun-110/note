@@ -13,20 +13,72 @@ exit(或者ctrl+c \q)退出mysql
 基础：
 区分大小写：库名 表名 表别名 变量。 不区分：列名 列别名
 
-安装：
-  my-default.ini:
+##### windows安装：
+
+下载msi后只安装mysql server也就是server only选项 3306 33060
+
+
+
+  在bin文件夹下创建my-default.ini 或 my.ini 
+
 ```
+[mysql]
+default-character-set=utf8  # 设置mysql客户端默认字符集
 [mysqld]
 skip-grant-tables
 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES 
 bind-address = 0.0.0.0
 port = 3306
-basedir=E:/mysql-5.6.38
-datadir=E:/mysql-5.6.38/data
-max_connections=200
+basedir=E:/mysql-5.6.38 	 # 设置mysql数据库的数据的存放目录
+datadir=E:/mysql-5.6.38/data # 设置mysql数据库的数据的存放目录 我设置失败了。。。
+max_connections=200		     # 允许最大连接数
+character-set-server=utf8     # 服务端使用的字符集默认为8比特编码的latin1字符集
+default-storage-engine=INNODB # 创建新表时将使用的默认存储引擎
 ```
-  mysqld -nt -install/-remove
-  net start/stop mysql
+以管理员权限运行cmd 
+
+ `mysqld -nt -install/-remove`
+
+`mysqld --initialize `
+
+  `net start/stop mysql`
+
+安装可能出现的问题：
+
+5.7会有个随机密码，在data文件夹下搜索.err后缀的文件。改密码：`ALTER USER 'root'@'localhost' IDENTIFIED BY '123' `
+
+navicat报错不支持验证协议时`alter user 'root'@'localhost' identified with mysql_native_password by '123';`
+
+##### centos安装MariaDB
+
+```
+下载MariaDB
+wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm 
+安装rpm包
+rpm -ivh mysql-community-release-el7-5.noarch.rpm
+下载依赖
+yum -y install mysql mysql-server mysql-devel
+启动服务端
+service mysqld start
+进入客户端
+mysql -u root -p
+```
+
+##### navicat远程连接mysql
+
+赋予任何主机访问数据的权限 :
+
+````
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%'WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EXIT;
+
+// GRANT ALL PRIVILEGES ON *.* TO 'myuser'@'192.168.1.3'IDENTIFIED BY 
+'mypassword' WITH GRANT OPTION; 
+// 允许用户myuser从ip为192.168.1.6的主机连接到mysql服务器，并使用mypassword作为密码
+````
+
+  
 
 mysql授权:  mysql库的user表记录了mysql用户信息
 ```
@@ -189,7 +241,8 @@ GROUP BY p.type_name 这是按数量的关键
 ```
 CREATE FUNCTION f1(num1 SMALLINT UNSIGNED num2 SMALLINT UNSIGNED)    函数名，参数无逗号
 RETURNS FLOAT(10,2) UNSIGNED 返回值类型
-RETURN (num1+num2)/2; 返回值```
+RETURN (num1+num2)/2; 返回值
+```
 语法2：复合版
 ```
 DELIMITER //  （将结束符修改为//）
@@ -329,7 +382,6 @@ ON DELETE 删除
 \G 以网格形式显示
 SET NAMES gbk;    GBK显示
 
-
 ----------
 PHP中的mysql
 增：insert into 表（列1，...） values('值1'，...);
@@ -352,3 +404,6 @@ WrodPress：
 安装：把WrodPress文件夹放在服务器，访问文件夹设置。
 注册：设置里勾选所有人注册--默认发送邮件功能会被服务器禁用--安装Easy WP SMTP--设置SMTP服务器
 头像：安装WP user avatar插件
+```
+
+```
