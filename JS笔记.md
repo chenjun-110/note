@@ -1,8 +1,10 @@
-####1.写入html输出流：
+### 写入html输出流
+
 ```<script>  
 document.write("<h1>XXXX</h1>");
 document.write("<p>XXXXx</p>");  
-</script>```
+</script>
+​```
 ####2.事件反应：
 `<button type="buttom" onclik="alert('welcome！')">点击这里</button>`
 ####3.改变内容：
@@ -12,7 +14,7 @@ x = document.getElementById("id名"); //找到元素
 x.innerHTML = "新内容"；}             //改变内容
 </script>``` 
 ####4.改变图片src:
-```<script>
+​```<script>
 function changeImage(){
 element = document.getElementById('//ID名')
 if （element.src.match(" ")）
@@ -29,7 +31,7 @@ x.style.color = " "; //改变样式
 }</script>
 <button type="button” onclick="myFunction()"> </button>```
 ####6.验证输入是数字
-```<script>
+​```<script>
 function myFunction(){
 var x = document.getElementById("").value;
 if(x == ""||isNaN(x) {alert("NOT NUMERIC");}
@@ -40,7 +42,7 @@ if(x == ""||isNaN(x) {alert("NOT NUMERIC");}
 document.getElementById("  ").innerHTML="  "
 
 \对代码行进行折行：
-```document.write("Hello \
+​```document.write("Hello \
 World!");```
 
 有两种类型的**注释**：
@@ -59,7 +61,7 @@ World!");```
 6.如果您把值赋给尚未声明的变量，该变量将被自动作为全局变量声明。即使它在函数内执行。`carname="Volvo";`
 
 对象属性寻址方式：
-```name=person.lastname;
+​```name=person.lastname;
 name=person["lastname"];```
 ###特殊的值
 尽管所有整数都可以表示为八进制或十六进制的字面量，但所有**数学运算**返回的都是十进制结果。
@@ -67,7 +69,7 @@ name=person["lastname"];```
 数值集合边界：Number.MAX\_VALUE 和 Number.MIN_VALUE.当计算生成值超过集合被赋值Number.POSITIVE\_INFINITY,小于集合被赋值Number.NEGATIVE\_INFINITY。
 Number.POSITIVE\_INFINITY 的值为 Infinity。Number.NEGATIVE\_INFINITY 的值为 -Infinity。
 **isFinite()方法**：判断一个数是否是无穷的。
-```var iResult = iNum * some_really_large_number;
+​```var iResult = iNum * some_really_large_number;
 if (isFinite(iResult)){
 alert("finite");
 }
@@ -75,13 +77,13 @@ else {
 alert("infinite");
 }```
 NaN表示非数。
-```alert(isNaN("blue")); //输出true
+​```alert(isNaN("blue")); //输出true
 alert(isNaN("6666")); //输出false```
 **字符字面量：**\n换行 \t制表符 \b空格 \r回车 \f换页符 \\\反斜杠 \'单引号 \"双引号 \0nnn八进制字符n(0~7) \xnn十六进制字符n(0~F) \unnnn十六进制字符Unicode(0~F)
 
 **toString()**转换字符，转数返回默认都是十进制。`.toString(2)`把数转为2进制
 **parseInt()和parseFloat()**：转换数（只能解析String类型）
-```var iNum1 = parseInt("12345red");	//返回 12345
+​```var iNum1 = parseInt("12345red");	//返回 12345
 var iNum1 = parseInt("0xA");	//返回 10
 var iNum1 = parseInt("56.9");	//返回 56
 var iNum1 = parseInt("red");	//返回 NaN
@@ -105,13 +107,13 @@ var s2 = oNull.toString(); //错误```
 new运算符用来创建对象实例
 ####Number 对象
 **toFixed()**：保留小数位
-```var oNumberObject = new Number(68);
+​```var oNumberObject = new Number(68);
 alert(oNumberObject.toFixed(2)); //输出"68.00"```
 **toExponential()**:返回科学计数法
-```var oNumberObject = new Number(68);
+​```var oNumberObject = new Number(68);
 alert(oNumberObject.toExponential(1)); //输出"6.8e+1" 1表示保留1位小数```
 **toPrecision()**:返回指数形式
-```var oNumberObject = new Number(68);
+​```var oNumberObject = new Number(68);
 alert(oNumberObject.toPrecision(1)); //输出"7e+1" 1表示显数位数，四舍五入为70```
 
 ----------
@@ -119,25 +121,25 @@ alert(oNumberObject.toPrecision(1)); //输出"7e+1" 1表示显数位数，四舍
 ####String 对象
 **charAt() ：**返回的是包含指定位置处的字符的字符串
 **charCodeAt()：**返回的是包含指定位置处的字符的字符代码
-```var oStringObject = new String("hello world");
+​```var oStringObject = new String("hello world");
 alert(oStringObject.charAt(1)); //输出"e"
 alert(oStringObject.charCodeAt(1)); //输出"101",即e的代码```
 **concat()**:合并多个字符串
-```var oStringObject = new String("hello ");
+​```var oStringObject = new String("hello ");
 alert(oStringObject.concat("world")); //输出:"hello world"
 alert(oStringObject + "world"); //输出"hello world"```
 数组.join（）把n个字符形成一个字符串
 **indexOf()和lastIndexOf():**返回的都是指定的子串在另一个字符串中的位置，如果没有找不到子串，则返回-1。indexOf()是从字符串开头开始检索字符串，lastIndexOf()是从字符串结尾检索子串最后出现的位置。
-```var oStringObject = new String("hello world!");
+​```var oStringObject = new String("hello world!");
 alert(oStringObject.indexOf("o")); //输出"4"
 alert(oStringObject.lastIndexOf("o")); //输出"7"```
 **localeCompare()：**用本地字母顺序比较字符串，String对象在传参之后，反回正数。在传参之前，返回负数。
-```var oStringObject = new String("yellow");
+​```var oStringObject = new String("yellow");
 alert(oStringObject.localeCompare("brick"));		//输出 "1"
 alert(oStringObject.localeCompare("yellow"));		//输出 "0"
 alert(oStringObject.localeCompare("zoo"));		//输出 "-1"```
 **slice()和substring()**:返回的都是要处理的字符串的子串
-```var oStringObject = new String("hello world");
+​```var oStringObject = new String("hello world");
 alert(oStringObject.slice("3")); //输出"lo world"切掉前3位
 alert(oStringObject.substring("3"));//同上
 alert(oStringObject.slice("3", "7")); //输出 "lo w"保留3-7位 substring("3","7")相同
@@ -149,7 +151,7 @@ alert(oStringObject.substring("3,-4"));//输出 "hel"等于（"0,3")保留前3�
 
 ----------
 **instanceof**和**typeof**运算符的区别：识别对象类型。instanceof方法要求开发者明确地确认对象为某特定类型。
-```var oStringObject = new String("hello world");
+​```var oStringObject = new String("hello world");
 alert(oStringObject instanceof String); // 输出 "true"```
 
 **访问对象的属性**：*objectName.propertyName*
@@ -158,7 +160,7 @@ alert(oStringObject instanceof String); // 输出 "true"```
 关键字**this**指向调用该方法的对象。
 
 如果 a 大于 b，则上面的代码将退出函数，并不会计算 a 和 b 的总和。
-```function myFunction(a,b)
+​```function myFunction(a,b)
 {
 if (a>b)
   {
@@ -206,7 +208,7 @@ x=a+b
 `var iMax = (iNum1 > iNum2) ? iNum1 : iNum2;`表达式声明如果 iNum1 大于 iNum2，则把 iNum1 赋予 iMax。但如果表达式为 false（即 iNum2 大于或等于 iNum1），则把 iNum2 赋予 iMax。
 
 ----------
-```switch (expression)
+​```switch (expression)
   case value1: statement;
     break;
   case value2: statement;
@@ -214,12 +216,12 @@ x=a+b
   default: statement;```
 **switch**条件语句如果 expression 等于 value，就执行 statement。
 For循环：
-```for (语句 1; 语句 2; 语句 3)
+​```for (语句 1; 语句 2; 语句 3)
   {被执行的代码块}```语句1在循环（代码块）开始前执行
 语句2定义运行循环（代码块）的条件
 语句3在循环（代码块）已被执行之后执行
 **For/In**循环：
-```for (x in person)
+​```for (x in person)
   {
   txt=txt + person[x];
   }```
@@ -230,7 +232,7 @@ For循环：
 
 **break** 语句用于跳出循环。
 可跳回标签。
-```var iNum = 0;
+​```var iNum = 0;
 outermost:
 for (var i=0; i<10; i++) {
   for (var j=0; j<10; j++) {
@@ -242,7 +244,7 @@ for (var i=0; i<10; i++) {
 }
 alert(iNum);	//输出 "55"``` i走50次 j走5次 结束循环
 **continue** 用于跳过循环中的一个迭代。
-```var iNum = 0;
+​```var iNum = 0;
 outermost:
 for (var i=0; i<10; i++) {
   for (var j=0; j<10; j++) {
@@ -655,4 +657,6 @@ setAttribute(key,value) 设置属性
 oFReader = new FileReader();
 oFReader.readAsDataURL(input.files[0]);
 oFReader.onload = function (event) {path = event.target.result;}; 
+```
+
 ```

@@ -355,6 +355,21 @@ wx:key 动态渲染时保留状态(重排序) `wx:key="u"` 表示绑定item.u `w
   单例模式，多次引用
 数据类型的判断可以使用 constructor 属性。
 
+##### WXSS
+
+覆盖button默认样式：
+
+```
+button{
+	&:after{border:none};
+	margin:0;
+    padding:0;
+    background: none;
+}
+```
+
+
+
 
 ##### 自定义组件
 定义页的json设为 "component": true
@@ -399,7 +414,7 @@ Redux:
   createStore的二参是初始数据，用于前后端同构。
   视图组件只包含了渲染逻辑和触发 action
 ##### 动画
-创建实例 wx.createAnimation()
+创建实例 wx.createAnimation() 回调要用bind前缀的`bindtransitionend`
 一组 step() 同时开始，可传入配置指定当前组动画，不同时开始的用step衔接。
 提交 this.setData({Data:animation.export()}) 就算有多组貌似也只有一次提交
 Canvas api
