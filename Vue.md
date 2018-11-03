@@ -3,6 +3,7 @@ ts写法直接修改变量无效，src={a} 通过三元运算符才能改？ 复
 blob图片透明底会变白色
 异步子组件：异步数据没有时，v-if不显示该组件配合computed赋值状态。貌似是响应依赖关系没建立。
 路由传参：
+
   1. 如果 props 被设置为 true，`route.params`将会被设置为组件属性。
   2. 函数模式：props: (route) => ({ A: `route.query`.a }) A将会被设置为组件属性。 ？&可以传复杂对象！ :to="{ path: 'a/b', query: { data: item }}"
   3. 弃用this.$route的强耦合。
@@ -248,8 +249,8 @@ WXSS样式：
   优先级：同个wxss文件内，同个属性值，上面写的会覆盖下面写的。
   所有同名css会合并而非覆盖！
   **问题**：
-    子元素的层级超不出容器的z-index
-    absolute层级比z-index高，兄弟元素也要position
+​    子元素的层级超不出容器的z-index
+​    absolute层级比z-index高，兄弟元素也要position
 this.route：
   getCurrentPages()保存了页面数组栈，
   wx.redirectTo 重定向覆盖当前栈 wx.reLaunch刷新进入 wx.switchTab打开子页  wx.navigateTo wx.navigateBack
@@ -281,14 +282,7 @@ WXML：
   Canvas组件前5秒巨卡，setData巨慢，只能把按钮延迟setData显示,drawImage阻塞setData。
   离屏Canvas识别不适用对加载速度严格的组件。
 
-##### 兼容性
 
-  IOS能放音的API是wx.createInnerAudioContext()，设不理会静音开关obeyMuteSwitch=false
-  IOS的image比background-image好
-
-  绝对定位必须有定位值。或者说弹性居中对绝对元素无效。
-
-webview的url里不能出现`{}`字符，要`encodeURI`
 
 ##### 和Vue的不同
 
@@ -309,8 +303,17 @@ webview的url里不能出现`{}`字符，要`encodeURI`
 ##### 生命周期
 
   App生命周期： `onLaunch`初始化 `onShow`前台 `onHide`后台 `onError` 时间参数能确定小程序入口
-  Page生命周期： `onLoad`加载 `onReady`初次渲染 `onShow`/`onHide`显示隐藏 `onUnload`页面卸载(点左上退回健) ---`onShow`快于`onReady`
+  Page生命周期： 
+
+```
+onLoad 加载
+onReady 初次渲染
+onShow/onHide显示隐藏 ---onShow快于onReady
+onUnload 页面卸载(点左上退回健)
+```
+
   组件生命周期：
+
 ```
  created/attached 组件进入页面  created不能setData
  ready 组件节点布局完成 
@@ -318,16 +321,38 @@ webview的url里不能出现`{}`字符，要`encodeURI`
  detached 页面移除组件。
 ```
 
+  组件relations生命周期：
 
-  组件relations生命周期：`linked`插入后 `linkChanged`移动后 `unlinked`移除后
-Page页面事件： `onPageScroll`滚动 `onPullDownRefresh`下拉 `onReachBottom`上拉触底 `onShareAppMessage`点击转发按钮
+```
+linked插入后 
+linkChanged移动后 
+unlinked移除后 ---父子组件都要设Component.relations属性。
+```
 
-`getApp().globalData` 全局变量属性
+##### 事件
+
+自定义事件：
+
+  组件内通过原生事件回调手动触发自定义事件：`this.triggerEvent('xxevent',{},{})`
+  组件外监听自定义事件：`bindxxevent="xx"` e.detail是二参 xx是父组件的方法。默认不冒泡。
+  `composed: true`事件会冒泡进入父组件的模板内部，然后进入页面的父组件
+
+Page页面事件：
+
+```
+onPageScroll      滚动 
+onPullDownRefresh 下拉 
+onReachBottom     上拉触底 
+onShareAppMessage 点击转发按钮
+```
+
 支持文件模块： `module.exports = {}` `require()`
 
-##### 模板和组件的区别及思路
+`module.exports = Behavior()` 类似mixins,抽象出选项的公共部分。组件通过`behaviors`属使用。
+  覆盖优先级：同名属性/方法：组件>后behavior>前behavior data:对象则合并，其他相互覆盖。 生命周期函数：都调用。
 
-  组件wxss的样式只对组件内的节点生效。 
+##### 模板
+
   模板没有父级，作用只是切分wxml和wxss和js代码片段,要各自导入，data数据只共享当前页面的注入部分。
   init函数下把that.func=func，可以把自定义方法挂到其他对象中去，方便做函数级的mixin封装。
 
@@ -368,7 +393,29 @@ button{
 }
 ```
 
+组件样式有局部作用域。 
 
+iphoneX的刘海栏高度是33px, 转发栏高度是64px。iphone6转发栏是67px。 --- 自己测试所得。
+
+css滚动条无惯性，scroll组件有惯性。
+
+##### 兼容性
+
+绝对定位必须有定位值。或者说弹性居中对绝对元素无效。
+
+ios的overflow圆角失效：position:relative;z-index:2;
+
+IOS的image比background-image好
+
+IOS的webview的url里不能出现`{}`字符，要`encodeURI`
+
+iphoneX的`animation: zoomIns 0.3s linear forwards` 必须要写forwards！否则无动画 且动画时长最少1秒！
+
+webview的title条高度：44/48是title净高
+
+​	android     `SystemInfo.statusBarHeight + 48`   
+
+​	ios       `SystemInfo.statusBarHeight + 44`
 
 
 ##### 自定义组件
@@ -388,16 +435,9 @@ Component({})
 组件relations生命周期：`linked`插入后 `linkChanged`移动后 `unlinked`移除后
   父子组件都要设Component.relations属性。
   获取关联组件实例的有序数组：this.getRelationNodes(url)
-	
+​	
 
-##### 自定义事件：
 
-  组件内通过原生事件回调手动触发自定义事件：`this.triggerEvent('xxevent',{},{})`
-  组件外监听自定义事件：`bindxxevent="xx"` e.detail是二参 xx是父组件的方法。默认不冒泡。
-  composed: true事件会冒泡进入父组件的模板内部，然后进入页面的父组件
-
-module.exports = Behavior() 类似mixins,抽象出选项的公共部分。组件通过behaviors属使用。
-  覆盖优先级：同名属性/方法：组件>后behavior>前behavior data:对象则合并，其他相互覆盖。 生命周期函数：都调用。
 
 ##### 性能
 单包<2M 所有包<4M 打开对应子包页时下载子包。
@@ -406,13 +446,15 @@ module.exports = Behavior() 类似mixins,抽象出选项的公共部分。组件
 
 性能：
   WebView和js数据传输是通过字符串拼接。
-  微信小程序CDN的Gzip对文本压缩好，图片不好。
   后台页面最好不要setData。每次setData不要传太多数据。
   图片过大、过多会引发内存回收webview
 Redux:
   业务逻辑写在reducer
   createStore的二参是初始数据，用于前后端同构。
   视图组件只包含了渲染逻辑和触发 action
+
+小程序同时只能发送10个网络请求，超过后就会报错。图片信息获取也占用这10个网络请求。
+
 ##### 动画
 创建实例 wx.createAnimation() 回调要用bind前缀的`bindtransitionend`
 一组 step() 同时开始，可传入配置指定当前组动画，不同时开始的用step衔接。
@@ -424,6 +466,25 @@ drawImage(url,x,y,w,h) xy都是左上角
 
 webview:网页向小程序 postMessage 时，会在特定时机（**小程序后退、组件销毁、分享**）触发并收到消息。一定看清楚是**小程序后退、组件销毁、分享**时才会触发， 
 
+##### 音频
+
+IOS能放音的API是wx.createInnerAudioContext()，设不理会静音开关obeyMuteSwitch=false
+
+
+```
+audio.obeyMuteSwitch = false
+let oldsrc = audio.src
+audio.src = language === 'zh' ? zmp3 : emp3
+if (oldsrc === audio.src) {
+   audio.play() //防止mp3源没换
+}
+audio.onCanplay((res) => {
+   audio.play() //得放在这里播放
+})
+```
+
+
+
 ##### DOM
 wx.createSelectorQuery().in(this)
   select('.class')  跨自定义组件的后代选择器：.the-ancestor >>> .the-descendant
@@ -431,6 +492,8 @@ wx.createSelectorQuery().in(this)
   selectViewport().scrollOffset(res=>).exec() 节点必须是scroll-view或viewport,滚动位置查询
 .boundingClientRect(res=>).exec()    坐标和dataset
 .fields({},res=>)).exec() 			 所有节点信息
+
+##### 代码
 
 
 图片全屏显示
@@ -481,7 +544,7 @@ rotate:function(){
 ```
 滑块组件： 比手写滑动算法好用（上下滑时不允许左右滑，左右滑时不允许上下滑）
 <swiper current="1"  class='swiperbox' interval="0" duration="500"  bindchange="SlideFinish"> 
-	<swiper-item><view /></swiper-item> 
+​	<swiper-item><view /></swiper-item> 
 </swiper>
 
  sin30°就得写成 Math.sin（30*Math.PI/180）
@@ -541,3 +604,9 @@ ajax下载图片等blob二进制
 axios.get('http://app.gym2.com/?file_name=00.gif', {onDownloadProgress: e => this.progress = (e.loaded / e.total * 100 | 0) + '%', responseType: 'blob'})
 .then(v => this.$set(this.img, 'src', window.URL.createObjectURL(v.data)))
 ```
+
+
+
+
+
+

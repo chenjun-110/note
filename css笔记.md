@@ -1,3 +1,122 @@
+div.img img                                    #divclassimg下的img
+
+类选择器：
+.xxx { } 
+p.xxx { }            #除了p，其他不能引用该class
+
+属性选择器：
+[title]{ }           #只要含有属性title，无论值为何都可调用
+[title~=hello]{ }    #值只要部分含有hello的都调用
+[lang|=en] { }       #lang属性等于e或以en-开头的整个单词。img[src|="/i/figure"] figure-1/2
+[abc^="def"]         #选择 abc 属性值以 "def" 开头的所有元素
+[abc$="def"]         #选择 abc 属性值以 "def" 结尾的所有元素
+[abc*="def"]         #选择 abc 属性值中包含子串 "def" 的所有元素
+
+后代选择器：
+h1 em {   }          #无视em嵌套深度
+子元素选择器:
+h1 > strong {   }    #1层嵌套
+相邻兄弟选择器：
+h1 + p {   }         #同父级
+li + li{   }         #从第2个li生效
+
+伪类：（要先声明DOTYPE）
+selector:pseudo-class{property:value}
+input:focus{}        #输入焦点
+:first-child{}       #只有第1个项生效
+:lang(no)            #当lang="no"时调用
+
+伪元素：
+:first-line          #文本首行
+:first-letter        #文本首字母
+font-size:xx/x-large   #字体变大
+:before/after{content:url()}#元素前后插入新内容图片
+
+多重样式会继承外部样式里内部没有的样式，相同样式按内部样式优先。
+
+{text-transform:none/uppercase/lowercase/capitalize} #字符转换：大写/小写/首字母大写
+{text-decoration:none/underline/overline/line-through/blink}#文本装饰，下划/上划/删除线/闪
+white-space:normal/pre/nowrap/pre-wrap/pre-line#处理空白符，默认/承认格式/禁止换行/自动换行
+    pre-line:合并空白符，可换行，自动换行
+    normal:合并空白符，不可换行，自动换行
+    nowrap:合并空白符，不可换行，禁止自动换行
+    pre:不合并空白符，可换行，禁止自动换行
+    pre-wrap:不合并空白符，可换行，自动换行
+候选字体类型：                                 #带空格的加引号
+p{font-family: Times, TimesNR, 'New Century Schoolbook', Georgia, 'New York', serif;}
+font-variant:small-caps                        #字体变形:小型大写字母
+font-weight:bold/100~900                       #字体粗细：加粗/9级粗度
+
+链接样式：（注意顺序）
+a:link{     }  #未访问的链接
+a:visited{  }  #已访问的链接
+a:hover{    }  #鼠标移到链接上
+a:active{   }  #点击链接
+a.xxx:link{ }  #多个链接可加class
+
+列表样式:
+{list-style-type:circle/square/upper-roman/lower-alpha} #圆孔/方块/罗马/字母
+{list-style-image:url( )}                      #图像作为列表标记
+{list-style-position:inside}                #列表往右边缩进
+{list-style : url() square inside}         #简写
+
+表格样式：
+table-layout:auto/fixed                        #表格布局
+border-collapse:collapse/separate；            #单/双线边框
+vertical-align:bottom/top/center               #垂直对齐
+border-spacing: px  px                         #表格内外边框间距
+empty-cells:hide                               #隐藏空格边框
+outline:颜色 dotted/solid thick/thin/medium    #轮廓线(简写)
+    outline-style:dotted/solid/dashed/double   #轮廓线样式
+    outline-color:#                            #轮廓线颜色
+    outline-width:thin/thick/ px               #轮廓线宽度
+
+定位：
+img{clip:rect(px px px px)}                    #裁剪矩形（顺时针）用于裁剪绝对定位元素
+
+浮动：
+clear:both                                     #左右不允许出现浮动框
+
+游览器兼容：
+<!DOCTYOE html>                                #使用float必须声明
+
+display:none/visibility:hidden                 #隐藏（彻底消失/保留空间）
+filter:alpha(opacity=100)                      #透明度1(用于IE8前）
+
+CSS布局
+
+容器上加清除浮动防止浮动溢出 overflow:auto;
+容器相对定位，里面绝对定位
+块加清除浮动，可以在浮动元素下方显示 clear:left;
+
+------
+
+```
+div{
+counter-reset: section; /*盒子创建计数器*/
+}
+h4:before{
+content:"aaa" counter(section)".";  /*显示"aaa."*/
+counter-increment: section;} /*计数*/```
+鼠标悬停出现[]特效
+```
+
+##### 默认样式
+
+```
+a {  
+position: relative;  
+display: inline-block;  //设了行级块就不乱跑了
+outline: none;  
+text-decoration: none;   //删掉下划线
+color: #000; 
+}
+```
+
+a:hover::before, a:hover::after { position: absolute; }//重点  
+a:hover::before { content: "\5B"; left: -20px; }  
+a:hover::after { content: "\5D"; right:  -20px; } 
+
 z-index:
 IE FF Safa的z-index最大值是2147483647 。 最小值是-2147483648 
 Op的最大值是2147483584.。 最小值-2147483584 
@@ -50,7 +169,7 @@ font-size:xx/x-large   #字体变大
 :before/after{content:url()}#元素前后插入新内容图片
 
 插入外部样式表：
-```<head>
+​```<head>
 <link rel="stylesheet" type="text/css" href="mystyle.css" />
 </head>```
 内部样式表 内联样式                          
@@ -410,3 +529,4 @@ body {counter-reset: icecream;}
 input:checked {counter-increment: icecream;}
 .total::after {content: counter(icecream);}```
 只选取第1个和最后一个（IE8）:    div>a:first-child    div>a+a+..+a+a
+```
