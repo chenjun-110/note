@@ -380,16 +380,23 @@ wx:key 动态渲染时保留状态(重排序) `wx:key="u"` 表示绑定item.u `w
   单例模式，多次引用
 数据类型的判断可以使用 constructor 属性。
 
-##### WXSS
+##### WXSS/默认样式
 
-覆盖button默认样式：
-
-```
+```scss
+//覆盖button默认样式
 button{
 	&:after{border:none};
 	margin:0;
     padding:0;
     background: none;
+}
+//隐藏ios的滚动条
+.sroll{
+    ::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        color: transparent;
+    }
 }
 ```
 
