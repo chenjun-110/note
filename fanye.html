@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <title> </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .canvas{
+        }
+    </style>
+    <script src="https://cdn.bootcss.com/zepto/1.2.0/zepto.min.js"></script>
+    <script src="https://cdn.bootcss.com/algebra.js/0.2.6/algebra.js"></script>
+</head>
+
+<body>
+    <canvas class="canvas" id="canvas" width="500" height="500" />
+    <script>
+        let Book = { // 书本的四个点
+            a:{
+                x:100,y:100 // 左上点
+            },
+            b:{
+                x:400,y:100
+            },
+            c:{
+                x:400,y:400//右下点
+            },
+            d:{
+                x:100,y:400
+            }
+        }
+        let point_start = {}     // 初始触点
+        let point_touch = {}     // 手指触点坐标
+        let point_center = {};  //中点-用于和斜率k1组成中垂线方程
+        let point_top = {} //上交点
+        let point_bottom = {} //下交点
+        let k1
+        let k2 //中垂线斜率
+        let symmetry = {} //对称点坐标
+        let midEq ={}  //直线方程
+
+        let k1mi = 0.8 //1
+        let point_start_2 = {
+            x: Book.c.x-50,
+            y: Book.c.y-50
+        }
+        let point_move //移动偏移量
+        let canvas = document.getElementById('canvas')
+        let ctx = canvas.getContext("2d");
+        canvas.addEventListener('touchstart',(e) => {
+            let x = e.changedTouches[0].clientX.toFixed(2)
+            let y = e.changedTouches[0].clientY.toFixed(2)
+            point_start = {x, y}
+            
+            console.log(`(${x}, ${y})`)
+        })
+        canvas.addEventListener('touchmove',(e) => {
+            let x = e.changedTouches[0].clientX
+            let y = e.changedTouches[0].clientY
+            // console.log(`(${x.toFixed(2)}, ${y.toFixed(2)})`)
+            point_move = {
+                x: Math.abs(point_start.x - x),
+                y: Math.abs(point_start.y - y)
+            }
+            point_touch.x = x
+            point_touch.y = y
+            point_center.x = (point_touch.x+Book.c.x)/2
+            point_center.y = (point_touch.y+Book.c.y)/2
+            k1 = k1mi*(point_touch.y-Book.c.y)/(point_touch.x-Book.c.x)
+            k2 = -1/k1
+            // 点斜式:y-y0=k(x-x0) 一般式ax+by+c=0  y-y0-(k(x-x0))=0 
+            // 中垂线方程
+            let mid_str = `y${plus(point_center.y.toFixed(4), '-')}-(${k2}(x${plus(point_center.x.toFixed(4), '-')}))`
+            let midperpendicular = algebra.parse(`${mid_str}=0`)
+            let top = algebra.parse(`y=${Book.b.y}`);// 上横线方程
+            let bottom = algebra.parse(`y=${Book.c.y}`);// 下横线方程
+            console.log(`方程式`,midperpendicular.toString())
+            let mid_y = midperpendicular.solveFor("y");//y的表达式 如y=x+1
+            midEq = mid_y
+           
+            let top_y = top.solveFor("y");
+            let bottom_y = bottom.solveFor("y");
+            let eq_top = new Equation(mid_y, top_y);// 联立方程表达式() 如3x+1=x+2
+            let eq_bottom = new Equation(mid_y, bottom_y);
+            point_top = {
+                x:Number(eval(eq_top.solveFor("x").toString())),
+                y:Book.b.y
+            }
+            point_bottom = {
+                x:Number(eval(eq_bottom.solveFor("x").toString())),
+                y:Book.c.y
+            }
+            // console.log(`上横线与中垂线的交点：(${eval(eq_top.solveFor("x").toString())}, 0)`)
+            // console.log(`下横线与中垂线的交点：(${eval(eq_bottom.solveFor("x").toString())}, 500)`)
+
+            // 斜率函数转直线函数 求ABC参数 根据该库return处的函数格式作词法分析。我理解的格式：第一个系数前的负号和系数间没有空格 -1x + y + c = 0
+            let A //AX
+            let B //BY
+            let C //C
+            let mid_arr = midperpendicular.toString().split(" ")
+            mid_arr.forEach((v,i) => {
+                if (v.indexOf('y')>-1) {
+                    B = findParam('y', v,i, mid_arr)
+                }
+                if (v.indexOf('x')>-1) {
+                    A = findParam('x', v,i, mid_arr)
+                }
+                if (v.indexOf('=')>-1) {
+                    C = mid_arr[i-2] + mid_arr[i-1]
+                }
+            })
+            console.log(`Ax: ${A}    By: ${B}  C: ${C}`, )
+            A = Number(eval(A).toFixed(2))
+            B = Number(eval(B).toFixed(2))
+            C = Number(eval(C).toFixed(2))
+            //求对称点坐标 对称点公式
+            symmetry = duichen(Book.b.x, Book.b.y, A,B,C)
+            // console.log('mid_str', symmetry)
+        })
+        setInterval(()=>{
+            ctx.clearRect(0,0,canvas.width,canvas.height);  
+            // ctx.save();
+            // ctx.rect(Book.a.x,Book.a.y,Book.c.x,Book.c.y);
+            // ctx.clip();
+            ctx.beginPath();
+            ctx.moveTo(Book.a.x, Book.a.y);
+            ctx.lineTo(Book.b.x, Book.b.y);
+            ctx.lineTo(Book.c.x, Book.c.y);
+            ctx.lineTo(Book.d.x, Book.d.y);
+            ctx.lineTo(Book.a.x, Book.a.y);
+            ctx.closePath();
+            ctx.stroke();
+           
+            let bias = { // 偏移量
+                x: point_start.x - point_touch.x,
+                y: point_start.y - point_touch.y
+            }
+            let limit_sym_x = symmetry.x <= Book.b.x ? symmetry.x : Book.b.x
+            let limit_sym_y = symmetry.y <= point_touch.y ? symmetry.y : point_touch.y
+            // let limit_sym_y =  symmetry.y//symmetry.x < point_touch.x ? 
+            let movec = {
+                x: Book.c.x - bias.x,
+                y: Book.c.y
+            }
+            movec.x = movec.x <= Book.b.x ? movec.x : Book.c.x // 对成点x坐标不能超出书本右侧
+            movec.x -= bias.y
+            movec.x = movec.x < Book.d.x ? Book.d.x : movec.x // x不能超出书左侧
+            // movec.y = movec.y <= point_touch.y ? movec.y : point_touch.y
+            if (symmetry.x) {
+                ctx.beginPath();
+                // 对称点连线
+                ctx.moveTo(point_touch.x, point_touch.y);
+                ctx.lineTo(limit_sym_x, limit_sym_y);
+                //
+                let moveb_x = Book.b.x - (point_start.x - point_touch.x) //上偏移
+             
+                if (limit_sym_x < moveb_x && moveb_x < Book.b.x) { // 交点小于切点 切点小于书宽
+                    ctx.lineTo(moveb_x, Book.b.y);
+                }
+              
+                // 下连线
+                ctx.moveTo(point_touch.x, point_touch.y);
+                ctx.lineTo(movec.x, movec.y);
+
+
+                
+                // 用中点画中垂线
+                // ctx.moveTo(point_center.x, point_center.y)
+                // ctx.lineTo(point_top.x, point_top.y)
+                // 用公式画中垂线
+                // console.log('mid_y',midEq.toString(), )
+                // for (let i=100; i<500; i++) {
+                //     i+=10
+                //     try {
+                //         ctx.lineTo(i, eval(midEq.eval({
+                //         x: i
+                //     }).toString()))
+                //     }catch(e){}
+                // }
+                ctx.closePath();
+                ctx.stroke();
+                // ctx.closePath();
+                // ctx.restore();
+            }
+        },14)
+        function plus (num, opa = '+') { //转换加减号
+            num = Number(num)
+            if (opa === '-') {
+                if (num >= 0) return `-${num}`
+                else return `+${num}`
+            }
+            if (num >= 0) return `+${num}`
+            else return `${num}`
+        }
+        function findParam (y = 'y', v, i, arr) {
+            let B //BY
+            //找出y的系数
+            if(v.length>1) {
+                B = v.split(y)[0]
+                if (B === '-' || B === '+') {
+                    B = B + 1
+                }
+            } else {
+                B = '1'
+            }
+            //找出y系数的正负号
+            if (arr.slice(0, i+1).every(s => s != ' ')) {
+            } else {
+                if (arr[i-1] === '-') {
+                    B = `-(${B})`
+                }
+            }
+            return B
+        }
+        function duichen(x,y,A,B,C){
+            let x1 = x-(2*A*(A*x+B*y+C))/(A*A+B*B)
+            let y1 = y-(2*B*(A*x+B*y+C))/(A*A+B*B)
+            x1=Number(x1)
+            y1=Number(y1)
+            console.log(`对称点 (${x1},${y1})`)
+            return {x:x1,y:y1}
+        }
+        var Fraction = algebra.Fraction;
+        var Expression = algebra.Expression;
+        var Equation = algebra.Equation;
+        // //=======================================
+        // var x1 = algebra.parse("x+2y=11");
+        // var answer1 = x1.solveFor("y");
+        // console.log("y1 = " + answer1.toString());
+        // var x2 = algebra.parse("x-y=5");
+        // var answer2 = x2.solveFor("y");
+        // console.log("y2 = " + answer2.toString());
+        // //=================================================
+        // //解出X值
+        // var eq = new Equation(answer1, answer2);
+        // console.log("x表达式：" + eq.toString());
+        // var answerX = eq.solveFor("x");
+        // console.log("解出X的值为：" + answerX.toString());
+        // //解出Y值（把x的值代入x1或x2）
+        // eq = x1.eval({
+        //     x: answerX
+        // });
+        // console.log("y表达式：" + eq.toString());
+        // var answerY = eq.solveFor("y");
+        // console.log("解出Y的值为：" + answerY.toString());
+    </script>
+</body>
