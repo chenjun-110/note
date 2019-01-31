@@ -10,10 +10,10 @@ ES6：包括ES2015.2016.2017
   13. 只要模块内有import/export语法，Node就视为ES6模块。
   14. 顶层this指向当前模块。
   15. ES6加载CMD模块：
-    151. 查找顺序(不指定)：`import './foo'` 先搜索foo.js->./foo/package.json->./foo/index.js。`import 'baz'`搜索node_modules文件夹下的baz.js->baz/package.json->baz/index.js没结果就返回上级node_modules目录继续。
-    152. `module.exports={} 等价于 export default {}` 所以用ES6语法，import a from ''/import {default as a} from ''即可
-    153. `import * as a from ''` 这个a.default对象==module.exports==exports==default。 ES6引用CMD模块行为和ES6模块有点小区别。
-    154. CommonJS 模块的输出缓存机制，在 ES6 加载方式下依然有效不会动态更新。
+    ​    151. 查找顺序(不指定)：`import './foo'` 先搜索foo.js->./foo/package.json->./foo/index.js。`import 'baz'`搜索node_modules文件夹下的baz.js->baz/package.json->baz/index.js没结果就返回上级node_modules目录继续。
+    ​    152. `module.exports={} 等价于 export default {}` 所以用ES6语法，import a from ''/import {default as a} from ''即可
+    ​    153. `import * as a from ''` 这个a.default对象==module.exports==exports==default。 ES6引用CMD模块行为和ES6模块有点小区别。
+    ​    154. CommonJS 模块的输出缓存机制，在 ES6 加载方式下依然有效不会动态更新。
   16. CMD加载ES6模块：所有export接口都会赋值为require对象的属性，动态更新失效。
   17. 循环加载：require('a')的写法比require('a').foo好
  2. AMD用于游览器。
@@ -118,7 +118,7 @@ var getGlobal = function () {
    4. `arr=[1,2,3]; {0:a, [arr.length-1]:b}=arr;` 右侧是数组也ok，数组也是对象。
    5. {length : len} = 'hello';  类数组对象肯定有length属性。{toString: s} = 123;同理数字、布尔值可取到原型上的属性。
  函数格式：`function move({x=0,y=0}={}){return [x, y];}`  形参用数组或对象格式。
-   这里的={}也是默认值，move()不传参也有值，返[0,0]。传参就对应解构赋值关系move({})，传参的对象解构优先级>默认对象。传参为undefined可手动触发默认值。 
+      这里的={}也是默认值，move()不传参也有值，返[0,0]。传参就对应解构赋值关系move({})，传参的对象解构优先级>默认对象。传参为undefined可手动触发默认值。 
 适用于：交换变量值，函数return数组/对象批量取得返回值，简化提取JSON数据，设函参默认值可减少判断，加载模块指定方法。
 
 模板字符串：用反引号`代替引号"。
@@ -128,19 +128,19 @@ var getGlobal = function () {
   4. tag`Hello ${5+10} world ${5*10}`等价于tag(['Hello ',' world ',''], 15, 50); 特殊函数调用形式，注意区分是模板还是函数。
 
 类数组转数组： 代替[].slice.call(obj)
-	1. `Array.from(obj)` 万能转
-	2. `[...document.querySelectorAll('div')]`  点点点转数组，仅限有Iterator接口的对象。
+​	1. `Array.from(obj)` 万能转
+​	2. `[...document.querySelectorAll('div')]`  点点点转数组，仅限有Iterator接口的对象。
 筛选数组： 代替indexOf
-	1. [-1,-2,1].find(n=>n<0) //-1  返回首个条件true的项
-	2. [].findIndex() 返回首个条件true的项索引
-	3. [].includes 判断参数是否在数组内
+​	1. [-1,-2,1].find(n=>n<0) //-1  返回首个条件true的项
+​	2. [].findIndex() 返回首个条件true的项索引
+​	3. [].includes 判断参数是否在数组内
 
 函数默认值： 代替了`if(typeof y === 'undefined') y='a';   y = y || 'a'; `
-	1. 注意function m1({x=0,y=0}={})和function m2({x,y}={x:0,y:0})的区别，m2传入对象会覆盖默认对象，m1不会。
-	2. 参数不在尾部，需传入undefined触发。
-	3. 注意带默认值的函数length属性会失真。
-	4. 默认值作用域通常不指向全局变量，除非该变量没被声明为形参。由此可以推出默认值的变量在函数体内设置会某些情况无效。
-	5. 
+​	1. 注意function m1({x=0,y=0}={})和function m2({x,y}={x:0,y:0})的区别，m2传入对象会覆盖默认对象，m1不会。
+​	2. 参数不在尾部，需传入undefined触发。
+​	3. 注意带默认值的函数length属性会失真。
+​	4. 默认值作用域通常不指向全局变量，除非该变量没被声明为形参。由此可以推出默认值的变量在函数体内设置会某些情况无效。
+​	5. 
 ```
 var x = 1;
 function foo(x, y = function(){x = 2;}) {
@@ -153,29 +153,29 @@ x;
 ```
 严格模式：只要函数参数使用了默认值、解构赋值、或者扩展运算符，就不能显式指定严格模式。
 **扩展运算符**：
-	1. ...用于形参：多余参数序列转为数组。 
-	2. ...用于传参：数组转为参数序列。 代替了`fuc.apply(null,arrgs)`
-	3. ...用于数组项：代替了`concat`
-	3. ...用于[...'abc']:字符串转为数组。可识别unicode，可解决ES5操作乱码问题。代替split('')
-	4. ...用于数组追加数组：arr1.push(...arr2) 代替了`Array.prototype.push.apply(arr1, arr2);`
-	5. ...用于Generator函数：返回遍历值的数组。
-	6. ...用于对象剩余键值对会生成对象(浅拷贝-值对象引用-无原型)。
-	 61. {x,...{y,z}}=o中x可以读取o的继承属性，yz只能读取o的自身属性。
-	 62. ab={...a,...b} 先展开属性再合并对象，代替`Object.assign({}, a, b)` 如果展开对象里有getter会执行。
-	7. ...用于数组剩余参数会生成数组。
+​	1. ...用于形参：多余参数序列转为数组。 
+​	2. ...用于传参：数组转为参数序列。 代替了`fuc.apply(null,arrgs)`
+​	3. ...用于数组项：代替了`concat`
+​	3. ...用于[...'abc']:字符串转为数组。可识别unicode，可解决ES5操作乱码问题。代替split('')
+​	4. ...用于数组追加数组：arr1.push(...arr2) 代替了`Array.prototype.push.apply(arr1, arr2);`
+​	5. ...用于Generator函数：返回遍历值的数组。
+​	6. ...用于对象剩余键值对会生成对象(浅拷贝-值对象引用-无原型)。
+​	 61. {x,...{y,z}}=o中x可以读取o的继承属性，yz只能读取o的自身属性。
+​	 62. ab={...a,...b} 先展开属性再合并对象，代替`Object.assign({}, a, b)` 如果展开对象里有getter会执行。
+​	7. ...用于数组剩余参数会生成数组。
 **箭头函数**：简化回调
-	1. 函数体多余一条语句，要{    return}包裹。 ()=>({})是返回对象，()=>{}是执行语句。
-	2. 返回值是对象，圆括包裹 id=>({a:1,b:2});
-	3. `({a,b}) => a+' '+b` 等价于 `o => o.a+' 'o.b` 不用写对象名咯
-	4. 注意：不能用arguments、yield、构造函数。也不能用call/apply/bind改变this。
-	5. 箭头函数根本不存在自己的this! 它的this是外层对象的this。arguments、super、new.target都是外层函数的变量。
-	6. 简写λ演算
+​	1. 函数体多余一条语句，要{    return}包裹。 ()=>({})是返回对象，()=>{}是执行语句。
+​	2. 返回值是对象，圆括包裹 id=>({a:1,b:2});
+​	3. `({a,b}) => a+' '+b` 等价于 `o => o.a+' 'o.b` 不用写对象名咯
+​	4. 注意：不能用arguments、yield、构造函数。也不能用call/apply/bind改变this。
+​	5. 箭头函数根本不存在自己的this! 它的this是外层对象的this。arguments、super、new.target都是外层函数的变量。
+​	6. 简写λ演算
 绑定符：ES7,双冒号`obj::f(...arguments)` 代替了`f.apply(obj,arguments)`
 存在符：ES7,a?.b 判断a是否存在,存在就调用a.b   
 尾调用优化:即只保留内层函数的调用帧。如果尾调函数引用了父函数的变量，就会占内存，多层嵌套尾调会很占内存。所以把函数放在`return f(x)`处能减少内存。
 尾递归：不会栈溢出。return f(n-1,n*t)比return n*f(n-1)写法强很多。
-	1. 如果递归函数最后1步还有多余操作的话，可以在父函数多加几个形参。如果考虑到递归函数的可读性，可以外部嵌套父函数 / 柯里化把多参数转为单参数 / 设默认参数。 
-	2. 注意：尾递归优化仅在ES6严格模式有效，低版本用蹦床函数把递归转化为循环。
+​	1. 如果递归函数最后1步还有多余操作的话，可以在父函数多加几个形参。如果考虑到递归函数的可读性，可以外部嵌套父函数 / 柯里化把多参数转为单参数 / 设默认参数。 
+​	2. 注意：尾递归优化仅在ES6严格模式有效，低版本用蹦床函数把递归转化为循环。
 ```
 function tco(f) { //f是要递归的函数
   var value,active = false,accumulated = [];
@@ -276,13 +276,13 @@ handler：
 Proxy对象和Object的方法，Reflect对象都有相同的默认行为，因此Proxy内部可以调用Reflect没修改过的相同API。
 特点：同名方法里Reflect会报错，Object不会(返回false/udf)。
 方法：
-    1. get:如果读取属性是getter，它内部的this指向receiver对象非目标对象！
-    2. set:(target, name, value, receiver),如果设置属性是setter,this指向receiver！注意Reflect.set会触发Proxy.defineProperty拦截。
-    3. getPrototypeOf：读取__proto__属性，对应Object.getPrototypeOf(区别：参数非对象Object会转为对象，Reflect会报错)。
-    4. setPrototypeOf：同上，Reflect的会报错。
-    5. `Reflect.apply(Math.min, Math, ages)`代替`Math.min.apply(Math, ages)`。`Reflect.apply(Object.prototype.toString, 1, [])`代替`Object.prototype.toString.call(1)`
-    6. ownKeys:代替getOwnPropertyNames、getOwnPropertySymbols之和。
-    7. has deleteProperty construct getOwnPropertyDescriptor isExtensible preventExtensions 同上
+        ​    1. get:如果读取属性是getter，它内部的this指向receiver对象非目标对象！
+        ​    2. set:(target, name, value, receiver),如果设置属性是setter,this指向receiver！注意Reflect.set会触发Proxy.defineProperty拦截。
+        ​    3. getPrototypeOf：读取__proto__属性，对应Object.getPrototypeOf(区别：参数非对象Object会转为对象，Reflect会报错)。
+        ​    4. setPrototypeOf：同上，Reflect的会报错。
+        ​    5. `Reflect.apply(Math.min, Math, ages)`代替`Math.min.apply(Math, ages)`。`Reflect.apply(Object.prototype.toString, 1, [])`代替`Object.prototype.toString.call(1)`
+        ​    6. ownKeys:代替getOwnPropertyNames、getOwnPropertySymbols之和。
+        ​    7. has deleteProperty construct getOwnPropertyDescriptor isExtensible preventExtensions 同上
 **Promise**
 用法：`p = new Promise((resolve, reject)=>{resolve()});  p.then((v)=>{v();}).catch();`
 特点：
@@ -465,9 +465,10 @@ async function test() {
 }
 ```
   4. 多个await的异步没有继发关系，最好同时执行。`await Promise.all([a(),b()])`或者不放在await内。
-**Class**
-用法/语法糖：代替构造函数,参数传给constructor,方法传给原型(无需function关键字，无需逗号)。super指向父类构造函数。
-```
+
+  **Class**
+  用法/语法糖：代替构造函数,参数传给constructor,方法传给原型(无需function关键字，无需逗号)。super指向父类构造函数。
+```javascript
 let a = "to"；
 class Point { 
   constructor(x,y){ //构造函数,React组件上的属性会进入x参数
@@ -509,11 +510,11 @@ class ColorPoint extends Point {
   3. 不存在变量提升：防止子类继承父类时，父类没定义。
   4. 默认严格模式，不用use strict。
   5. super：
-    51. 子类constructor的参数流入super,调用父类constructor设置属性并把属性和值传回子类。super相当于把父类的构造属性继承到子类中。子类的实例同时也是父类的实例。
-    52. super内部的this是指向子类的。this相当于(B的父类是A)：`A.prototype.constructor.call(this)` 
-    53. super():子类的constructor中必须显示调用super()创建this。如果没有该方法则默认设置。
-    54. super.x(constructor中):super指向父类`A.prototype`,注意this指向子类自身(同名属性要注意)。super.x=3等价于this.x=3
-    55. super.x(static中):super指向父类`A的static`，而非A.prototype。
+        51. 子类constructor的参数流入super,调用父类constructor设置属性并把属性和值传回子类。super相当于把父类的构造属性继承到子类中。子类的实例同时也是父类的实例。
+        ​    52. super内部的this是指向子类的。this相当于(B的父类是A)：`A.prototype.constructor.call(this)` 
+        ​    53. super():子类的constructor中必须显示调用super()创建this。如果没有该方法则默认设置。
+        ​    54. super.x(constructor中):super指向父类`A.prototype`,注意this指向子类自身(同名属性要注意)。super.x=3等价于this.x=3
+        ​    55. super.x(static中):super指向父类`A的static`，而非A.prototype。
   6. __proto__和prototype:实例查属性是通过`__proto__`找到类的`prototype`上。(b是实例，B是子类，A是父类)因为`b.__proto__=B.prototype;`，所以`B.prototype.__proto__=A.prototype；`，`B.__proto__ = A;`。由此推出：修改`b.__proto__.__proto__`可以影响实例a。
   7. call:baseinstance.showMsg.call(instance);阅读为“将instance当做baseinstance来调用，调用它的对象方法showMsg”。如果baseinstance是构造函数，那调用的是函数外部的showMsg属性，如果是实例，调用的是构造函数内部的this.showMsg。
   8. extends：可继承原生类Boolean()Number()String()Array()Date()Function()RegExp()Error()Object()。ES5不行。
@@ -556,11 +557,11 @@ push：list1.push(3,4,5) 不会修改原List！
 
 数据结构：
   Stack:
-    1. 创建：Stack.of(a,b,...c) 栈顶：peek() 索引取值：get() 键/值存在：has/includes()
-    2. 空栈：clear() 克隆栈：unshift() 删除首项的克隆栈：pop() 增加值/增加栈：push/pushAll() 项对项合并：zip()
+​    1. 创建：Stack.of(a,b,...c) 栈顶：peek() 索引取值：get() 键/值存在：has/includes()
+​    2. 空栈：clear() 克隆栈：unshift() 删除首项的克隆栈：pop() 增加值/增加栈：push/pushAll() 项对项合并：zip()
   Seq:
-    1. 创建：Seq().map(fuc) 索引取值：get()
-    2. 迭代器：entries()
+​    1. 创建：Seq().map(fuc) 索引取值：get()
+​    2. 迭代器：entries()
 交集：Set.intersect([])
 游标：方便访问层级很深的数据。cursor
 ```
@@ -770,29 +771,29 @@ Object.setPrototypeOf 设置原型，代替了__proto__
 Object.getPrototypeOf 返回原型
 Object.getOwnPropertyDescriptor 返回某个属性的描述对象
 Symbol() 每次调用返回都不一样
-  for() 只创建1次Symbol值并登记到全局
-  keyFor() 返回已登记symbol的参数
-  hasInstance内部方法 调用instanceof触发
-  isConcatSpreadable属性 调用concat触发，可不展开合并嵌套。
-  species属性 调用new触发，更换构造函数
-  match 调用match触发，返回该方法的返回值
-  replace 调用replace触发，返回该方法的返回值
-  search 调用search触发，
-  split 调用split触发
-  iterator  调用for of循环触发
-  toPrimitive 值被转成原始类型触发，根据类型返回不同值
-  toStringTag 调用toString触发，返回值通常表示对象类型。
-  unscopables 调用with触发，作用域可设置不查找某个属性。
+    for() 只创建1次Symbol值并登记到全局
+    keyFor() 返回已登记symbol的参数
+    hasInstance内部方法 调用instanceof触发
+    isConcatSpreadable属性 调用concat触发，可不展开合并嵌套。
+    species属性 调用new触发，更换构造函数
+    match 调用match触发，返回该方法的返回值
+    replace 调用replace触发，返回该方法的返回值
+    search 调用search触发，
+    split 调用split触发
+    iterator  调用for of循环触发
+    toPrimitive 值被转成原始类型触发，根据类型返回不同值
+    toStringTag 调用toString触发，返回值通常表示对象类型。
+    unscopables 调用with触发，作用域可设置不查找某个属性。
 new Set().
-  add 添加
-  delete 删除
-  has 判断值存在
-  clear 清空Set
+    add 添加
+    delete 删除
+    has 判断值存在
+    clear 清空Set
 new Map()
-  keys 键-遍历器
-  values 值-遍历器
-  entries 键值-遍历器
-  forEach 
+    keys 键-遍历器
+    values 值-遍历器
+    entries 键值-遍历器
+    forEach 
 精确判断对象类型：`Object.prototype.toString.call(arr)`可替代typeof符。
 
 

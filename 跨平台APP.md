@@ -44,7 +44,7 @@ cd test
 npm start
 ```
 
-夜神模拟器用法：
+夜神模拟器
 
 ```
 adb connect 127.0.0.1:62001  检查adb devices是否有模拟器
@@ -316,7 +316,7 @@ set https_proxy=http://127.0.0.1:8118
 2. 启动 **Android Studio>Tools>Android>AVD Manager** 创建一个模拟器
 3. 模拟器配置使用 *x86* 或 *x86_64* image .
 4. 在 Emulated Performance下, 选择 **Hardware - GLES 2.0** 以启用硬件加速并 **Finish**。
-5. 启动模拟器
+5. 启动模拟器（夜神 adb connect 127.0.0.1:62001）
 6. `flutter run` 
 
 单独启动Android模拟器：cmd`D:\Android\sdk\emulator\emulator.exe -netdelay none -netspeed full -avd Pixel_API_23`Pixel_API_23是建好的name，_是空格
@@ -1364,28 +1364,30 @@ webview.createState().webviewReference.onJSEvent.listen((param) {});
 
 在Dart中，只有布尔值“true”被视为true。
 
-没有function关键字
+```
+
+```
 
 #### 函数
 
 当函数类型分配给变量时，typedef会保留类型信息。
 
-```
-=> 是return的缩写
+```dart
+//=> 是return的缩写
 void main() => runApp(MyApp()); 
 var f3 = (int a) => print("a = $a");
 
-形参
+//形参
 void say({String name}) {
   print("hello, my name is $name"); //参数
 }
 void say({name: String}) {}
 
-调用-入参
+//调用-入参
 say(name: 'zhangsan');
 say("zhangsan");
 
-对象类型
+//对象类型
 StringBuffer sb = new StringBuffer();
 
 // async/await
@@ -1595,7 +1597,7 @@ new Timer(new Duration(seconds:5), ()=>myStream.listen(print));
 
 多订阅stream.asBroadcastStream()
 
-#### 常用库方法
+#### 常用API
 
 ```dart
 //创建map
@@ -1611,7 +1613,10 @@ Timer()
 //setTimeout(,0)
 Timer.run()
 timer.cancel()
+
+(1.012).toStringAsFixed(2) //保留2位小数
     
-(1.012).toStringAsFixed(2) 保留2位小数
+//List是有序的对象集合，具有长度。Set是无序的唯一对象集合。
+new Set()..add('1')..addAll(['2', '3'])
 ```
 

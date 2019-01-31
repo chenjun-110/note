@@ -1,3 +1,17 @@
+### 语法
+
+函数参数传递方法四种（位置，关键字，默认值，包裹位置，包裹关键字传递）
+
+```python
+Dense(64, input_shape=(20,), activation='relu')#关键字传参
+def run(*arr):  #参数被名为arr的tuple收集
+def run(**obj): #参数被名为obj的dict收集
+run(**obj)      #把字典解包 相当于关键字参数传递
+run(*arr)       #把元组解包 此时相当于位置参数传递
+```
+
+
+
 #### 人工智能
 
 感知机：第二层权重依赖第一层决策结果，并输出更抽象的决策结果。
@@ -160,6 +174,6 @@ pip3 install --upgrade tensorflow-gpu //显卡需支持CUDA
 my_optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.0000001)
 my_optimizer = tf.contrib.estimator.clip_gradients_by_norm(my_optimizer, 5.0)
 linear_regressor = tf.estimator.LinearRegressor(
-    feature_columns=feature_columns,
-    optimizer=my_optimizer
+​    feature_columns=feature_columns,
+​    optimizer=my_optimizer
 )
