@@ -101,6 +101,8 @@ alert(person.name); //"Nicholas"
 ```
 typeof只能判断是不是Object。instanceof可以判断哪种引用类型。`object instanceof constructor(new Object/Array/RegExp)`返true.
 
+Object.prototype.toString.call(obj).slice(8,-1)也可以判断类型
+
 环境变量对象：每个执行环境都是一个变量对象，所有当前变量和函数都保存在变量对象中，代码执行后变量对象销毁。web中window是最外层的变量对象，关闭网页后被销毁。
 `作用域链`：环境之间的父子关系。子可访父的变量和函数，父不可访子。顺序：前端当前环境变量对象(函数)-->父环境-->祖父环境-->后端全局变量对象。标识符解析是按照这个顺序`向上`查找的。
 延长作用域链：with语句内部变量可能泄露成全局变量、try-catch语句的e只能被内部访问(IE8-catch的错误对象可被外部访问)

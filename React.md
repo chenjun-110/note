@@ -4,31 +4,31 @@
   事件库：add-dom-event-listener 或 bean 或 自定义PubSubJS
   class库：
     1. classnames
-    2. react-css-modules <div styleName="classa"> 这个库可以避免写style.classa的对象名。
-  Ajax库： natty-fetch 兼容IE8、兼容jsonp、使用类似jq。
-  动画库：
-    1. 拖拽缓动动画 react-motion
-    2. 加类名进场动画 ReactCSSTransitionGroup 
-    3. 动画生命周期库(基础) ReactTransitionGroup 
-    4. 非进场动画 rc-animate
-    5. 缓动函数：react-smooth
-  mixin库：
+        2. react-css-modules <div styleName="classa"> 这个库可以避免写style.classa的对象名。
+            Ajax库： natty-fetch 兼容IE8、兼容jsonp、使用类似jq。
+            动画库：
+        1. 拖拽缓动动画 react-motion
+        2. 加类名进场动画 ReactCSSTransitionGroup 
+        3. 动画生命周期库(基础) ReactTransitionGroup 
+        4. 非进场动画 rc-animate
+        5. 缓动函数：react-smooth
+        mixin库：
 	1. react-addons-pure-render-mixin
 	2. ramda 用compose组合多个高阶组件
-  装饰器库：core-decorators
-  高阶组件找回对应组件名：recompose 
-  pure-render优化：
-    1. react-addons-pure-render-mixin  
-    2. pure-render-decorator   
-    3. react-immutable-render-mixin   用来深比较immutable变化shouldComponentUpdate
-  不可变优化：immutable.js / immutable/contrib/cursor
-  自动加key:react-addons-create-fragment
-  性能分析库：react-addons-perf
-  异步库：redux-sage 用生成器发action
-  调试：Redux DevTools
-  webpack:无用代码移除：UglifyJS  搜索所有文件替换字符：DefinePlugin
-  撤销、重置reducer库：redux-undo
-  表单库：redux-form-utils
+            装饰器库：core-decorators
+            高阶组件找回对应组件名：recompose 
+            pure-render优化：
+        1. react-addons-pure-render-mixin  
+        2. pure-render-decorator   
+        3. react-immutable-render-mixin   用来深比较immutable变化shouldComponentUpdate
+        不可变优化：immutable.js / immutable/contrib/cursor
+        自动加key:react-addons-create-fragment
+        性能分析库：react-addons-perf
+        异步库：redux-sage 用生成器发action
+        调试：Redux DevTools
+        webpack:无用代码移除：UglifyJS  搜索所有文件替换字符：DefinePlugin
+        撤销、重置reducer库：redux-undo
+        表单库：redux-form-utils
 
 ##### 无法做的事
 
@@ -195,17 +195,18 @@ state：通常放在组件上层，向下流动。
         5. 使用技巧：
 
             ​    1. props要转。
-                2. 提交到store的state要转。
-                3. action发送的数据要转。
-                4. action提交给reducer的数据要转。
-                5. reducer处理后的state要转。
-                6. 仅发送给服务器的数据用toJS(),响应的也要转。
+            ​    2. 提交到store的state要转。
+            ​    3. action发送的数据要转。
+            ​    4. action提交给reducer的数据要转。
+            ​    5. reducer处理后的state要转。
+            ​    6. 仅发送给服务器的数据用toJS(),响应的也要转。
   4. key:
         1. 适合动态子组件
         2. key值不能是随机值，可以把key值保存在state。
         3. 值在兄弟节点唯一，优化diff算法匹配时间。key应该添加在组件上，而非具体html上。
         4. 自动加key库：react-addons-create-fragment
   5. 性能分析库：react-addons-perf
+
     动画：
   6. 库：React Transition是js动画，React CSS Transition是C3动画。
   7. 原理：让状态延迟变化。动画如持续500ms,就setState的回调延迟执行setState。 
@@ -573,11 +574,13 @@ MYAPP_RELEASE_KEY_PASSWORD=*****
 Props :
   1. <Image source={ {uri:('http://a.jpg'||Base64)} || require('./a.jpg') } style={{width: 193}} /> 兼容性：IOS9/10只支持https
   2. props值的变化，是组件复用的关键。
+
     State :  this.setState(preState => { return{ showText: !prevState.showText} }); this.state传进preState参数
     Style : 
   3. 属性名首字母小写驼峰 
   4. 数组，后面可覆盖前面并继承
   5. FlexBox：父级必须有height或flex。alignItems: 'stretch'的子元素不能固定次轴尺寸。与css的区别：flexDirection的默认值是column而不是row，而flex也只能指定一个数字值。
+
     组件：
 
 每个组件都有一大堆props
@@ -755,3 +758,24 @@ navigate('Map',{}) 			// 跳转
 goBack(null)                 // 返回
 ```
 
+# Next.js
+
+http://nextjs.frontendx.cn/docs/#%E4%BB%A3%E7%A0%81%E8%87%AA%E5%8A%A8%E5%88%86%E5%89%B2
+
+以 `./pages`作为服务端的渲染和索引
+
+静态文件夹的名字，只能叫`static` 
+
+# SSR
+
+style-loader和isomorphic-style-loader:
+
+​	如果使用 css-module 转换类名为哈希值必须要搭配`className={styles.xx}`这种写法的。
+
+​	客户端的bound.js包含前者会自动挂载style标签。服务端的后者会把类名写的和前者挂载类名相同。
+
+mini-css-extract-plugin：提取css文件，和style-loader冲突导致dom类名消失。
+
+this.props.staticContext 可以拿到<StaticRouter>的context属性。
+
+任何想访问conrext里面的属性的组件都必须显示的指定一个contextTypes的属性
