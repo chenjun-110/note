@@ -390,6 +390,9 @@ button{
     padding:0;
     background: none;
 }
+.button-hover{//覆盖点击样式
+  background: none;
+}
 //隐藏ios的滚动条
 .sroll{
     ::-webkit-scrollbar {

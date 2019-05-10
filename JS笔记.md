@@ -4,17 +4,20 @@
 document.write("<h1>XXXX</h1>");
 document.write("<p>XXXXx</p>");  
 </script>
-​```
-####2.事件反应：
+```
+
+#### 2.事件反应：
 `<button type="buttom" onclik="alert('welcome！')">点击这里</button>`
-####3.改变内容：
+#### 3.改变内容：
  ```<script>
 function myFunction(){
 x = document.getElementById("id名"); //找到元素
 x.innerHTML = "新内容"；}             //改变内容
-</script>``` 
-####4.改变图片src:
-​```<script>
+</script>
+ ```
+#### 4.改变图片src:
+```
+<script>
 function changeImage(){
 element = document.getElementById('//ID名')
 if （element.src.match(" ")）
@@ -23,7 +26,8 @@ else
     {element.src=" ";}
 }</script>
 ```
-####5.改变样式
+#### 5.改变样式
+
 ```<script>
 function myFunction(){
 x = document.getElementById("ID名")//找到元素
@@ -100,7 +104,7 @@ var fNum1 = parseFloat("0102");	//返回 102 忽略前导0
 > Number(false)返回0 Number(true)1 Number(undefined)NaN Number(null)0 Number("1.2.3")NaN Number(new object())NaN 
 
 3.String()和toString()区别
-```var s1 = String(null); //"null"
+​```var s1 = String(null); //"null"
 var oNull = null;
 var s2 = oNull.toString(); //错误```
 

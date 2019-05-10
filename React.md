@@ -779,3 +779,10 @@ mini-css-extract-plugin：提取css文件，和style-loader冲突导致dom类名
 this.props.staticContext 可以拿到<StaticRouter>的context属性。
 
 任何想访问conrext里面的属性的组件都必须显示的指定一个contextTypes的属性
+
+```js
+const StoreContext = React.createContext({
+    store
+});
+```
+

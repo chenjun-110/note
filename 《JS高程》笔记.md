@@ -193,9 +193,12 @@ URI方法：URL方法能编码所有Unicode字符，不要使用escape编码ASCI
 `eval("")`此方法内部定义的代码拥有外部相同的作用域链。能阻止函数提升到环境顶部。能解析运行任何字符串形式的代码，可用于处理JSON数据。
 Math对象：Math.max()返回最大值。Math.min()返回最小值。`Math.max.apply(Math/null, array)`获数组参数能力,null没有对象调用max方法。
 `Math.ceil()`向上舍入 `Math.floor()`向下舍入 `Math.round()`四舍五入 `Math.random()`0~1随机数 `Math.floor(Math.random()*总数+最小值）`随机数范围
-####第6章：面向对象
+
+#### 第6章：面向对象
+
 数据属性的4个特性：configurable:true能否删除属性、能否修改特性或访问器属性。enumerable:true能否循环。writable:true能否修改属性值。value:undefined属性值
 `Object.defineProperty(,,)`修改属性特性；1参对象，2参属性名，3参描述符对象。调用该方法不指定的话前3个属性默认false。
+
 ```
 var person = {};
 Object.defineProperty(person,"name",{
@@ -209,31 +212,39 @@ person.name = "Greg";
 alert(person.name); //"Nicholas"
 ```
 访问器属性：没有数据,4个特性：configurable能否修改为数据属性其余同上，enumerable能否循环。get读取函数，set写入函数，默认undefined。访问器属性只能通过Object.defineProperty(,,)定义。
-```
+```js 
 var book = {
     _year:2004, //_只能通过对象方法访问的属性
-    edition: 1 };
+    edition: 1 
+};
 Object.defineProperty(book, "year", { //注意属性名
     get: function(){return this._year;},
     set: function(newValue){
         if (newValue > 2004){
             this._year = newValue;
-            this.edition += newValue - 2004;}}});
+            this.edition += newValue - 2004;
+        }
+    }
+});
 book.year = 2005;
 alert(book.edition); //2 设置一个属性导致其他属性变化。
 ```
 创建访问器属性的2个方法：`__defineGetter__()`和`__defineSetter__()`下例方法等价上例Object方法：
-```
+```js
 book.__defineGetter__("year",function(){
-    return this._year;});
+    return this._year;
+});
 book.__defineSetter__("year",function(newValue){
     if (newValue > 2004){
         this._year = newValue;
-        this.edition += newValue - 2004; }}）；
+        this.edition += newValue - 2004; 
+    }
+}）；
 ```
 同时定义数据和访问属性的方法：`Object.defineProperties(,)`1参对象，2参描述符。
 读取属性特性的方法：`Object.getOwnPropertyDescriptor(,)`1参对象，2参描述符中的属性名。
-```
+
+```js
 var book = {};
 Object.defineProperties(book, { //定义多属性
     _year:{value:2004},
@@ -243,7 +254,10 @@ Object.defineProperties(book, { //定义多属性
         set:function(newValue){
             if (newValue > 2004){
               this._year=newValue;
-              this.edition += newValue - 2004;}}}});
+              this.edition += newValue - 2004;
+            }
+        }
+    }});
 var des = Object.getOwnPropertyDescriptor(book,"_year");          //读取数据属性
 var def = Object.getOwnPropertyDescriptor(book,"year");           //读取访问器属性
 alert(des.value);        //2004
@@ -257,6 +271,7 @@ alert(typeof def.get);   //"function"
 构造函数模式：自定义构造函数。如new Person,内部`this.属性，没有return`。构造函数首字母要`大写`。优点：比工厂强的是能把它的实例标识成特定类型，可用constructor或instanceof检查。任何函数只要通过new都可以做构造函数。
 问题：不要内部创建函数，因为每建1个实例就会创建1个函数。
 解决：而要通过赋值函数名，函数在构造外部定义。
+
 ```
 function Person(name, age, job){
    this.name=name;
@@ -270,24 +285,29 @@ function sayName(){alert(this.name);} //外部定义方法
 var person = new Person("Greg",29）；
 ```
 问题：如果方法太多就要定义很多全局函数方法。
-解决：原型模式。
+
+##### 解决：原型模式。
+
 prototype属性：指向一个原型对象(包含所有实例属性、方法)。给原型添加的属性方法能被构造函数的所有实例共享。
 原型对象自带属性:Person.prototype.`constructor`指向Person构造函数。实例指向原型的属性`__proto__`。实例指向原型链的属性constructor。
 检测是否关联方法：只要对象和原型对象存在关联，Person.prototype.`isPrototypeOf`(obj)会返true。等价ES5(`Object.getPrototypeOf`(obj)==Person.prototype)返true
 实例中定义的属性值会覆盖原型属性值。
 判断属性归属：obj.`hasOwnProperty`("")如果属性只属于实例返ture。in符："x" `in` obj返true表示对象有这属性无论原型或实例。合在一起用判断属性是否属于原型；`function hasprototypeProperty(obj, name){return !obj.hasOwnProperty(name) && (name in obj)}`
 提取属性数组：`Object.keys(obj)`obj.__proto__为原型按照顺序返回原型的`可枚举属性`字符串数组，obj为实例返回实例的。`Object.getOwnPropertyNames()`返回`所有属性`字符数组。这2个方法可用来替代for-in(IE9+)
-```
+
+```js
 var o = {
     toString:function(){
-        return "My Object";}};
+        return "My Object";
+    }};
 for (var prop in o){
     if (prop == "toString"){ 
-        alert("Found toString");}} //找不到
+        alert("Found toString");
+    }} //找不到
 //IE早期bug如原型属性不可枚举，则实例属性也会被屏蔽
 ```
 字面量封装原型属性：注意constructor将默认不指向构造函数
-```
+```js
 function Person(){}
 var friend1=new Person()//这里实例不会继承重写原型方法
 Person.prototype = { //切断构造函数和最初原型的联系
@@ -295,7 +315,8 @@ Person.prototype = { //切断构造函数和最初原型的联系
     name : "Nicholas",
     age : 20,
     job : "Software Engineer",
-    sayName : function(){alert(this.name);}};
+    sayName : function(){alert(this.name);}
+};
 var friend2=new Person()//这里实例会继承重写原型
 ```
 问题：因为原生constructor是不可枚举的。可用Object.defineProperty()修改枚举性。重写原型会破坏原型赋值动态性，因为实例指向最初原型，构造函数指向重写原型。
@@ -303,19 +324,22 @@ var friend2=new Person()//这里实例会继承重写原型
 单独使用原型模式的问题：属性值如为数组，共享不好。不能传参
 解决：组合使用构造函数模式和原型模式(最常用)，构造函数定义基本属性让实例互不干扰，原型定义constructor属性和通用函数方法。
 动态原型模式：把原型方法封装在构造函数内部。优点是封装。注意不要重定义方法,仅初始化运行1次够了，也不要使用字面量。
-```
+
+```js
 function Person(name,age,job){
     this.name = name;
-//公有属性 this指向实例，而非构造函数。
+	//公有属性 this指向实例，而非构造函数。
     var age = age;
-//私有属性 只能被构造函数访问或实例的constructor属性访问
+	//私有属性 只能被构造函数访问或实例的constructor属性访问
     Person.job = job;
-//静态属性 只能同上，实例不能直接访问。
+	//静态属性 只能同上，实例不能直接访问。
     if (typeof this.sayName !="function"){
-//该判断的作用是避免调用构造函数创建实例时二次创建函数
+	//该判断的作用是避免调用构造函数创建实例时二次创建函数
         Person.prototype.sayName = function(){
-            alert(this.name);};}}
-//字面量法会使第1次创建的实例会找不到sayName，网友解决：
+            alert(this.name);
+        };
+    }}
+	//字面量法会使第1次创建的实例会找不到sayName，网友解决：
     if (typeof this.sayName !="function"){
         Person.prototype = {
             constructor:Person,
@@ -323,7 +347,7 @@ function Person(name,age,job){
         return new Person(name,age,job);}
 ```
 寄生构造函数模式:就是用new调用的工厂模式。return的对象和原型`没有关联`，没有返回值才返回实例。一用于给原生构造函数添加新功能又不修改原生对象。
-```
+```js
 function SpecialArray(){
     var values = new Array();
     values.push.apply(values, arguments);//添加值
@@ -333,7 +357,9 @@ function SpecialArray(){
 var colors = new SpecialArray("r","e","d")
 ```
 稳妥构造函数模式：不用this和new符。内部不定义属性数据，只定义访问属性的方法(属性值由传参决定)。其余和工厂一样。
-继承：
+
+#### 继承：
+
 原型链：让原型对象成为另一个类型的实例，层层继承，原型就有2个指针，1个指向构造函数，1个指向原型对象。
 `A.prototype = new B()` 构造函数A的原型继承B所有属性方法。A的原型是B的实例。A实例的constructor属性指向B的原型
 搜索过程：A实例-->A原型--B原型和实例
@@ -341,6 +367,7 @@ var colors = new SpecialArray("r","e","d")
 子级原型属性方法可覆盖父级原型同名属性方法。
 单用原型链问题：子类型原型会继承超类型实例属性，数组变动影响继承。超类型构造函数传参会影响子类型对象。
 解决：借用构造函数：子类型构造函数内部调用超类型构造函数。
+
 ```
 function SuperType(name){
     this.name=name; }//父类型实例的属性
@@ -518,6 +545,7 @@ screenLeft游览器距离左屏像素，screenTop游览器距离上屏像素。
 窗口移动：window.moveTo(x,y)移动窗口和window.moveBy(x,y)相对移动窗口。要注意框架名是用window还是top。貌似谷歌移不动。
 窗口调整：resizeTo(x,y) resizeBy(x,y)用法同上，都可能被禁用。
 窗口尺寸：outerWidth、outerHeight游览器尺寸，innerWidth、innerHeight视口尺寸。document.documentElement.clientWidth视口尺寸(不包括滚动条，移动端常用)。
+
 ```
 var pageWidth = window.innerWidth,pageHeight = window.innerHeight;
 if (typeof pageWidth != "number"){

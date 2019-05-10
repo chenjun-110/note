@@ -289,7 +289,11 @@ goBack(null)                 // 返回
 
  	先在SDK-TOOLS里下载HAX，再在`android-sdk\extras\intel\Hardware_Accelerated_Execution_Manager` 运行 `IntelHaxm.exe`
 
-#### 代理bug
+## 热加载bug
+
+adb有问题要更新 Android SDK Platform-Tools
+
+## 代理bug
 
 1. gradle打包代理gradle.properties加上`org.gradle.jvmargs=-DsocksProxyHost=127.0.0.1 -DsocksProxyPort=1080 -DsocksNonProxyHosts=*.xcompany.com`。一定要把之前的`org.gradle.jvmargs`删掉！
 
@@ -299,14 +303,23 @@ goBack(null)                 // 返回
 
 2. github下载的插件一定要先打开下载pub依赖再引入！
 
-3. 终端的HTTP代理（发布插件用的），设置了会影响热更新协议
+3. 设置代理（发布插件用的），设置了会影响热加载
 
-```
-set http_proxy=http://127.0.0.1:8118
-set https_proxy=http://127.0.0.1:8118
+```cmd
+set http_proxy=http://127.0.0.1:1080
+set https_proxy=http://127.0.0.1:1080
 ```
 
-4. oop错误：去掉org.gradle.jvmargs=-Xmx1536M
+4. 设置Git Bash代理
+
+   ```bash
+   export http_proxy="http://127.0.0.1:1080"
+   export https_proxy="http://127.0.0.1:1080"
+   ```
+
+5. 设置全局代理：Proxifier软件+影梭 (推荐！！！) 可实现shell全局代理支持socks5协议。
+
+6. oop错误：去掉org.gradle.jvmargs=-Xmx1536M
 
 ## 模拟器
 
