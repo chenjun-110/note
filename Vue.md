@@ -562,6 +562,53 @@ rotate:function(){
 wx.canvasGetImageData无法在组件中使用
 只有[].every能中途终止
 
+### 云开发
+
+mongodb单文档16M，无返回码不报错。
+
+| 数据库（DataBase） | 数据库（DataBase） |
+| ------------------ | ------------------ |
+| 表（table）        | 集合（collection） |
+| 行（row）          | 记录（record/doc） |
+| 列（column）       | 字段（field）      |
+
+开发工具自定义_id，客户端无法更新。
+
+update无法插入对象字段
+
+```javascript
+var db = wx.cloud.database()
+db.collection('log').doc('_id值')
+
+.update({
+  data: {
+    done: true// 修改或插入done字段
+  }
+})
+
+.set({
+	data:{} //覆盖整条记录  
+})
+.remove() //删除整条记录
+
+db.collection('log')
+.add({
+    data:{
+        _id:'123',
+        name:'name'
+    }
+})
+
+wx.cloud.callFunction({
+    name: '云函数名', 
+    data: {
+        x: '参数',
+    }
+})//需要project.config.json添加cloudfunctionRoot字段
+```
+
+
+
 ### mpvue
 1. 新增的页面需要重新 npm run dev 来进行编译
 
