@@ -24,14 +24,14 @@
    七大显示类：
     12. DisplayObject 显示对象基类，所有显示对象均继承自此类
    2. Bitmap	显示位图
-   	. Shape	显示矢量图
-   	. TextField	文本类
-   	. BitmapText	位图文本类
-   	. DisplayObjectContainer	显示对象容器接口
+      	. Shape	显示矢量图
+            	. TextField	文本类
+            	. BitmapText	位图文本类
+            	. DisplayObjectContainer	显示对象容器接口
             1. Stage
             2. ScrollView
             3. Sprite
-   		 Sprite	矢量绘制的显示容器
+         		 Sprite	矢量绘制的显示容器
         13. Stage 舞台类
         14. MovieClip MovieClipData MovieClipDataFactory
       容器API：
@@ -788,3 +788,122 @@ if (shp.hitTestPoint( this.obj.x, this.obj.y))
  1. 如果向量1转向向量2为逆时针，那么他们的向量积就大于0，如果是顺时针，那么就小于0。`<x1,y1>*<x2,y2> = x1*y2-x2*y1` 手算过转了三个象限判断顺逆时针有效。
  2.  如果两个点在一个位于原点的向量（暂称原向量）两侧，那两个向量必将在原向量的顺时针和逆时针两侧。那么原向量和两个向量分别的向量积必定异号
 
+### 物理引擎
+
+##### matter.js
+
+egret引入matter.js教程：<https://github.com/guawoo/matterDemo_egret>
+
+```javascript
+ // 对刚体circle施加一个上抛力
+ Matter.Body.applyForce(circle, circle.position, {
+ 	x:0,y:0.5
+ })
+// y方向重力为0
+engine.world.gravity.y = 0;
+// 碰撞事件
+Matter.Events.on(engine, 'collisionStart', function(event) {
+    var pairs = event.pairs;
+    for (var i = 0; i < pairs.length; i++) {
+        var pair = pairs[i];
+        //pair.bodyA pair.bodyB是碰撞双方
+    }
+}) 
+// 自定义组合刚体
+Matter.Body.create({
+    parts:[b1,b2],
+});
+```
+
+刚体的options
+
+```
+{
+     egretSprite: shape, //自定义
+     container:this,		 //自定义
+     friction: .2,			 //摩擦力
+     frictionAir//空气摩擦
+     frictionStatic//静止摩擦
+     isSleeping: true,       //睡眠中
+     isStatic,				 //静态
+     isSensor:true 			 //传感器，触发碰撞
+     restitution: 0.5,  	 //弹性：0不弹，越大越弹
+     angle:角度*Math.PI/360 //旋转弧度 这里1π是360度？
+     chamfer: 15 //矩形圆角度
+}
+timeScale刚体内的时间流速 torque扭矩 parts刚体内零件数组 parent零件的父级 motion当前移动量 inverseMass=1/mass和mass质量 inverseInertia=1/inertia和inertia惯性矩 id label density密度 slop允许刚体重叠距离
+collisionFilter:{
+	group所属碰撞组 mask和category碰撞分类
+}
+angularVelocity通过修改扭矩和车身角度来修改角速度 angularSpeed当前角速度(只读)
+```
+
+```
+时间速率 engine.timing.timeScale 1正常 0停止 >1快动作
+```
+
+pointA 和 pointB 表示约束点的位置，其值为向量，默认为{x=0,y:0}在物体中心位置。以物体中心为原点进行量相减(三角形法则)
+
+```
+Body.setStatic()
+Sleeping.set
+Body.translate无速度移动
+Body.setVelocity设置速度 x:0.5等于egret的50x轴距离
+Body.setPosition 设置位置
+Body.setParts(body, [body], [autoHull=true]) 设置零件
+Matter.Body.nextGroup(false)  groupId相等时false不碰撞true碰撞
+
+另一种移动：帧事件里把视图的坐标赋值给刚体 robot_phy.position.x = robot.x 但会穿透
+```
+
+
+
+```
+//Engine.create()
+options{
+    broadphase :  ; Engine.create (应该一个引擎实例  ,  默认为一个 Engine.create对象)
+
+    constraintIterations: ;number (整数,默认为 2 通常很充足,   可以理解为帧数   针对约束迭代)
+
+    enableSleeping : ;boolean (默认为 false     是否可以通过 Matter.Sleeping模块休眠)
+
+    plugin : ;  (用于存储特定插件的属性对象)
+
+    positionIterations : ; number (整数, 默认为6 , 可以理解为帧数   针对于位置迭代)
+
+    timing : (定时系统包含的属性){
+
+        timeScale :  ;number指定所有实体的全局缩放时间因子,  (0 为冻结时间 , 值为 0.1 慢动作效果,1.2 位加速)
+
+        timestamp :  ;number 指定当前模拟时间(毫秒)0, 按照Engine.update给定的 delta 参数递增(与Engine.update方法对应)
+
+    }
+
+    velocityIterations: ; number 指定执行每次更新的迭代次数, 值越高,模拟质量越高, 帧
+
+    world: ;  Matter.World  一个 World 实例  即 世界/舞台  包含所有的 实例模拟体,约束等
+
+}
+
+```
+
+事件
+
+```
+afterUpdate/beforeUpdate 更新和碰撞发生后/前
+collisonActive 正在碰撞
+collisonEnd 结束碰撞 	
+collisonStart 开始碰撞
+```
+
+
+
+bug:
+
+刚体穿透： 自动休眠模式会引发 | 力度太大 |  调密度弹性
+
+刚体间碰撞抖动：零件设成静态 刚体挤压
+
+静态刚体设动态，xy变Null angle变 NaN
+
+x轴和egret x轴不对应
