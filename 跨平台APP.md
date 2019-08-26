@@ -1633,3 +1633,69 @@ timer.cancel()
 new Set()..add('1')..addAll(['2', '3'])
 ```
 
+
+
+
+
+# 安卓
+
+四大组件
+
+Activity => 页面/部件
+
+Service => 后台服务
+
+ContentProvider => 数据存取
+
+BroadcastReceiver => 事件
+
+Android 应用没有单一入口点，组件可被外部启动
+
+Intent 事件消息（不能启动外部数据组件）
+
+AndroidManifest.xml 清单声明：组件、权限、API、硬件、库
+
+```xml
+<manifest ... >
+    ...
+    <application ... >
+        <activity android:name="com.example.project.ComposeEmailActivity">
+            <intent-filter> //以便响应来自其他应用的Intent
+                <action android:name="android.intent.action.SEND" />
+                <data android:type="*/*" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
+    //如果三方APP设置了指定权限，这里就要设置同名权限
+    <uses-permission android:name="com.google.socialapp.permission.SHARE_POST" />
+    <uses-feature android:name="android.hardware.camera.any"
+                  android:required="true" />//必须使用的API，设备没有将无法安装
+    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="19" />//
+</manifest>
+```
+
+
+
+## Activity 
+
+生命周期：onCreate() onStart显示 onResume获焦/onPause失焦 onStop/onRestart onDestroy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
