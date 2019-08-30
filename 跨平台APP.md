@@ -1693,9 +1693,11 @@ AndroidManifest.xml 清单声明：组件、权限、API、硬件、库
 
 
 
+# uni-app
 
 
 
+getApp()指向hook，不是APP.vue里的this
 
 
 

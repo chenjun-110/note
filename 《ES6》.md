@@ -10,7 +10,8 @@ ES6：包括ES2015.2016.2017
   13. 只要模块内有import/export语法，Node就视为ES6模块。
   14. 顶层this指向当前模块。
   15. ES6加载CMD模块：
-    ​    151. 查找顺序(不指定)：`import './foo'` 先搜索foo.js->./foo/package.json->./foo/index.js。`import 'baz'`搜索node_modules文件夹下的baz.js->baz/package.json->baz/index.js没结果就返回上级node_modules目录继续。
+
+        151. 查找顺序(不指定)：`import './foo'` 先搜索foo.js->./foo/package.json->./foo/index.js。`import 'baz'`搜索node_modules文件夹下的baz.js->baz/package.json->baz/index.js没结果就返回上级node_modules目录继续。
     ​    152. `module.exports={} 等价于 export default {}` 所以用ES6语法，import a from ''/import {default as a} from ''即可
     ​    153. `import * as a from ''` 这个a.default对象==module.exports==exports==default。 ES6引用CMD模块行为和ES6模块有点小区别。
     ​    154. CommonJS 模块的输出缓存机制，在 ES6 加载方式下依然有效不会动态更新。
@@ -19,7 +20,7 @@ ES6：包括ES2015.2016.2017
  2. AMD用于游览器。
  3. import不会引用整个模块，它不是对象。动态更新。输出的是值的引用。
 ---node.js中的CommonJS语法---
-```
+```javascript
 exports.setName=setName;
 exports.printName=printName;
 var test=require('./test');  // test代表exports
@@ -33,7 +34,7 @@ test.printName();
 `var Student=require('./test').Student;`
 ----end-------
 ES6
-```
+```javascript
 export default a 
 import s from 'demo' //导入default没有花括号，名字随意。 
 ```
@@ -84,7 +85,7 @@ const: 不可更改
  2. const只能保证引用关系不变，不能保证内存地址变化。如对象、数组的数据仍可变动。应用冻结`const foo = Object.freeze({});`
  3. 可读性好，性能比let高，函数式思想只新建不改变值
 完全冻结对象：Object.freeze对属性值是对象的无效。
-```
+```javascript
 var constantize = (obj) => {
   Object.freeze(obj);
   Object.keys(obj).forEach( (key, i) => {
@@ -94,7 +95,7 @@ var constantize = (obj) => {
 全局对象:
  1. let/const/class声明的不属于全局对象属性，var/function仍属于。
  2. 游览器的window，Node的global，WebWorker的self 指向全局。考虑到一处代码多处运行可作兼容处理：
-```
+```javascript
 var getGlobal = function () {
   if (typeof self !== 'undefined') { return self; }
   if (typeof window !== 'undefined') { return window; }
@@ -141,7 +142,7 @@ var getGlobal = function () {
 ​	3. 注意带默认值的函数length属性会失真。
 ​	4. 默认值作用域通常不指向全局变量，除非该变量没被声明为形参。由此可以推出默认值的变量在函数体内设置会某些情况无效。
 ​	5. 
-```
+```javascript
 var x = 1;
 function foo(x, y = function(){x = 2;}) {
   x = 3;  //这x指向形参第1个x。 //如果var x=3; x就不会受条件作用域影响。且覆盖条件的x。 
@@ -176,7 +177,8 @@ x;
 尾递归：不会栈溢出。return f(n-1,n*t)比return n*f(n-1)写法强很多。
 ​	1. 如果递归函数最后1步还有多余操作的话，可以在父函数多加几个形参。如果考虑到递归函数的可读性，可以外部嵌套父函数 / 柯里化把多参数转为单参数 / 设默认参数。 
 ​	2. 注意：尾递归优化仅在ES6严格模式有效，低版本用蹦床函数把递归转化为循环。
-```
+
+```javascript
 function tco(f) { //f是要递归的函数
   var value,active = false,accumulated = [];
   return function accumulator() {
@@ -233,7 +235,7 @@ sum(1, 100000)
 6. map转JSON:1.先把map转对象->`JSON.stringify(obj)`2.转不了对象就转数组->`JSON.stringify([...map])`
 7. JSON转map:1.对象型json：先转对象`JSON.parse(js)`->再转map。2.数组型json:`new Map(JSON.parse(js))`
 8. Map和Object区别：无原型，key可为任意类型，有size长度。Map是一种更完善的Hash结构,适合衔接二者的关系，没原型仍然无法替代对象，专注于数据。
-```
+```javascript
 const map1 = new Map(
   [...map0].filter(([k, v]) => k < 3) );
 map2 = new Map(
@@ -246,6 +248,7 @@ map.forEach(function(value, key, map) {
 特点：键名只接受对象。键名不计入引用计数(键值正常引用)，不可遍历。
 `new WeakMap();` 用法同上set/get/has/delete
 适用于：
+
 1. 不引用对象并在对象上存储数据,比如DOM
 2. 作listener对象，对象消失则事件回调消失。
 3. 给实例添加私有属性，随实例销毁。
@@ -276,13 +279,13 @@ handler：
 Proxy对象和Object的方法，Reflect对象都有相同的默认行为，因此Proxy内部可以调用Reflect没修改过的相同API。
 特点：同名方法里Reflect会报错，Object不会(返回false/udf)。
 方法：
-        ​    1. get:如果读取属性是getter，它内部的this指向receiver对象非目标对象！
-        ​    2. set:(target, name, value, receiver),如果设置属性是setter,this指向receiver！注意Reflect.set会触发Proxy.defineProperty拦截。
-        ​    3. getPrototypeOf：读取__proto__属性，对应Object.getPrototypeOf(区别：参数非对象Object会转为对象，Reflect会报错)。
-        ​    4. setPrototypeOf：同上，Reflect的会报错。
-        ​    5. `Reflect.apply(Math.min, Math, ages)`代替`Math.min.apply(Math, ages)`。`Reflect.apply(Object.prototype.toString, 1, [])`代替`Object.prototype.toString.call(1)`
-        ​    6. ownKeys:代替getOwnPropertyNames、getOwnPropertySymbols之和。
-        ​    7. has deleteProperty construct getOwnPropertyDescriptor isExtensible preventExtensions 同上
+           ​    1. get:如果读取属性是getter，它内部的this指向receiver对象非目标对象！
+           ​    2. set:(target, name, value, receiver),如果设置属性是setter,this指向receiver！注意Reflect.set会触发Proxy.defineProperty拦截。
+           ​    3. getPrototypeOf：读取__proto__属性，对应Object.getPrototypeOf(区别：参数非对象Object会转为对象，Reflect会报错)。
+           ​    4. setPrototypeOf：同上，Reflect的会报错。
+           ​    5. `Reflect.apply(Math.min, Math, ages)`代替`Math.min.apply(Math, ages)`。`Reflect.apply(Object.prototype.toString, 1, [])`代替`Object.prototype.toString.call(1)`
+           ​    6. ownKeys:代替getOwnPropertyNames、getOwnPropertySymbols之和。
+           ​    7. has deleteProperty construct getOwnPropertyDescriptor isExtensible preventExtensions 同上
 **Promise**
 用法：`p = new Promise((resolve, reject)=>{resolve()});  p.then((v)=>{v();}).catch();`
 特点：
@@ -320,7 +323,7 @@ Promise.resolve:
   3. 不带参数，本轮“事件循环”的结束时返回一个Resolved状态的Promise对象。执行顺序在setTimeout(,0)之前。
 Promise.reject：返回一个rejected状态的Promise对象，特点同上，参数有then方法的对象抛错的话，catch捕获的是then而非原参。
 .done: 防止回调链尾部错误未捕捉。
-```
+```javascript
 Promise.prototype.done = function (onFulfilled, onRejected) {
   this.then(onFulfilled, onRejected)
     .catch(function (reason) {
@@ -329,7 +332,7 @@ Promise.prototype.done = function (onFulfilled, onRejected) {
 };
 ```
 .finally:2种状态都一定会执行的回调。
-```
+```javascript
 Promise.prototype.finally = function (callback) {
   let P = this.constructor;
   return this.then(
@@ -348,7 +351,7 @@ Promise.try：
 原生带接口的数据结构：数组、类数组的对象、Set和Map结构。可被for..of循环。
 默认部署：在数据结构的［Symbol.iterator］属性方法是个返回遍历器对象的函数。`arr[Symbol.iterator]().next();`
 手动部署：
-```
+```javascript
 class RangeIterator {
   constructor(start, stop) {
     this.value = start;
@@ -364,7 +367,7 @@ function range(start, stop) {return new RangeIterator(start, stop);}
 for (var value of range(0, 3)) {console.log(value);}
 ```
 while遍历：
-```
+```javascript
 var $iterator = ITERABLE[Symbol.iterator]();
 var $result = $iterator.next();
 while (!$result.done) {
@@ -389,7 +392,7 @@ for..of：
   9. 对于Generator：for-of只能遍历yield,不包括return。如果格式:yield [k,o[k]]，那可以解构赋值for([key,value] of g()){console.log(`${key}: ${value}`);}
 **Generator状态机**
 用法：
-```
+```javascript
 function* helloWorldGenerator() {
   yield 'hello';    //状态
   yield 'world';
@@ -412,7 +415,7 @@ yield*: +遍历器对象。
 next:
   1. `var reset = yield i`每次执行到yield i就结束了，reset永远不会有值。如果next(a)带了参数，参数会作为yield的上一次返回值，reset就被初始化为a了。这样可以动态改变Generator行为。
   2. next()无参数，那上一阶段的yield表达式值为undefined
-```
+```javascript
 function* dataConsumer() {
   console.log('Started');
   console.log(`1. ${yield}`);
@@ -446,7 +449,7 @@ Promise：把横向代码改为纵向链式调用。解决了可读性。它只�
   1. 语法糖：内置执行器，不再需要Thunk、co模块即可批量异步。
   2. 返回值是Promise。
   3. await不能插在普通函数的回调内。可以在for循环内。
-```
+```javascript
 async function() f{await g();return}
 f().then(); //then会接收return值为参数
 ```
@@ -454,7 +457,7 @@ f().then(); //then会接收return值为参数
   1. 顺序：不reject不return(中断)的话必须等async内部的await都执行完才会执行then回调。
   2. 防止中断：try-catch包裹await可以忽略该异步是否失败，不会中断后面的await。或者把.catch写到await表达式内`await g().catch()`。(await表达式抛错会中断async)
   3. 如果异步成功就退出循环，如果异步失败就再次执行。
-```
+```javascript
 async function test() {
   for (i = 0; i < 3; ++i) {
     try {
@@ -564,7 +567,7 @@ push：list1.push(3,4,5) 不会修改原List！
 ​    2. 迭代器：entries()
 交集：Set.intersect([])
 游标：方便访问层级很深的数据。cursor
-```
+```javascript
 let data = Immutable.fromJS({ a: { b: { c: 1 } } }); // 让 cursor 指向 { c: 1 }
 let cursor = Cursor.from(data, ['a', 'b'], newData => {
   // 当 cursor 或其子 cursor 执行 update 时调用
@@ -592,7 +595,7 @@ Seq({a:1,b:2,c:3}).map((x)=>x*x).toObject();   //{a:1,b:4,:9}
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 #### 技巧：
 1. 私有方法：
-```
+```javascript
 const bar = Symbol('bar');
 const snaf = Symbol('snaf');
 export default class myClass{
@@ -601,7 +604,7 @@ export default class myClass{
 }
 ```
 2. 绑定this：class方法如果解构出来单独用，需要处理this指向。
-```
+```javascript
 方法一：把原型方法挂在同名构造属性上。
 constructor() {this.printName = this.printName.bind(this);}
 方法二：箭头代替bind。
@@ -629,7 +632,7 @@ function selfish (target) {
 const logger = selfish(new Logger()); //实例
 ```
 3. 让函数只能被new调用：
-```
+```javascript
 function Person(name) {
   if (new.target === Person) {
     this.name = name;
@@ -639,7 +642,7 @@ function Person(name) {
 }
 ```
 4. 只能用于继承的类：不能new
-```
+```javascript
 class Shape {
   constructor() {
     if (new.target === Shape) {
@@ -649,7 +652,7 @@ class Shape {
 }
 ```
 5. Mixin模式:合并多个类。constructor内的无法继承
-```
+```javascript
 function mix(...mixins) {
   class Mix {}
   for (let mixin of mixins) {   //把每个类拿出来
@@ -674,7 +677,7 @@ class DistributedEdit extends mix(Loggable, Serializable) {
 }
 ```
 **@修饰器**
-```
+```javascript
 @testable  // 修饰Person类
 class Person {
   @readonly  // 修饰name方法
@@ -698,14 +701,14 @@ class Person {
 10. eslint插件检查代码风格。
 
 **fetch**
-```
+```javascript
 var u = new URLSearchParams(); //参数
 u.append('a', 'b');
 u.append('c', 'd');
 fetch('https://api.flickr.com/services/rest?' + u,{method:"POST",headers:{""：""},body:""}).then().catch()
 ```
 设置头:
-```
+```javascript
 var reqHeaders = new Headers();
 reqHeaders.append("","") 
 reqHeaders.set("","")
@@ -800,7 +803,7 @@ new Map()
 
 **ES6代码收藏**：
 生成DOM节点的函数
-```
+```javascript
 const dom = new Proxy({}, {
   get(target, property) {
     return function(attrs = {}, ...children) {
@@ -833,7 +836,7 @@ const el = dom.div({},
 document.body.appendChild(el);
 ```
 赋值时验证数据：
-```
+```javascript
 let validator = {
   set: function(obj, prop, value) {
     if (prop === 'age') {
@@ -857,7 +860,7 @@ person.age = 'young' // 报错
 person.age = 300 // 报错
 ```
 禁止操作_私有属性：
-```
+```javascript
 var handler = {
   get (target, key) {
     invariant(key, 'get');
@@ -878,7 +881,7 @@ proxy._prop  // Error: Invalid attempt to get private "_prop" property
 proxy._prop = 'c'  // Error: Invalid attempt to set private "_prop" property
 ```
 简单观察者模式：
-```
+```javascript
 const queuedObservers = new Set();
 const observe = fn => queuedObservers.add(fn);
 const observable = obj => new Proxy(obj, {set});
@@ -894,7 +897,7 @@ observe(print);
 person.name = '李四';
 ```
 异步加载图片：
-```
+```javascript
 function loadImageAsync(url) {
   return new Promise(function(resolve, reject) { //新建时会立即执行
     var image = new Image();
@@ -909,7 +912,7 @@ function loadImageAsync(url) {
 }
 ```
 5秒内无结果就触发reject：
-```
+```javascript
 const p = Promise.race([
   fetch('/resource-that-may-take-a-while'),
   new Promise(function (resolve, reject) {
@@ -920,7 +923,7 @@ p.then(response => console.log(response));
 p.catch(error => console.log(error));
 ```
 Iterator做指针结构：每调用一次内部指针移动到下个实例
-```
+```javascript
 function Obj(value) {
   this.value = value;
   this.next = null;}
@@ -946,7 +949,7 @@ two.next = three;
 for (var i of one){console.log(i);}
 ```
 Generator包装js对象：遍历对象
-```
+```javascript
 function* objectEntries(obj) {
   let propKeys = Reflect.ownKeys(obj);
   for (let propKey of propKeys) {
@@ -959,7 +962,7 @@ for (let [key, value] of objectEntries(jane)) {
 }
 ```
 对象添加遍历接口：
-```
+```javascript
 function* objectEntries() {
   let propKeys = Object.keys(this);
   for (let propKey of propKeys) {
@@ -973,7 +976,7 @@ for (let [key, value] of jane) {  //解构赋值
 }
 ```
 yield*遍历嵌套数组:
-```
+```javascript
 function* iterTree(tree) {
   if (Array.isArray(tree)) { //非数组成员转成yield状态输出
     for(let i=0; i < tree.length; i++) { //嵌套数组成员就递归几次，深度优先。
@@ -989,7 +992,7 @@ for(let x of iterTree(tree)) {
 }
 ```
 yield*遍历二叉树(嵌套对象)：  感觉make分发格式有待改进，[1]位嵌套无法遍历，且只能判断前3项。对格式要求严格。
-```
+```javascript
 function Tree(left, label, right) {//二叉树的构造函数， 三个参数分别是左树、当前节点和右树
   this.left = left;
   this.label = label;
@@ -1013,7 +1016,7 @@ for (let node of inorder(tree)) {
 }
 ```
 同步形式的异步Ajax:
-```
+```javascript
 function* main() {
   var result = yield request("http://some.url");
   var resp = JSON.parse(result);
@@ -1028,7 +1031,7 @@ var it = main();
 it.next();
 ```
 同步控制流管理：Generator > Promise > 嵌套回调
-```
+```javascript
 Promise.resolve(step1) //promise同步的分步控制。
   .then(step2)
   .then(step3)
@@ -1076,7 +1079,7 @@ while (!res.done){  //保证iterateJobs执行完毕->保证iterateSteps执行完
 }
 ```
 Thunk函数转换器：解决传参不计算参数、不执行回调。
-```
+```javascript
 // 正常版本的readFile（多参数版本）
 fs.readFile(fileName, callback);
 
@@ -1104,7 +1107,7 @@ var readFileThunk = Thunk(fs.readFile);
 readFileThunk(fileA)(callback);
 ```
 批量异步：取得上个异步值传入下个函数 Promise
-```
+```javascript
 function logInOrder(urls) {
   // 远程一个个读取所有URL
   const textPromises = urls.map(url => {
@@ -1119,7 +1122,7 @@ function logInOrder(urls) {
 }
 ```
 批量异步：取得上个异步值传入下个函数 async
-```
+```javascript
 async function logInOrder(urls) {
   // 并发读取远程URL
   const textPromises = urls.map(async url => {
@@ -1138,7 +1141,7 @@ async function logInOrder(urls) {
 
 函数表达式：运行速度：`+function(){;}()`>`1 && function(){;}()`>`(function(){;}())` IE9速度都一样。
 判断数据类型：
-```
+```javascript
 function getType(obj) {
      var type = Object.prototype.toString.call(obj).match(/^\[object (.*)\]$/)[1].toLowerCase();
      if(type === 'string' && typeof obj === 'object') return 'object'; // Let "new String('')" return 'object'
@@ -1146,5 +1149,126 @@ function getType(obj) {
      if (obj === undefined) return 'undefined'; // PhantomJS has type "DOMWindow" for undefined
      return type;
    }
+```
+
+
+
+```javascript
+动态作用域会顺着调用栈去寻找变量
+词法作用域引擎根据位置信息来查找标识符,js属于词法作用域。
+function foo(){ 
+    console.log(a); 
+} 
+function bar(){ 
+    var a=3; 
+    foo(); //this不是父函数，是上下文对象 
+} 
+var a=2; 
+bar(); //2
+
+this独立函数调用时非严格模式默认指向window，严格模式指向undefined
+new绑定 > 显式绑定 > 隐式绑定 > 默认绑定。
+then在任意时段都能获得promise值：promise实例本身就能值的缓存
+
+function *createIterator() {
+	console.log(1)
+	yield Promise.resolve(9);
+	console.log(2)
+    //next参数覆盖yield，next调用数=yield数+1
+    //运行时双向消息系统:next(params) <-> 上个yield params
+	let a = yield; 
+	console.log(3)
+	yield 3;
+    throw "D"
+	console.log(4)
+    return
+}
+i=createIterator()
+//i.next()可在任意地方调用，之前可清理副作用如定时器
+//i.throw(new Error('error'))抛错到生成器内要用try-catch包裹yield，默认让done直接为true，
+//i.return() 让done直接为true
+let arr = [1, 2, 3];
+i= arr[Symbol.iterator](); //使用系统默认迭代器
+
+//自定义可迭代对象，供for-of和[...]使用
+let collection = {
+    arr: [2,3,4],
+    *[Symbol.iterator] () {
+        for (let v of this.arr) { //因为数组有迭代器所以可用for-of
+            yield v;	//动态生成
+        }
+    }
+};
+for (let x of collection){}//for-of批量调用next(),continue是跳到下个next
+```
+
+默认迭代器有：entries() values() keys() Array Map Set String DOM
+
+迭代方式：for-of 和 [...Iterator()]
+
+字符串方括号不适用异常编码，此时用for-of或yield *"hello"
+
+错误推理：如果生成器内没有try-catch,会到i.throw调用处，如果有则在里面解决。生成器内部报错行为等同于i.throw
+
+```javascript
+function *createNumberIterator() {
+    yield 1;
+    yield 2;
+    return 3; //委托消息传递外传可用return。 throw err值要在外部用catch(err)接收
+}
+function *foo(count) {
+    for (let i=0; i < count; i++) { //批量生成yield
+        yield "repeat";
+    }
+    if (val > 1) {
+        val = yield *foo( count - 1 ) //递归委托
+    }
+}
+function *createCombinedIterator() {
+    let result = yield *createNumberIterator();
+    yield *foo(result);
+    yield *[1,2,3]
+}
+var iterator = createCombinedIterator();//组合：委托适用一切迭代器
+
+//结束
+function *createIterator() {
+	console.log('启动迭代器')
+	try{
+        while(1){//状态机
+            yield 'A';
+            yield 'B';
+            yield 'C';
+        }
+    }
+	finally{console.log('迭代器完毕')} //break/return/i.return/i.throw都能触发
+}
+for (let x of createIterator()){if(x==='C') break;}
+```
+
+迭代器语义是全部执行完，职责链语义是只有一个受众。
+
+协程： 将主任务函数**XYZ()**拆分成子任务**X()**，**Y()**，**Z()**。分离关注点。
+
+`yield`回主程序和/或事件轮询队列
+
+```javascript
+//仿Promise.all
+var res = [];
+function *request (url) {
+	return url //无暂停,如果是Promise实例可以按顺序调用next传参保证res入值顺序
+}
+function *reqData(url) {
+    var data = yield *request( url );//因为是委托，所以不会在这暂停
+	console.log('data',data) 
+    
+    yield;// 传递控制权：
+    res.push( data );
+}
+//并发
+var it1 = reqData( "http://some.url.1" );
+var it2 = reqData( "http://some.url.2" );
+it1.next()
+it2.next()
 ```
 
