@@ -1698,6 +1698,45 @@ AndroidManifest.xml 清单声明：组件、权限、API、硬件、库
 
 
 getApp()指向hook，不是APP.vue里的this
+mpvue组件跨全端，3方ui可能用了不跨全端的写法。基于vue的无dom库。
+app侧支持小程序组件，wxcomponents不支持H5,先在页面配置注册组件pages.json->pages->style->usingComponents里引入后可直接使用。
 
+process.env.NODE_ENV === 'development'
+// uEnvDev
+uni-app全端支持 rpx
+height: var(--status-bar-height);
+bottom: var(--window-bottom);
+--window-top 和 --window-bottom 内容区域距离顶部和底部的距离
+100vh在H5和小程序上因为原生导航栏的原因会不同。
 
+条件编译
+js、json
+// #ifdef H5 || MP-WEIXIN
+// #endif
+//#ifndef是不会在某平台出现。
+css
+/*  #ifdef  */
+/*  #endif  */
+vue模板
+<!-- #ifdef -->
+<!-- #endif -->
+stati资源mp-weixin文件夹的图片只会被编译进微信小程序
+platforms-MP-WEIXIN文件夹级别分离
+快捷键：ifdef ctrl+alt+/ 
 
+slot能让组件写死嵌套，变成动态嵌套。 <template v-slot:header /> => <slot name="header" />
+
+全局变量：getApp().globalData和uni.storage跨vue和nvue。vuex不跨
+样式限制：非H5端不支持class和style绑定动态对象，因为是静态编译。style里的px是非响应单位。computed返回值要是字符串。
+不支持slot的scoped
+nvue如用原生渲染样式写法会受限类似RN，不支持ts、vuex。
+app端小程序端vue是多页面的。H5是单页面。
+
+H5端
+H5端支持mpvue组件和vue组件。
+px是非响应单位。
+在 manifest.json 文件编辑 h5 节点的 template 属性，填写 html 模版路径。
+组件不支持 onLoad、onShow 等页面生命周期
+
+data数据每次变化都会通知视图层，排除不需要的字段。
+v-for里只有独立组件才有差量数据更新。
