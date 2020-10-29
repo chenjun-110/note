@@ -1,3 +1,5 @@
+[TOC]
+
 兼容（IE6-8）H5使用百度的html5shiv包：
 ```
 <head><!--[if lt IE 9]> 

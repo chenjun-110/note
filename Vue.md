@@ -1,9 +1,10 @@
+[TOC]
+
 ### 实战bug
 ts写法直接修改变量无效，src={a} 通过三元运算符才能改？ 复杂的要函数操作渲染{func()}
 blob图片透明底会变白色
 异步子组件：异步数据没有时，v-if不显示该组件配合computed赋值状态。貌似是响应依赖关系没建立。
 路由传参：
-
   1. 如果 props 被设置为 true，`route.params`将会被设置为组件属性。
   2. 函数模式：props: (route) => ({ A: `route.query`.a }) A将会被设置为组件属性。 ？&可以传复杂对象！ :to="{ path: 'a/b', query: { data: item }}"
   3. 弃用this.$route的强耦合。
@@ -33,7 +34,7 @@ ios8兼容：
   2. flex不兼容
 安卓兼容：
   1. pointer-events:none 安卓点击image预览
-```
+```js
 window.addEventListener('popstate', function (e) {
   console.log('referrer', document.referrer)
   if (window.location.href.indexOf('member') > 1) that.$router.push('/member') 重置当前url
@@ -63,7 +64,7 @@ npm install vconsole
 import VConsole from 'vconsole/dist/vconsole.min.js' //import vconsole
 let vConsole = new VConsole()
 ```
-####
+#### 指令
 以下都和data属性绑定，data属性渲染后手动赋值全部会实时生效
 
 {{m}} 双括号变量

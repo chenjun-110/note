@@ -1,3 +1,5 @@
+[TOC]
+
 ### 写入html输出流
 
 ```<script>  

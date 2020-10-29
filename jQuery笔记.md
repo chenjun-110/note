@@ -1,3 +1,5 @@
+[TOC]
+
 #### W3C
 文档加载后激活函数：`$(document).ready()`==`$().ready()`==`$()`
 点击触发：`$(selector).click()`

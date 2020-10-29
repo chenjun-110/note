@@ -1,5 +1,6 @@
+[TOC]
 Bootstrap CDN:
-```
+```html
 css: <link href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> 
 theme: <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap-theme.min.css"></script>
 jquery: <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>

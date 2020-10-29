@@ -1,3 +1,5 @@
+[TOC]
+
 ##### 第三方库
 
   兼容IE8：html5shiv兼容h5标签，es5-shim兼容ES5数组方法。es5-sham兼容对象方法。console-polyfill兼容console.*。react-ie8

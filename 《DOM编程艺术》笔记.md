@@ -1,5 +1,6 @@
+[TOC]
 语法
-<!--在script中和//都是单行注释。
+在script中和//都是单行注释。
 变量名允许$ _ 数字。
 驼峰格式：删除空格和-，后面单词首字母大写。是函数名方法名属性名命名首选。变量名小写 函数名驼峰
 弱类型：可把字符和数字赋值给相同变量。
@@ -35,7 +36,7 @@ getElementById(id).event=action 绑定事件到元素上。好处是分离js代�
 element.addEventListener(event, function, useCapture)绑定事件(IE9+)
 window.onload = 打包函数  没触发文档就绪，有可能getElementsByTagName抓取元素不完整。
 从Id祖先元素里搜索Tag更好。
-```
+```js
 window.onload=prepareLinks;  文档就绪
 function prepareLinks(){  打包函数
 if(!document.getElementsByTagName) return false;

@@ -1,3 +1,5 @@
+[TOC]
+
 本地安装：先下载安装xampp，再下载织梦，把织梦的upload文件夹移动到xampp的htdocs文件夹内(相当于根目录)。再游览器访问http://localhost/uploads/install进行安装。
 进入后台：localhost/uploads/dede
 进入数据库：http://localhost/phpmyadmin

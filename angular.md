@@ -1,3 +1,4 @@
+[TOC]
 搭环境：
  ng serve
  ng generate component hero-detail 自动创建组件
