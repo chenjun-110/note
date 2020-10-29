@@ -786,3 +786,6 @@ const StoreContext = React.createContext({
 });
 ```
 
+###### 生命周期
+![生命周期-2020-10-29-22-28-41](http://img.996lucky.top/markdown_生命周期-2020-10-29-22-28-41.png)
+![react生命周期-2020-10-29-22-28-48](http://img.996lucky.top/markdown_react生命周期-2020-10-29-22-28-48.png)

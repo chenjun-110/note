@@ -1,7 +1,8 @@
+[TOC]
 ### 性能优化
 
-1.最好的办法就是不要使用document.write()动态加载脚本
-2.如果一定要使用document.write()加载脚本，使用异步加载的方式，如<script src="..." async> 或使用DOM API element.appendChild()
+1. 最好的办法就是不要使用document.write()动态加载脚本
+2. 如果一定要使用document.write()加载脚本，使用异步加载的方式，如`<script src="..." async>` 或使用`DOM API element.appendChild()`
 cookie：A页面设置document.cookie = xxxxx; B页面读取document.cookie.split()[n]；split什么看你存的格式。
 典型的xss漏洞案例，用innerHTML执行脚本：`element.innerHTML = '<img src="*" onerror="alert(/hello world/)" />';`经测试，iframe重写文档流不会影响外面。
 **iframe**
@@ -387,3 +388,7 @@ CDN会就近选择可降低延迟。
 PHP的smasher.php是自动化压缩工具，合并压缩js。
 性能分析工具应优化最慢的地方，因为可能在其他游览器上适得其反。
 匿名函数不利于被工具捕捉。
+
+
+###### 移动H5前端性能优化指南
+![移动H5前端性能优化指南-2020-10-29-22-56-25](http://img.996lucky.top/markdown_移动H5前端性能优化指南-2020-10-29-22-56-25.jpg)

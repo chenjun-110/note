@@ -1,3 +1,4 @@
+[TOC]
 # React-Native
 
 安装条件：
@@ -400,10 +401,6 @@ createState 触发 State的super.initState。销毁是super.dispose
 **runApp**接受根部件，覆盖整个屏幕
 
 最低层的widget通常为`RenderObject`，它会计算并描述widget的几何形状。
-
-#### `Text`
-
-#### `Row/Column`
 
 Flexbox
 
@@ -1724,7 +1721,7 @@ stati资源mp-weixin文件夹的图片只会被编译进微信小程序
 platforms-MP-WEIXIN文件夹级别分离
 快捷键：ifdef ctrl+alt+/ 
 
-slot能让组件写死嵌套，变成动态嵌套。 <template v-slot:header /> => <slot name="header" />
+slot能让组件写死嵌套，变成动态嵌套。 `<template v-slot:header /> => <slot name="header" />`
 
 全局变量：getApp().globalData和uni.storage跨vue和nvue。vuex不跨
 样式限制：非H5端不支持class和style绑定动态对象，因为是静态编译。style里的px是非响应单位。computed返回值要是字符串。
@@ -1740,3 +1737,7 @@ px是非响应单位。
 
 data数据每次变化都会通知视图层，排除不需要的字段。
 v-for里只有独立组件才有差量数据更新。
+
+# 微信
+###### 微信SDK流程图
+![微信SDK流程图-2020-10-29-22-58-46](http://img.996lucky.top/markdown_微信SDK流程图-2020-10-29-22-58-46.png)

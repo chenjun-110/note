@@ -1,3 +1,5 @@
+[TOC]
+
 ```javascript
 Object.defineProperty(Vue, 'FunctionalRenderContext', {
   value: FunctionalRenderContext
@@ -37,7 +39,7 @@ while (i--) {
 
 
 
-Diff算法：新旧节点同层比较，如果第一层不一样那么就不会继续深入比较第二层了。
+###### Diff算法：新旧节点同层比较，如果第一层不一样那么就不会继续深入比较第二层了。
 
 ```javascript
 function patch (oldVnode, vnode) {

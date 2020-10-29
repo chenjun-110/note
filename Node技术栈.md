@@ -139,3 +139,6 @@ redis.pipeline().get('foo').multi().set('foo', 'bar').get('foo').exec().get('foo
 
 redis.monitor 监控redis服务器接收到的所有命令
 redis.scanStream 遍历所有key
+
+###### 多个子进程监听同一端口
+![多个子进程监听同一端口-2020-10-29-22-25-56](http://img.996lucky.top/markdown_多个子进程监听同一端口-2020-10-29-22-25-56.png)

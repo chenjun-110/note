@@ -1,4 +1,5 @@
-```
+[TOC]
+```js
 //判断值真假
 var assert = function(value, msg) { 
 	if ( !value )
@@ -11,7 +12,7 @@ var assertEqual = function(val1, val2, msg) {
 };
 ```
 Model数据:完全独立，它只包含数据和数据相关的逻辑。绝对不能和视图代码耦合。
-```
+```js
 //错误示范：user数据过多，要多个destroyUser。函数命名会冲突。
 var user = users["foo"];
 destroyUser(user);
@@ -20,7 +21,7 @@ var user = User.find("foo");
 user.destroy();
 ```
 控制器C：监听V传来的事件，然后从服务器抓取数据，然后把数据包装成模型实例。
-```
+```js
 //简易控制器:
 var Controller = {}; //命名空间
 (Controller.users = function($){ //users控制器：监听视图点击触发
@@ -30,7 +31,7 @@ var Controller = {}; //命名空间
 ```
 简写原型形式：`Person.fn = Person.prototype; Person.fn.run=fuc`原型上添加方法更方便
 实现类似jq的扩展插件方法：它真正的价值是添加模块。
-```
+```js
 //把对象的属性添加到构造函数上：
 klass.extend = function (obj) { 
 	var extended = obj.extended;
@@ -57,7 +58,7 @@ jq把参数转为数组：`jQuery.makeArray(arguments)`
 js把参数转为数组：`Array.prototype.slice.call(arguments, 0)`
 apply实现委托：`console.log.apply(console, args)` args数组可能被处理过
 ES3无干扰实现ES5的bind():
-```
+```js
 if (!Function.prototype.bind) {
 	Function.prototype.bind = function (obj) {
 		var slice = [].slice,
@@ -74,7 +75,7 @@ if (!Function.prototype.bind) {
 }
 ```
 匿名函数实现私有属性：无闭包~
-```
+```js
 (function(){
 	var findById = function(){}; //匿名函数保护的私有变量
 	Person.find = function(id){ //给全局Person添加方法
@@ -83,7 +84,7 @@ if (!Function.prototype.bind) {
 })();
 ```
 自定义事件关联‘后退前进’按钮：
-```
+```js
 $("#tabs").bind("change.tabs", function(e, tabName){
 	window.location.hash = tabName; }); //改变选项卡时，顺便修改hash
 $(window).bind("hashchange", function(){
@@ -91,3 +92,4 @@ $(window).bind("hashchange", function(){
 	$("#tabs").trigger("change.tabs", tabName); //触发hashchange事件时，顺便改变选项卡
 });
 ```
+

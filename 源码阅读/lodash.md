@@ -1,3 +1,5 @@
+[TOC]
+###### 缓存
 ```javascript
 const memoized = function(...args) {
     const key = resolver ? resolver.apply(this, args) : args[0]
